@@ -32,6 +32,9 @@ inline auto asm_write()                       { return make_instr<AsmAST::WriteN
 inline auto asm_swap(Register reg)            { return make_instr<AsmAST::SwapNode>(reg); }
 inline auto asm_reset(Register reg)           { return make_instr<AsmAST::ResetNode>(reg); }
 inline auto asm_add(Register reg)             { return make_instr<AsmAST::AddNode>(reg); }
+inline auto asm_subtract(Register reg)        { return make_instr<AsmAST::SubtractNode>(reg); }
+inline auto asm_shift_left(Register reg)      { return make_instr<AsmAST::ShiftLeftNode>(reg); }
+inline auto asm_shift_right(Register reg)     { return make_instr<AsmAST::ShiftRightNode>(reg); }
 inline auto asm_increment(Register reg)       { return make_instr<AsmAST::IncrementNode>(reg); }
 
 class Node {
@@ -146,19 +149,16 @@ public:
         ASMCode code;
         auto target_addr = SymbolTable::get_address(target_->get_name());
 
-        auto left_code = left_->to_asm();
-        append_code(code, std::move(left_code));
-        
-        code.push_back(asm_store(target_addr));
-        
-        auto right_code = right_->to_asm();
-        append_code(code, std::move(right_code));
+        append_code(code, std::move(right_->to_asm()));
 
         code.push_back(asm_swap(Register::RB));
-        code.push_back(asm_load(target_addr));
+
+        append_code(code, std::move(left_->to_asm()));
+
         code.push_back(asm_add(Register::RB));
 
         code.push_back(asm_store(target_addr));
+
         return code;
     }
 private:
@@ -182,7 +182,19 @@ public:
     }
 
     ASMCode to_asm() const override {
-        //TODO
+        ASMCode code;
+        auto target_addr = SymbolTable::get_address(target_->get_name());
+
+        append_code(code, std::move(right_->to_asm()));
+
+        code.push_back(asm_swap(Register::RB));
+
+        append_code(code, std::move(left_->to_asm()));
+
+        code.push_back(asm_subtract(Register::RB));
+
+        code.push_back(asm_store(target_addr));
+        return code;
     }
 private:
     std::unique_ptr<VarNode> target_;
@@ -205,7 +217,7 @@ public:
     }
 
     ASMCode to_asm() const override {
-        //TODO
+        return ASMCode{}; // Need to wait for IF implementation
     }
 private:
     std::unique_ptr<VarNode> target_;
@@ -228,7 +240,7 @@ public:
     }
 
     ASMCode to_asm() const override {
-        //TODO
+        return ASMCode{}; // Need to wait for IF implementation
     }
 private:
     std::unique_ptr<VarNode> target_;
@@ -251,7 +263,7 @@ public:
     }
 
     ASMCode to_asm() const override {
-        //TODO
+        return ASMCode{}; // Need to wait for IF implementation
     }
 private:
     std::unique_ptr<VarNode> target_;

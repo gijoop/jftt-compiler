@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
     }
 
     auto tac_program = lang_program->to_tac_program();
+    std::cout << "TAC AST:\n" << tac_program->to_string() << std::endl;
     auto asm_code = tac_program->to_asm();
 
     std::string output_file = argv[2];

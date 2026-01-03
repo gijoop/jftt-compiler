@@ -64,6 +64,7 @@ public:
 };
 
 class BinaryOpNode : public ExpressionNode {
+public:
     BinaryOpNode(
         Tac::BinaryOp op,
         std::unique_ptr<ExpressionNode> left, 

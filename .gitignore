@@ -43,3 +43,8 @@
 # Build directory
 /build/
 /mw2025/maszyna-wirtualna
+
+# Bison and Flex output files
+mw2025/parser.cc
+mw2025/parser.hh
+mw2025/lexer.cc
