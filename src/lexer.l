@@ -22,6 +22,9 @@ void yyerror(void* scanner, LangAST::Node** result, const char *s);
 "END"      { return KW_END; }
 "WRITE"    { return KW_WRITE; }
 
+":="       { return OP_ASSIGN; }
+","        { return OP_COMMA; }
+
 "+"        { return OP_PLUS; }
 "-"        { return OP_MINUS; }
 "*"        { return OP_MULT; }
@@ -29,6 +32,6 @@ void yyerror(void* scanner, LangAST::Node** result, const char *s);
 "%"        { return OP_MOD; }
 
 #.*         ;
-.          { return ERROR; }
+.          { return yytext[0]; }
 
 %%

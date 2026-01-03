@@ -30,15 +30,11 @@ auto make_node(Args&&... args) {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
-
 inline auto tac_write(std::unique_ptr<Tac::ValueNode> val) {
     return make_node<Tac::WriteNode>(std::move(val));
 }
-inline auto tac_program(std::unique_ptr<Tac::FunctionNode> func) {
-    return make_node<Tac::ProgramNode>(std::move(func));
-}
-inline auto tac_function(const std::string& id, InstructionList instructions) {
-    return make_node<Tac::FunctionNode>(id, std::move(instructions));
+inline auto tac_program(std::vector<std::unique_ptr<Tac::InstructionNode>> instructions) {
+    return make_node<Tac::ProgramNode>(std::move(instructions));
 }
 inline auto tac_var(const std::string& name) {
     return make_node<Tac::VarNode>(name);
@@ -56,6 +52,40 @@ public:
 class CommandNode : public Node {
 public:
     virtual InstructionList to_tac_instructions() const = 0;
+};
+
+class CommandsNode : public Node {
+public:
+    CommandsNode(std::vector<std::unique_ptr<CommandNode>> commands) : 
+        commands_(std::move(commands)) {}
+    
+    CommandsNode(std::unique_ptr<CommandNode> command) {
+        commands_.push_back(std::move(command));
+    }
+    
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "COMMANDS:\n";
+        for (const auto& cmd : commands_) {
+            result += cmd->to_string(level + 1) + "\n";
+        }
+        return result;
+    }
+
+    InstructionList to_tac_instructions() const {
+        InstructionList instrs;
+        for (const auto& cmd : commands_) {
+            auto cmd_instrs = cmd->to_tac_instructions();
+            append_instr(instrs, std::move(cmd_instrs));
+        }
+        return instrs;
+    }
+
+    void add_command(std::unique_ptr<CommandNode> cmd) {
+        commands_.push_back(std::move(cmd));
+    }
+
+private:
+    std::vector<std::unique_ptr<CommandNode>> commands_;
 };
 
 class ExpressionNode : public Node {
@@ -177,6 +207,30 @@ private:
     std::string name_;
 };
 
+class DeclarationsNode : public Node {
+public:
+    DeclarationsNode(std::vector<std::unique_ptr<IdentifierNode>> ids) : 
+        ids_(std::move(ids)) {}
+
+    DeclarationsNode(std::unique_ptr<IdentifierNode> id) {
+        ids_.push_back(std::move(id));
+    }
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "DECLARATIONS:\n";
+        for (const auto& id : ids_) {
+            result += id->to_string(level + 1) + "\n";
+        }
+        return result;
+    }
+
+    void add_declaration(std::unique_ptr<IdentifierNode> id) {
+        ids_.push_back(std::move(id));
+    }
+private:
+    std::vector<std::unique_ptr<IdentifierNode>> ids_;
+};
+
 class ConstantNode : public ExpressionNode {
 public:
     ConstantNode(long long value) : value_(value) {}
@@ -194,6 +248,24 @@ public:
 
 private:
     long long value_;
+};
+
+class VariableNode : public ExpressionNode {
+public:
+    VariableNode(std::unique_ptr<IdentifierNode> id) : id_(std::move(id)) {}
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "VARIABLE:\n" + id_->to_string(level + 1);
+    }
+
+    TacExpressionResult to_tac_expression() const override {
+        return {
+            InstructionList{},
+            tac_var(id_->get_name())
+        };
+    }
+private:
+    std::unique_ptr<IdentifierNode> id_;
 };
 
 class WriteNode : public CommandNode {
@@ -216,46 +288,78 @@ private:
     std::unique_ptr<ExpressionNode> expr_;
 };
 
-class ProcedureNode : public Node {
+class AssignmentNode : public CommandNode {
 public:
-    ProcedureNode(std::unique_ptr<IdentifierNode> id, std::unique_ptr<CommandNode> cmd) : 
+    AssignmentNode(std::unique_ptr<IdentifierNode> id, std::unique_ptr<ExpressionNode> expr) : 
         id_(std::move(id)), 
-        cmd_(std::move(cmd)) {}
-
+        expr_(std::move(expr)) {}
+    
     std::string to_string(int level = 0) const override {
-        return util::pad(level) + "PROCEDURE:\n" \
-               + id_->to_string(level + 1) + "\n" \
-               + cmd_->to_string(level + 1);
+        return util::pad(level) + "ASSIGNMENT:\n" +
+               id_->to_string(level + 1) + "\n" +
+               expr_->to_string(level + 1);
     }
 
-    virtual std::unique_ptr<Tac::FunctionNode> to_tac_function() const {
-        return tac_function(
-            id_->get_name(), 
-            cmd_->to_tac_instructions()
+    InstructionList to_tac_instructions() const override {
+        auto res = expr_->to_tac_expression();
+        InstructionList instrs = std::move(res.instructions);
+        instrs.push_back(
+            make_node<Tac::CopyNode>(
+                tac_var(id_->get_name()),
+                std::move(res.result)
+            )
         );
+        return instrs;
+    }
+private:
+    std::unique_ptr<IdentifierNode> id_;
+    std::unique_ptr<ExpressionNode> expr_;
+};
+
+class MainNode : public Node {
+public:
+    MainNode(std::unique_ptr<DeclarationsNode> decls, std::unique_ptr<CommandsNode> cmds) : 
+        decls_(std::move(decls)), 
+        commands_(std::move(cmds)) {}
+
+    MainNode(std::unique_ptr<CommandsNode> cmds) : 
+        decls_(nullptr), 
+        commands_(std::move(cmds)) {}
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "MAIN:\n";
+        if (decls_) result += decls_->to_string(level + 1) + "\n";
+        if (commands_) result += commands_->to_string(level + 1);
+        return result;
+    }
+
+    InstructionList to_tac() const {
+        InstructionList instrs;
+        auto cmds_instrs = commands_->to_tac_instructions();
+        append_instr(instrs, std::move(cmds_instrs));
+        return instrs;
     }
 
 private:
-    std::unique_ptr<IdentifierNode> id_;
-    std::unique_ptr<CommandNode> cmd_;
+    std::unique_ptr<DeclarationsNode> decls_;
+    std::unique_ptr<CommandsNode> commands_;
 };
 
 class ProgramNode : public Node {
 public:
-    ProgramNode(std::unique_ptr<ProcedureNode> proc) : proc_(std::move(proc)) {}
+    ProgramNode(std::unique_ptr<MainNode> main) : main_(std::move(main)) {}
 
     std::string to_string(int level = 0) const override {
-        return util::pad(level) + "PROGRAM:\n" + proc_->to_string(level + 1);
+        return util::pad(level) + "PROGRAM:\n" + main_->to_string(level + 1);
     }
 
-    virtual std::unique_ptr<Tac::ProgramNode> to_tac_program() const {
+    std::unique_ptr<Tac::ProgramNode> to_tac_program() const {
         return tac_program(
-            proc_->to_tac_function()
+            std::move(main_->to_tac())
         );
     }
-
 private:
-    std::unique_ptr<ProcedureNode> proc_;
+    std::unique_ptr<MainNode> main_;
 };
 
 } // namespace LangAST

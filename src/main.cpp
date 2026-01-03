@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
         std::cerr << "Error: Root node is not a ProgramNode." << std::endl;
         return 1;
     }
-
+    std::cout << "Lang AST:\n" << lang_program->to_string() << std::endl;
     auto tac_program = lang_program->to_tac_program();
     std::cout << "TAC AST:\n" << tac_program->to_string() << std::endl;
     auto asm_code = tac_program->to_asm();

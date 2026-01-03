@@ -105,6 +105,30 @@ private:
     std::string name_;
 };
 
+class CopyNode : public InstructionNode {
+public:
+    CopyNode(std::unique_ptr<VarNode> target, std::unique_ptr<ValueNode> source) : 
+        target_(std::move(target)), 
+        source_(std::move(source)) {}
+    
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + target_->to_string(0) + " = " + source_->to_string(0);
+    }
+    ASMCode to_asm() const override {
+        ASMCode code;
+        auto target_addr = SymbolTable::get_address(target_->get_name());
+
+        append_code(code, std::move(source_->to_asm()));
+
+        code.push_back(asm_store(target_addr));
+
+        return code;
+    }
+private:
+    std::unique_ptr<VarNode> target_;
+    std::unique_ptr<ValueNode> source_;
+};
+
 class WriteNode : public InstructionNode {
 public:
     WriteNode(std::unique_ptr<ValueNode> val) : val_(std::move(val)) {}
@@ -271,14 +295,13 @@ private:
     std::unique_ptr<ValueNode> right_;
 };
 
-class FunctionNode : public Node {
+class ProgramNode : public Node {
 public:
-    FunctionNode(const std::string& id, std::vector<std::unique_ptr<InstructionNode>> instructions) : 
-        id_(id), 
+    ProgramNode(std::vector<std::unique_ptr<InstructionNode>> instructions) : 
         instructions_(std::move(instructions)) {}
 
     std::string to_string(int level = 0) const override {
-        std::string result = util::pad(level) + "FUNCTION:\n" + util::pad(level + 1) + id_ + "\n";
+        std::string result = util::pad(level) + "PROGRAM:\n";
         for (const auto& instr : instructions_) {
             result += instr->to_string(level + 1) + "\n";
         }
@@ -288,31 +311,13 @@ public:
     ASMCode to_asm() const override {
         ASMCode code;
         for (const auto& instr : instructions_) {
-            auto instr_code = instr->to_asm();
-            append_code(code, std::move(instr_code));
+            append_code(code, instr->to_asm());
         }
-        return code;
-    }
-private:
-    std::string id_;
-    std::vector<std::unique_ptr<InstructionNode>> instructions_;
-};
-
-class ProgramNode : public Node {
-public:
-    ProgramNode(std::unique_ptr<FunctionNode> func) : func_(std::move(func)) {}
-
-    std::string to_string(int level = 0) const override {
-        return util::pad(level) + "PROGRAM:\n" + func_->to_string(level + 1);
-    }
-
-    ASMCode to_asm() const override {
-        auto code = func_->to_asm();
         code.push_back(std::make_unique<AsmAST::HaltNode>());
         return code;
     }
 private:
-    std::unique_ptr<FunctionNode> func_;
+    std::vector<std::unique_ptr<InstructionNode>> instructions_;
 };
 
 } // namespace Tac
