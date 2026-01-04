@@ -12,6 +12,7 @@ class MainNode;
 class CommandsNode;
 class ConstantNode;
 class DeclarationsNode;
+class BinaryCondNode;
 
 class AstVisitor {
 public:
@@ -26,5 +27,6 @@ public:
     virtual void visit(DeclarationsNode& node);
     virtual void visit(MainNode& node);
     virtual void visit(ProgramNode& node);
+    virtual void visit(BinaryCondNode& node);
 };
 }

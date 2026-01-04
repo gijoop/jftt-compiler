@@ -24,6 +24,8 @@
     LangAST::MainNode* main;
     LangAST::ProgramNode* program_all;
     LangAST::IdentifierNode* identifier;
+    LangAST::ValueNode* value;
+    LangAST::BinaryCondNode* condition;
     std::string* str;
     long long num;
 }
@@ -34,7 +36,8 @@ extern int yyget_lineno(void*);
 extern char* yyget_text(void*);
 void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const char *s);
 #define YYLEX_PARAM scanner
-#define BINARY_OP_NODE(op, v1, v2) LangAST::BinaryOpNode(op, std::unique_ptr<LangAST::ExpressionNode>(v1), std::unique_ptr<LangAST::ExpressionNode>(v2))
+#define BINARY_OP_NODE(op, v1, v2) LangAST::BinaryOpNode(op, std::unique_ptr<LangAST::ValueNode>(v1), std::unique_ptr<LangAST::ValueNode>(v2))
+#define BINARY_COND_OP_NODE(op, v1, v2) LangAST::BinaryCondOpNode(op, std::unique_ptr<LangAST::ValueNode>(v1), std::unique_ptr<LangAST::ValueNode>(v2))
 }
 
 %type <program_all> program_all
@@ -43,7 +46,9 @@ void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const
 %type <declarations> declarations
 %type <main> main
 %type <identifier> identifier
-%type <expression> expr value
+%type <expression> expr
+%type <value> value
+%type <condition> condition
 
 %token SEMICOLON ";"
 %token <num> NUMBER "NUMBER"
@@ -56,6 +61,10 @@ void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const
 %token KW_END "END"
 %token KW_WRITE "WRITE"
 %token KW_READ "READ"
+%token KW_IF "IF"
+%token KW_THEN "THEN"
+%token KW_ELSE "ELSE"
+%token KW_ENDIF "ENDIF"
 
 // Operators
 %token OP_PLUS "+"
@@ -63,6 +72,14 @@ void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const
 %token OP_MULT "*"
 %token OP_DIV "/"
 %token OP_MOD "%"
+
+// Conditional Operators
+%token OP_EQ "="
+%token OP_NEQ "!="
+%token OP_GT ">"
+%token OP_LT "<"
+%token OP_GE ">="
+%token OP_LE "<="
 
 %token OP_COMMA ","
 %token OP_ASSIGN ":="
@@ -99,7 +116,7 @@ commands:
 
 command:
     identifier OP_ASSIGN expr SEMICOLON { $$ = new LangAST::AssignmentNode(std::unique_ptr<LangAST::IdentifierNode>($1), std::unique_ptr<LangAST::ExpressionNode>($3)); }
-  | KW_WRITE value SEMICOLON             { $$ = new LangAST::WriteNode(std::unique_ptr<LangAST::ExpressionNode>($2)); }
+  | KW_WRITE value SEMICOLON             { $$ = new LangAST::WriteNode(std::unique_ptr<LangAST::ValueNode>($2)); }
   | KW_READ identifier SEMICOLON         { $$ = new LangAST::ReadNode(std::unique_ptr<LangAST::IdentifierNode>($2)); }
   ;
 
@@ -107,9 +124,18 @@ expr:
     value                 { $$ = $1; }
   | value OP_PLUS value   { $$ = new BINARY_OP_NODE(BinaryOp::ADD, $1, $3); }
   | value OP_MINUS value  { $$ = new BINARY_OP_NODE(BinaryOp::SUB, $1, $3); }
-  /* | value OP_MULT value   { $$ = new BINARY_OP_NODE(BinaryOp::MUL, $1, $3); }
+  | value OP_MULT value   { $$ = new BINARY_OP_NODE(BinaryOp::MUL, $1, $3); }
   | value OP_DIV value    { $$ = new BINARY_OP_NODE(BinaryOp::DIV, $1, $3); }
-  | value OP_MOD value    { $$ = new BINARY_OP_NODE(BinaryOp::MOD, $1, $3); } */
+  | value OP_MOD value    { $$ = new BINARY_OP_NODE(BinaryOp::MOD, $1, $3); }
+  ;
+
+condition:
+    value OP_EQ value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::EQ, $1, $3); }
+  | value OP_NEQ value  { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::NEQ, $1, $3); }
+  | value OP_LT value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::LT, $1, $3); }
+  | value OP_GT value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::GT, $1, $3); }
+  | value OP_LE value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::LE, $1, $3); }
+  | value OP_GE value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::GE, $1, $3); }
   ;
 
 value:

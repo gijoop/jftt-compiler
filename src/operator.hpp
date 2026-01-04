@@ -7,3 +7,12 @@ enum class BinaryOp {
     DIV,
     MOD
 };
+
+enum class BinaryCondOp {
+    EQ,
+    NEQ,
+    LT,
+    LTE,
+    GT,
+    GTE
+};

@@ -32,6 +32,13 @@ void yyerror(void* scanner, LangAST::ProgramNode** result, const char *s);
 "/"        { return OP_DIV; }
 "%"        { return OP_MOD; }
 
+"="        { return OP_EQ; }
+"!="       { return OP_NEQ; }
+"<"        { return OP_LT; }
+">"        { return OP_GT; }
+"<="       { return OP_LE; }
+">="       { return OP_GE; }
+
 #.*         ;
 .          { return yytext[0]; }
 

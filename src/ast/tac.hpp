@@ -25,17 +25,22 @@ auto make_instr(Args&&... args) {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
-inline auto asm_halt()                        { return make_instr<AsmAST::HaltNode>(); }
-inline auto asm_store(long long address)      { return make_instr<AsmAST::StoreNode>(address); }
-inline auto asm_load(long long address)       { return make_instr<AsmAST::LoadNode>(address); }
-inline auto asm_write()                       { return make_instr<AsmAST::WriteNode>(); }
-inline auto asm_swap(Register reg)            { return make_instr<AsmAST::SwapNode>(reg); }
-inline auto asm_reset(Register reg)           { return make_instr<AsmAST::ResetNode>(reg); }
-inline auto asm_add(Register reg)             { return make_instr<AsmAST::AddNode>(reg); }
-inline auto asm_subtract(Register reg)        { return make_instr<AsmAST::SubtractNode>(reg); }
-inline auto asm_shift_left(Register reg)      { return make_instr<AsmAST::ShiftLeftNode>(reg); }
-inline auto asm_shift_right(Register reg)     { return make_instr<AsmAST::ShiftRightNode>(reg); }
-inline auto asm_increment(Register reg)       { return make_instr<AsmAST::IncrementNode>(reg); }
+inline auto asm_halt()                        { SymbolTable::inc_ic(); return make_instr<AsmAST::HaltNode>(); }
+inline auto asm_store(long long address)      { SymbolTable::inc_ic(); return make_instr<AsmAST::StoreNode>(address); }
+inline auto asm_load(long long address)       { SymbolTable::inc_ic(); return make_instr<AsmAST::LoadNode>(address); }
+inline auto asm_write()                       { SymbolTable::inc_ic(); return make_instr<AsmAST::WriteNode>(); }
+inline auto asm_read()                        { SymbolTable::inc_ic(); return make_instr<AsmAST::ReadNode>(); }
+inline auto asm_swap(Register reg)            { SymbolTable::inc_ic(); return make_instr<AsmAST::SwapNode>(reg); }
+inline auto asm_reset(Register reg)           { SymbolTable::inc_ic(); return make_instr<AsmAST::ResetNode>(reg); }
+inline auto asm_add(Register reg)             { SymbolTable::inc_ic(); return make_instr<AsmAST::AddNode>(reg); }
+inline auto asm_subtract(Register reg)        { SymbolTable::inc_ic(); return make_instr<AsmAST::SubtractNode>(reg); }
+inline auto asm_shift_left(Register reg)      { SymbolTable::inc_ic(); return make_instr<AsmAST::ShiftLeftNode>(reg); }
+inline auto asm_shift_right(Register reg)     { SymbolTable::inc_ic(); return make_instr<AsmAST::ShiftRightNode>(reg); }
+inline auto asm_increment(Register reg)       { SymbolTable::inc_ic(); return make_instr<AsmAST::IncrementNode>(reg); }
+inline auto asm_jump(std::shared_ptr<AsmAST::Label> label) { SymbolTable::inc_ic(); return make_instr<AsmAST::JumpNode>(label); }
+inline auto asm_jump_if_zero(std::shared_ptr<AsmAST::Label> label) { SymbolTable::inc_ic(); return make_instr<AsmAST::JumpIfZeroNode>(label); }
+inline auto asm_jump_if_positive(std::shared_ptr<AsmAST::Label> label) { SymbolTable::inc_ic(); return make_instr<AsmAST::JumpIfPositiveNode>(label); }
+inline auto asm_label_marker(std::shared_ptr<AsmAST::Label> label) { label->address_ = SymbolTable::get_ic(); return make_instr<AsmAST::LabelMarkerNode>(label); }
 
 class Node {
 public:
@@ -71,10 +76,10 @@ public:
 
         for (int i = bits.size() - 1; i >= 0; --i) {
             if (bits[i]) {
-                code.push_back(std::make_unique<AsmAST::IncrementNode>(Register::RA));
+                code.push_back(asm_increment(Register::RA));
             }
             if (i > 0) {
-                code.push_back(std::make_unique<AsmAST::ShiftLeftNode>(Register::RA));
+                code.push_back(asm_shift_left(Register::RA));
             }
         }
         return code;
@@ -91,7 +96,7 @@ public:
         return util::pad(level) + "VARIABLE: " + name_;
     }
 
-    const std::string& get_name() const {
+    const std::string get_name() const {
         return name_;
     }
 
@@ -139,7 +144,7 @@ public:
 
     ASMCode to_asm() const override {
         ASMCode code = val_->to_asm();
-        code.push_back(std::make_unique<AsmAST::WriteNode>());
+        code.push_back(asm_write());
         return code;
     }
 
@@ -159,7 +164,7 @@ public:
         ASMCode code;
         auto target_addr = SymbolTable::get_address(target_->get_name());
 
-        code.push_back(std::make_unique<AsmAST::ReadNode>());
+        code.push_back(asm_read());
 
         code.push_back(asm_store(target_addr));
 
@@ -167,6 +172,139 @@ public:
     }
 private:
     std::unique_ptr<VarNode> target_;
+};
+
+/**
+ * RESULT IN REGISTER A
+ */
+class CompareNode : public InstructionNode {
+public:
+    CompareNode(std::unique_ptr<VarNode> target,
+                std::unique_ptr<ValueNode> left, 
+                std::unique_ptr<ValueNode> right,
+                BinaryCondOp op) :
+        target_(std::move(target)), 
+        left_(std::move(left)), 
+        right_(std::move(right)),
+        op_(op) {}
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + target_->to_string(0) + " = COMPARE(" 
+               + left_->to_string(0) + ", " + right_->to_string(0) 
+               + ") WITH OP " + util::to_string(op_);
+    }
+
+    ASMCode to_asm() const override {
+        ASMCode code;
+        
+        append_code(code, right_->to_asm());   // ra = right
+        code.push_back(asm_swap(Register::RB)); // rb = right
+        append_code(code, left_->to_asm());    // ra = left
+
+        switch (op_) {
+            case BinaryCondOp::GT: // ra > 0 -> true
+                code.push_back(asm_subtract(Register::RB)); // ra = left - right
+                break;
+            case BinaryCondOp::LT: // ra > 0 -> true
+                code.push_back(asm_swap(Register::RB));
+                code.push_back(asm_subtract(Register::RB)); // ra = left - right
+                break;
+            case BinaryCondOp::EQ:
+            case BinaryCondOp::NEQ: { // ra == 0 -> true
+                code.push_back(asm_reset(Register::RC));
+                code.push_back(asm_swap(Register::RC));
+                code.push_back(asm_add(Register::RC)); // copy left to rc
+                code.push_back(asm_subtract(Register::RB)); // ra = left - right
+                code.push_back(asm_swap(Register::RB)); // rb = left - right
+                code.push_back(asm_subtract(Register::RC)); // ra = right - left
+                code.push_back(asm_add(Register::RB)); // ra = (left - right) + (right - left)
+                break;
+            }
+            case BinaryCondOp::LTE: { // ra > 0 -> false
+                code.push_back(asm_swap(Register::RB));
+                code.push_back(asm_subtract(Register::RB)); // ra = right - left
+                break;
+            }
+            case BinaryCondOp::GTE: { // ra > 0 -> false
+                code.push_back(asm_subtract(Register::RB)); // ra = left - right
+                break;
+            }
+        }
+
+        return code;
+    }
+private:
+    std::unique_ptr<VarNode> target_;
+    std::unique_ptr<ValueNode> left_;
+    std::unique_ptr<ValueNode> right_;
+    BinaryCondOp op_;
+};
+
+class JumpNode : public InstructionNode {
+public:
+    JumpNode(std::shared_ptr<AsmAST::Label> label) : target_label_(label) {}
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "JUMP TO: " + std::to_string(target_label_->address_);
+    }
+
+    ASMCode to_asm() const override {
+        ASMCode code;
+        code.push_back(asm_jump(target_label_));
+        return code;
+    }
+private:
+    std::shared_ptr<AsmAST::Label> target_label_;
+};
+
+class JumpIfZeroNode : public InstructionNode {
+public:
+    JumpIfZeroNode(std::unique_ptr<ValueNode> condition, std::shared_ptr<AsmAST::Label> label) : 
+        condition_(std::move(condition)), 
+        target_label_(label) {}
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "JUMP IF ZERO TO: " + std::to_string(target_label_->address_) + "\n" +
+               condition_->to_string(level + 1);
+    }   
+
+    ASMCode to_asm() const override {
+        ASMCode code;
+
+        append_code(code, std::move(condition_->to_asm()));
+
+        code.push_back(asm_jump_if_zero(target_label_));
+
+        return code;
+    }
+private:
+    std::unique_ptr<ValueNode> condition_;
+    std::shared_ptr<AsmAST::Label> target_label_;
+};
+
+class JumpIfPositiveNode : public InstructionNode {
+public:
+    JumpIfPositiveNode(std::unique_ptr<ValueNode> condition, std::shared_ptr<AsmAST::Label> label) : 
+        condition_(std::move(condition)), 
+        target_label_(label) {}
+    
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "JUMP IF POSITIVE TO: " + std::to_string(target_label_->address_) + "\n" +
+               condition_->to_string(level + 1);
+    }
+
+    ASMCode to_asm() const override {
+        ASMCode code;
+
+        append_code(code, std::move(condition_->to_asm()));
+
+        code.push_back(asm_jump_if_positive(target_label_));
+
+        return code;
+    }
+private:
+    std::unique_ptr<ValueNode> condition_;
+    std::shared_ptr<AsmAST::Label> target_label_;
 };
 
 class AddNode : public InstructionNode {
@@ -255,7 +393,49 @@ public:
     }
 
     ASMCode to_asm() const override {
-        return ASMCode{}; // Need to wait for IF implementation
+        ASMCode code;
+        auto label_loop = std::make_shared<AsmAST::Label>("LOOP_START");
+        auto label_bit_zero = std::make_shared<AsmAST::Label>("BIT_ZERO");
+        auto label_end = std::make_shared<AsmAST::Label>("LOOP_END");
+
+        append_code(code, right_->to_asm());   // ra = right
+        code.push_back(asm_swap(Register::RB)); // rb = right
+        append_code(code, left_->to_asm());    // ra = left
+        
+        code.push_back(asm_reset(Register::RC)); // rc = 0 (acc)
+
+        code.push_back(asm_label_marker(label_loop));
+        code.push_back(asm_jump_if_zero(label_end));
+
+        // Youngest ra bit test: rd = ra; ra = ra / 2 * 2; rd = rd - ra
+        code.push_back(asm_reset(Register::RD));
+        code.push_back(asm_swap(Register::RD));  // rd = 0
+        code.push_back(asm_add(Register::RD));   // rd = ra
+        code.push_back(asm_shift_right(Register::RA));
+        code.push_back(asm_shift_left(Register::RA));
+        code.push_back(asm_swap(Register::RD));  // ra = old_val, rd = shifted
+        code.push_back(asm_subtract(Register::RD)); // ra = ra - rd (result: 1 or 0)
+
+        code.push_back(asm_jump_if_zero(label_bit_zero)); // if rd == 0 skip addition
+        code.push_back(asm_swap(Register::RC));
+        code.push_back(asm_add(Register::RB));   // rc += rb
+        code.push_back(asm_swap(Register::RC));
+
+        code.push_back(asm_label_marker(label_bit_zero));
+        // Prepare for next bit
+        code.push_back(asm_reset(Register::RA));
+        code.push_back(asm_add(Register::RD));
+        code.push_back(asm_shift_right(Register::RA)); // ra >>= 1
+        code.push_back(asm_shift_left(Register::RB));  // rb <<= 1
+        code.push_back(asm_jump(label_loop));
+
+        code.push_back(asm_label_marker(label_end));
+        code.push_back(asm_reset(Register::RA));
+        code.push_back(asm_add(Register::RC)); // Wynik do ra
+        
+        auto target_addr = SymbolTable::get_address(target_->get_name());
+        code.push_back(asm_store(target_addr));
+        return code;
     }
 private:
     std::unique_ptr<VarNode> target_;
@@ -327,7 +507,7 @@ public:
         for (const auto& instr : instructions_) {
             append_code(code, instr->to_asm());
         }
-        code.push_back(std::make_unique<AsmAST::HaltNode>());
+        code.push_back(asm_halt());
         return code;
     }
 private:

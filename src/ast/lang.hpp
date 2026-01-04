@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include <iostream>
+
 #include "util.hpp"
 #include "symbol_table.hpp"
 #include "operator.hpp"
@@ -18,6 +20,12 @@ using InstructionList = std::vector<std::unique_ptr<Tac::InstructionNode>>;
 struct TacExpressionResult {
     InstructionList instructions;
     std::unique_ptr<Tac::ValueNode> result;
+};
+
+struct TacConditionResult {
+    InstructionList instructions;
+    std::string result_var;
+    BinaryCondOp op;
 };
 
 inline void append_instr(InstructionList& dest, InstructionList src) {
@@ -106,12 +114,14 @@ public:
     virtual TacExpressionResult to_tac_expression() const = 0;
 };
 
+class ValueNode : public ExpressionNode {};
+
 class BinaryOpNode : public ExpressionNode {
 public:
     BinaryOpNode(
         BinaryOp op,
-        std::unique_ptr<ExpressionNode> left, 
-        std::unique_ptr<ExpressionNode> right) : 
+        std::unique_ptr<ValueNode> left, 
+        std::unique_ptr<ValueNode> right) : 
         op_(op),
         left_(std::move(left)), 
         right_(std::move(right)) {}
@@ -190,11 +200,11 @@ public:
         };
     }
 
-    const std::unique_ptr<ExpressionNode>& left() const {
+    const std::unique_ptr<ValueNode>& left() const {
         return left_;
     }
 
-    const std::unique_ptr<ExpressionNode>& right() const {
+    const std::unique_ptr<ValueNode>& right() const {
         return right_;
     }
 
@@ -203,12 +213,63 @@ public:
     }
 private:
     BinaryOp op_;
-    std::unique_ptr<ExpressionNode> left_;
-    std::unique_ptr<ExpressionNode> right_;
+    std::unique_ptr<ValueNode> left_;
+    std::unique_ptr<ValueNode> right_;
+};
+
+class BinaryCondNode : public Node {
+public:
+    BinaryCondNode(
+        BinaryCondOp op,
+        std::unique_ptr<ValueNode> left, 
+        std::unique_ptr<ValueNode> right) :
+        op_(op),
+        left_(std::move(left)), 
+        right_(std::move(right)) {}
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "BINARY_COND_OP: " + 
+               util::to_string(op_) + "\n" +
+               left_->to_string(level + 1) + "\n" +
+               right_->to_string(level + 1);
+    }
+
+    TacConditionResult to_tac_condition() const {
+        auto left = left_->to_tac_expression();
+        auto right = right_->to_tac_expression();
+
+        InstructionList instrs;
+        append_instr(instrs, std::move(left.instructions));
+        append_instr(instrs, std::move(right.instructions));
+
+        std::string temp_final = SymbolTable::get_temp_var_name();
+
+        instrs.push_back(make_node<Tac::CompareNode>(tac_var(temp_final), std::move(right.result), std::move(left.result), op_));
+
+        return { std::move(instrs), temp_final, op_ };
+    }
+
+    const std::unique_ptr<ValueNode>& left() const {
+        return left_;
+    }
+
+    const std::unique_ptr<ValueNode>& right() const {
+        return right_;
+    }
+
+    const BinaryCondOp op() const {
+        return op_;
+    }
+private:
+    BinaryCondOp op_;
+    std::unique_ptr<ValueNode> left_;
+    std::unique_ptr<ValueNode> right_;
 };
 
 
-class IdentifierNode : public ExpressionNode {
+class IdentifierNode : public ValueNode {
 public:
     IdentifierNode(const std::string& name) : name_(name) {}
 
@@ -229,6 +290,31 @@ public:
 
 private:
     std::string name_;
+};
+
+class ConstantNode : public ValueNode {
+public:
+    ConstantNode(long long value) : value_(value) {}
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "NUM: " + std::to_string(value_);
+    }
+
+    TacExpressionResult to_tac_expression() const override {
+        return {
+            InstructionList{},
+            tac_const(value_)
+        };
+    }
+
+    const long long value() const {
+        return value_;
+    }
+
+private:
+    long long value_;
 };
 
 class DeclarationsNode : public Node {
@@ -261,52 +347,9 @@ private:
     std::vector<std::unique_ptr<IdentifierNode>> ids_;
 };
 
-class ConstantNode : public ExpressionNode {
-public:
-    ConstantNode(long long value) : value_(value) {}
-
-    ACCEPT_VISITOR
-
-    std::string to_string(int level = 0) const override {
-        return util::pad(level) + "NUM: " + std::to_string(value_);
-    }
-
-    TacExpressionResult to_tac_expression() const override {
-        return {
-            InstructionList{},
-            tac_const(value_)
-        };
-    }
-
-    const long long value() const {
-        return value_;
-    }
-
-private:
-    long long value_;
-};
-
-// class VariableNode : public ExpressionNode {
-// public:
-//     VariableNode(std::unique_ptr<IdentifierNode> id) : id_(std::move(id)) {}
-
-//     std::string to_string(int level = 0) const override {
-//         return util::pad(level) + "VARIABLE:\n" + id_->to_string(level + 1);
-//     }
-
-//     TacExpressionResult to_tac_expression() const override {
-//         return {
-//             InstructionList{},
-//             tac_var(id_->get_name())
-//         };
-//     }
-// private:
-//     std::unique_ptr<IdentifierNode> id_;
-// };
-
 class WriteNode : public CommandNode {
 public:
-    WriteNode(std::unique_ptr<ExpressionNode> expr) : expr_(std::move(expr)) {}
+    WriteNode(std::unique_ptr<ValueNode> expr) : expr_(std::move(expr)) {}
 
     ACCEPT_VISITOR
 
@@ -322,12 +365,12 @@ public:
         return instrs;
     }
 
-    const std::unique_ptr<ExpressionNode>& expr() const {
+    const std::unique_ptr<ValueNode>& expr() const {
         return expr_;
     }
 
 private:
-    std::unique_ptr<ExpressionNode> expr_;
+    std::unique_ptr<ValueNode> expr_;
 };
 
 class ReadNode : public CommandNode {

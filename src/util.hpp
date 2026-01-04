@@ -51,4 +51,23 @@ inline std::string to_string(BinaryOp op) {
     }
 }
 
+inline std::string to_string(BinaryCondOp op) {
+    switch (op) {
+        case BinaryCondOp::EQ:
+            return "==";
+        case BinaryCondOp::NEQ:
+            return "!=";
+        case BinaryCondOp::LT:
+            return "<";
+        case BinaryCondOp::LTE:
+            return "<=";
+        case BinaryCondOp::GT:
+            return ">";
+        case BinaryCondOp::GTE:
+            return ">=";
+        default:
+            return "unknown";
+    }
+}
+
 } // namespace util

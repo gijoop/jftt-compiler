@@ -19,7 +19,7 @@ curr_dir=$(pwd)
 cd ~/jftt-compiler || exit 1
 
 mkdir -p build
-cmake --build build
+cmake --build build --parallel
 
 # 2. Compile test programs
 

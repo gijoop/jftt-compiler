@@ -19,6 +19,11 @@ void AstVisitor::visit(BinaryOpNode& node) {
     node.right()->accept(*this);
 }
 
+void AstVisitor::visit(BinaryCondNode& node) {
+    node.left()->accept(*this);
+    node.right()->accept(*this);
+}
+
 void AstVisitor::visit(AssignmentNode& node) {
     node.id()->accept(*this);
     node.expr()->accept(*this);

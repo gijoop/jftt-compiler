@@ -20,6 +20,25 @@ public:
     virtual std::string to_instruction() const = 0;
 };
 
+struct Label {
+    Label(const std::string& name) : name_(name) {}
+    Label() : name_("") {}
+
+    long long address_ = -1;
+    std::string name_;
+};
+
+class LabelMarkerNode : public Node {
+public:
+    LabelMarkerNode(std::shared_ptr<Label> label) : label_(label) {}
+
+    std::string to_instruction() const override {
+        return "# LABEL " + label_->name_;
+    }
+private:
+    std::shared_ptr<Label> label_;
+};
+
 class ReadNode : public Node {
 public:
     std::string to_instruction() const override {
@@ -165,46 +184,46 @@ private:
 
 class JumpNode : public Node {
 public:
-    JumpNode(long long address) : address_(address) {}
+    JumpNode(std::shared_ptr<Label> label) : label_(label) {}
 
     std::string to_instruction() const override {
-        return "JMP " + std::to_string(address_);
+        return "JUMP " + std::to_string(label_->address_);
     }
 private:
-    long long address_;
+    std::shared_ptr<Label> label_;
 };
 
 class JumpIfPositiveNode : public Node {
 public:
-    JumpIfPositiveNode(long long address) : address_(address) {}
+    JumpIfPositiveNode(std::shared_ptr<Label> label) : label_(label) {}
 
     std::string to_instruction() const override {
-        return "JPOS " + std::to_string(address_);
+        return "JPOS " + std::to_string(label_->address_);
     }
 private:
-    long long address_;
+    std::shared_ptr<Label> label_;
 };
 
 class JumpIfZeroNode : public Node {
 public:
-    JumpIfZeroNode(long long address) : address_(address) {}
+    JumpIfZeroNode(std::shared_ptr<Label> label) : label_(label) {}
 
     std::string to_instruction() const override {
-        return "JZERO " + std::to_string(address_);
+        return "JZERO " + std::to_string(label_->address_);
     }
 private:
-    long long address_;
+    std::shared_ptr<Label> label_;
 };
 
 class CallNode : public Node {
 public:
-    CallNode(long long address) : address_(address) {}
+    CallNode(std::shared_ptr<Label> label) : label_(label) {}
 
     std::string to_instruction() const override {
-        return "CALL " + std::to_string(address_);
+        return "CALL " + std::to_string(label_->address_);
     }
 private:
-    long long address_;
+    std::shared_ptr<Label> label_;
 };
 
 class ReturnNode : public Node {
@@ -220,5 +239,6 @@ public:
         return "HALT";
     }
 };
+
 
 } // namespace AsmAST
