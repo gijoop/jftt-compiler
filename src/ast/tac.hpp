@@ -147,14 +147,6 @@ private:
     std::unique_ptr<ValueNode> val_;
 };
 
-enum class BinaryOp {
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    MOD
-};
-
 class AddNode : public InstructionNode {
 public:
     AddNode(std::unique_ptr<VarNode> target, 

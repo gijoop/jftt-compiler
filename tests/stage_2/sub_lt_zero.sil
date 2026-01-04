@@ -1,4 +1,6 @@
 PROGRAM IS
+x
 IN
-    WRITE 125-50000;
+    x := 125-50000;
+    WRITE x;
 END

@@ -17,6 +17,7 @@ ADD_FLEX_BISON_DEPENDENCY(Lexer Parser)
 add_executable(compiler
     src/main.cpp
     src/parser_wrapper.cpp
+    src/analyzer/ast_visitor.cpp
     ${BISON_Parser_OUTPUTS}
     ${FLEX_Lexer_OUTPUTS}
 )

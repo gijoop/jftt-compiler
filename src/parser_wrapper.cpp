@@ -9,7 +9,7 @@ int yylex_init(void**);
 int yylex_destroy(void*);
 void yyset_lineno(int, void*);
 
-int yyparse(void* scanner, LangAST::Node** result);
+int yyparse(void* scanner, LangAST::ProgramNode** result);
 
 ParserWrapper::ParserWrapper() : result(nullptr), scanner(nullptr) {
     yylex_init(&scanner);

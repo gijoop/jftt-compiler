@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include "parser.hpp"
 
-void yyerror(void* scanner, LangAST::Node** result, const char *s);
+void yyerror(void* scanner, LangAST::ProgramNode** result, const char *s);
 %}
 
 %%

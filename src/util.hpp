@@ -3,6 +3,7 @@
 #include <string>
 
 #include "register.hpp"
+#include "operator.hpp"
 
 namespace util {
 
@@ -28,6 +29,23 @@ inline std::string to_string(Register reg) {
             return "g";
         case Register::RH:
             return "h";
+        default:
+            return "unknown";
+    }
+}
+
+inline std::string to_string(BinaryOp op) {
+    switch (op) {
+        case BinaryOp::ADD:
+            return "+";
+        case BinaryOp::SUB:
+            return "-";
+        case BinaryOp::MUL:
+            return "*";
+        case BinaryOp::DIV:
+            return "/";
+        case BinaryOp::MOD:
+            return "%";
         default:
             return "unknown";
     }

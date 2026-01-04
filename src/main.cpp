@@ -5,6 +5,7 @@
 #include "ast/lang.hpp"
 #include "ast/tac.hpp"
 #include "parser_wrapper.hpp"
+#include "analyzer/declaration_checker.hpp"
 
 #define USAGE "Usage: " << argv[0] << " <source_code> <output_file>"
 
@@ -29,21 +30,25 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto lang_ast_base = parser.get_result();
-    if (!lang_ast_base) {
+    auto lang_ast = parser.get_result();
+    if (!lang_ast) {
         std::cerr << "Error: No AST generated." << std::endl;
         return 1;
     }
 
-    auto* lang_program = dynamic_cast<LangAST::ProgramNode*>(lang_ast_base.get());
-    if (!lang_program) {
-        std::cerr << "Error: Root node is not a ProgramNode." << std::endl;
+    try {
+        LangAST::DeclarationChecker decl_checker;
+        lang_ast->accept(decl_checker);
+    } catch (const SemanticError& e) {
+        std::cerr << e.what() << std::endl;
         return 1;
     }
-    std::cout << "Lang AST:\n" << lang_program->to_string() << std::endl;
-    auto tac_program = lang_program->to_tac_program();
-    std::cout << "TAC AST:\n" << tac_program->to_string() << std::endl;
-    auto asm_code = tac_program->to_asm();
+
+    std::cout << "Lang AST:\n" << lang_ast->to_string() << std::endl;
+    auto tac = lang_ast->to_tac_program();
+
+    std::cout << "TAC:\n" << tac->to_string() << std::endl;
+    auto asm_code = tac->to_asm();
 
     std::string output_file = argv[2];
     std::ofstream out(output_file);

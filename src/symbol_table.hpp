@@ -5,17 +5,26 @@
 class SymbolTable {
 public:
     static long long get_address(const std::string& name) {
-        auto it = instance().table_.find(name);
-        if (it == instance().table_.end()) {
-            long long new_addr = instance().next_addr_++;
-            instance().table_[name] = new_addr;
-            return new_addr;
+        if (!is_declared(name)) {
+            declare(name);
         }
-        return it->second;
+        return instance().table_[name];
     }
 
     static std::string get_temp_var_name() {
         return "_tmp." + std::to_string(instance().temp_var_count_++);
+    }
+
+    static bool declare(const std::string& name) {
+        if (is_declared(name)) {
+            return false;
+        }
+        instance().table_[name] = instance().next_addr_++;
+        return true;
+    }
+
+    static bool is_declared(const std::string& name) {
+        return instance().table_.find(name) != instance().table_.end();
     }
 
     static void reset() {

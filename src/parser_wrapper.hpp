@@ -10,9 +10,9 @@ public:
     ~ParserWrapper();
 
     bool parse(const std::string& input);
-    std::unique_ptr<LangAST::Node> get_result() { return std::move(result); }
+    std::unique_ptr<LangAST::ProgramNode> get_result() { return std::move(result); }
 
 private:
-    std::unique_ptr<LangAST::Node> result;
+    std::unique_ptr<LangAST::ProgramNode> result;
     void* scanner;
 };

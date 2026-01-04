@@ -6,6 +6,9 @@
 
 #include "util.hpp"
 #include "symbol_table.hpp"
+#include "operator.hpp"
+
+#include "analyzer/ast_visitor.hpp"
 #include "ast/tac.hpp"
 
 namespace LangAST {
@@ -47,7 +50,11 @@ class Node {
 public:
     virtual ~Node() = default;
     virtual std::string to_string(int level = 0) const = 0;
+    virtual void accept(AstVisitor& visitor) = 0;
 };
+
+#define ACCEPT_VISITOR \
+    void accept(AstVisitor& v) override { v.visit(*this); }
 
 class CommandNode : public Node {
 public:
@@ -62,6 +69,8 @@ public:
     CommandsNode(std::unique_ptr<CommandNode> command) {
         commands_.push_back(std::move(command));
     }
+
+    ACCEPT_VISITOR
     
     std::string to_string(int level = 0) const override {
         std::string result = util::pad(level) + "COMMANDS:\n";
@@ -84,6 +93,10 @@ public:
         commands_.push_back(std::move(cmd));
     }
 
+    const std::vector<std::unique_ptr<CommandNode>>& commands() const {
+        return commands_;
+    }
+
 private:
     std::vector<std::unique_ptr<CommandNode>> commands_;
 };
@@ -96,20 +109,18 @@ public:
 class BinaryOpNode : public ExpressionNode {
 public:
     BinaryOpNode(
-        Tac::BinaryOp op,
+        BinaryOp op,
         std::unique_ptr<ExpressionNode> left, 
         std::unique_ptr<ExpressionNode> right) : 
         op_(op),
         left_(std::move(left)), 
         right_(std::move(right)) {}
+    
+    ACCEPT_VISITOR
 
     std::string to_string(int level = 0) const override {
         return util::pad(level) + "BINARY_OP: " + 
-               (op_ == Tac::BinaryOp::ADD ? "+" :
-                op_ == Tac::BinaryOp::SUB ? "-" :
-                op_ == Tac::BinaryOp::MUL ? "*" :
-                op_ == Tac::BinaryOp::DIV ? "/" :
-                op_ == Tac::BinaryOp::MOD ? "%" : "?") + "\n" +
+               util::to_string(op_) + "\n" +
                left_->to_string(level + 1) + "\n" +
                right_->to_string(level + 1);
     } 
@@ -126,7 +137,7 @@ public:
         std::string temp_name = SymbolTable::get_temp_var_name();
 
         switch (op_) {
-            case Tac::BinaryOp::ADD:
+            case BinaryOp::ADD:
                 instrs.push_back(
                     make_node<Tac::AddNode>(
                         tac_var(temp_name),
@@ -135,7 +146,7 @@ public:
                     )
                 );
                 break;
-            case Tac::BinaryOp::SUB:
+            case BinaryOp::SUB:
                 instrs.push_back(
                     make_node<Tac::SubtractNode>(
                         tac_var(temp_name),
@@ -144,7 +155,7 @@ public:
                     )
                 );
                 break;
-            case Tac::BinaryOp::MUL:
+            case BinaryOp::MUL:
                 instrs.push_back(
                     make_node<Tac::MultiplyNode>(
                         tac_var(temp_name),
@@ -153,7 +164,7 @@ public:
                     )
                 );
                 break;
-            case Tac::BinaryOp::DIV:
+            case BinaryOp::DIV:
                 instrs.push_back(
                     make_node<Tac::DivideNode>(
                         tac_var(temp_name),
@@ -162,7 +173,7 @@ public:
                     )
                 );
                 break;
-            case Tac::BinaryOp::MOD:
+            case BinaryOp::MOD:
                 instrs.push_back(
                     make_node<Tac::ModuloNode>(
                         tac_var(temp_name),
@@ -179,8 +190,19 @@ public:
         };
     }
 
+    const std::unique_ptr<ExpressionNode>& left() const {
+        return left_;
+    }
+
+    const std::unique_ptr<ExpressionNode>& right() const {
+        return right_;
+    }
+
+    const BinaryOp op() const {
+        return op_;
+    }
 private:
-    Tac::BinaryOp op_;
+    BinaryOp op_;
     std::unique_ptr<ExpressionNode> left_;
     std::unique_ptr<ExpressionNode> right_;
 };
@@ -189,6 +211,8 @@ private:
 class IdentifierNode : public ExpressionNode {
 public:
     IdentifierNode(const std::string& name) : name_(name) {}
+
+    ACCEPT_VISITOR
 
     std::string to_string(int level = 0) const override {
         return util::pad(level) + "IDENTIFIER: " + name_;
@@ -216,6 +240,8 @@ public:
         ids_.push_back(std::move(id));
     }
 
+    ACCEPT_VISITOR
+
     std::string to_string(int level = 0) const override {
         std::string result = util::pad(level) + "DECLARATIONS:\n";
         for (const auto& id : ids_) {
@@ -227,6 +253,10 @@ public:
     void add_declaration(std::unique_ptr<IdentifierNode> id) {
         ids_.push_back(std::move(id));
     }
+
+    std::vector<std::unique_ptr<IdentifierNode>>& ids() {
+        return ids_;
+    }
 private:
     std::vector<std::unique_ptr<IdentifierNode>> ids_;
 };
@@ -234,6 +264,8 @@ private:
 class ConstantNode : public ExpressionNode {
 public:
     ConstantNode(long long value) : value_(value) {}
+
+    ACCEPT_VISITOR
 
     std::string to_string(int level = 0) const override {
         return util::pad(level) + "NUM: " + std::to_string(value_);
@@ -246,31 +278,37 @@ public:
         };
     }
 
+    const long long value() const {
+        return value_;
+    }
+
 private:
     long long value_;
 };
 
-class VariableNode : public ExpressionNode {
-public:
-    VariableNode(std::unique_ptr<IdentifierNode> id) : id_(std::move(id)) {}
+// class VariableNode : public ExpressionNode {
+// public:
+//     VariableNode(std::unique_ptr<IdentifierNode> id) : id_(std::move(id)) {}
 
-    std::string to_string(int level = 0) const override {
-        return util::pad(level) + "VARIABLE:\n" + id_->to_string(level + 1);
-    }
+//     std::string to_string(int level = 0) const override {
+//         return util::pad(level) + "VARIABLE:\n" + id_->to_string(level + 1);
+//     }
 
-    TacExpressionResult to_tac_expression() const override {
-        return {
-            InstructionList{},
-            tac_var(id_->get_name())
-        };
-    }
-private:
-    std::unique_ptr<IdentifierNode> id_;
-};
+//     TacExpressionResult to_tac_expression() const override {
+//         return {
+//             InstructionList{},
+//             tac_var(id_->get_name())
+//         };
+//     }
+// private:
+//     std::unique_ptr<IdentifierNode> id_;
+// };
 
 class WriteNode : public CommandNode {
 public:
     WriteNode(std::unique_ptr<ExpressionNode> expr) : expr_(std::move(expr)) {}
+
+    ACCEPT_VISITOR
 
     std::string to_string(int level = 0) const override {
         return util::pad(level) + "WRITE:\n" + expr_->to_string(level + 1);
@@ -284,6 +322,10 @@ public:
         return instrs;
     }
 
+    const std::unique_ptr<ExpressionNode>& expr() const {
+        return expr_;
+    }
+
 private:
     std::unique_ptr<ExpressionNode> expr_;
 };
@@ -293,6 +335,8 @@ public:
     AssignmentNode(std::unique_ptr<IdentifierNode> id, std::unique_ptr<ExpressionNode> expr) : 
         id_(std::move(id)), 
         expr_(std::move(expr)) {}
+
+    ACCEPT_VISITOR
     
     std::string to_string(int level = 0) const override {
         return util::pad(level) + "ASSIGNMENT:\n" +
@@ -311,6 +355,14 @@ public:
         );
         return instrs;
     }
+
+    const std::unique_ptr<IdentifierNode>& id() const {
+        return id_;
+    }
+
+    const std::unique_ptr<ExpressionNode>& expr() const {
+        return expr_;
+    }
 private:
     std::unique_ptr<IdentifierNode> id_;
     std::unique_ptr<ExpressionNode> expr_;
@@ -326,6 +378,8 @@ public:
         decls_(nullptr), 
         commands_(std::move(cmds)) {}
 
+    ACCEPT_VISITOR
+
     std::string to_string(int level = 0) const override {
         std::string result = util::pad(level) + "MAIN:\n";
         if (decls_) result += decls_->to_string(level + 1) + "\n";
@@ -340,6 +394,14 @@ public:
         return instrs;
     }
 
+    const std::unique_ptr<DeclarationsNode>& declarations() const {
+        return decls_;
+    }
+
+    const std::unique_ptr<CommandsNode>& commands() const {
+        return commands_;
+    }
+
 private:
     std::unique_ptr<DeclarationsNode> decls_;
     std::unique_ptr<CommandsNode> commands_;
@@ -349,6 +411,8 @@ class ProgramNode : public Node {
 public:
     ProgramNode(std::unique_ptr<MainNode> main) : main_(std::move(main)) {}
 
+    ACCEPT_VISITOR
+
     std::string to_string(int level = 0) const override {
         return util::pad(level) + "PROGRAM:\n" + main_->to_string(level + 1);
     }
@@ -357,6 +421,10 @@ public:
         return tac_program(
             std::move(main_->to_tac())
         );
+    }
+
+    const std::unique_ptr<MainNode>& main() const {
+        return main_;
     }
 private:
     std::unique_ptr<MainNode> main_;

@@ -1,11 +1,11 @@
 PROGRAM IS
-    x, y, z
 IN
     x := 10;
-    y := x + 5;
-    z := y + 5;
-    WRITE z;
-    # SIEMANDERO KURWA
-    WRITE y;
-    WRITE z;
+    WRITE x;
+    x := 15;
+    WRITE x;
+    x := x + 5;
+    WRITE x;
+    x := x - 10;
+    WRITE x;
 END

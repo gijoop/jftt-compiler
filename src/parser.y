@@ -1,5 +1,6 @@
 %code requires {
     #include "ast/lang.hpp" 
+    #include "operator.hpp"
 }
 
 %{
@@ -12,7 +13,7 @@
 %define parse.error verbose
 %lex-param { void* scanner }
 %parse-param { void* scanner }
-%parse-param { std::unique_ptr<LangAST::Node>& result }
+%parse-param { std::unique_ptr<LangAST::ProgramNode>& result }
 
 %union {
     LangAST::Node* node;
@@ -21,6 +22,7 @@
     LangAST::CommandsNode* commands;
     LangAST::DeclarationsNode* declarations;
     LangAST::MainNode* main;
+    LangAST::ProgramNode* program_all;
     LangAST::IdentifierNode* identifier;
     std::string* str;
     long long num;
@@ -30,12 +32,12 @@
 int yylex(YYSTYPE* yylval_param, void * yyscanner);
 extern int yyget_lineno(void*);
 extern char* yyget_text(void*);
-void yyerror(void* scanner, std::unique_ptr<LangAST::Node>& result, const char *s);
+void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const char *s);
 #define YYLEX_PARAM scanner
 #define BINARY_OP_NODE(op, v1, v2) LangAST::BinaryOpNode(op, std::unique_ptr<LangAST::ExpressionNode>(v1), std::unique_ptr<LangAST::ExpressionNode>(v2))
 }
 
-%type <node> program_all
+%type <program_all> program_all
 %type <commands> commands
 %type <command> command
 %type <declarations> declarations
@@ -64,13 +66,11 @@ void yyerror(void* scanner, std::unique_ptr<LangAST::Node>& result, const char *
 %token OP_COMMA ","
 %token OP_ASSIGN ":="
 
-%token ERROR "ERROR"
-
 %%
 program_all: 
     main      {
       $$ = new LangAST::ProgramNode(std::unique_ptr<LangAST::MainNode>($1)); 
-      result = std::unique_ptr<LangAST::Node>($$);
+      result = std::unique_ptr<LangAST::ProgramNode>($$);
     }
   ;
 
@@ -103,11 +103,11 @@ command:
 
 expr: 
     value                 { $$ = $1; }
-  | value OP_PLUS value   { $$ = new BINARY_OP_NODE(Tac::BinaryOp::ADD, $1, $3); }
-  | value OP_MINUS value  { $$ = new BINARY_OP_NODE(Tac::BinaryOp::SUB, $1, $3); }
-  /* | value OP_MULT value   { $$ = new BINARY_OP_NODE(Tac::BinaryOp::MUL, $1, $3); }
-  | value OP_DIV value    { $$ = new BINARY_OP_NODE(Tac::BinaryOp::DIV, $1, $3); }
-  | value OP_MOD value    { $$ = new BINARY_OP_NODE(Tac::BinaryOp::MOD, $1, $3); } */
+  | value OP_PLUS value   { $$ = new BINARY_OP_NODE(BinaryOp::ADD, $1, $3); }
+  | value OP_MINUS value  { $$ = new BINARY_OP_NODE(BinaryOp::SUB, $1, $3); }
+  /* | value OP_MULT value   { $$ = new BINARY_OP_NODE(BinaryOp::MUL, $1, $3); }
+  | value OP_DIV value    { $$ = new BINARY_OP_NODE(BinaryOp::DIV, $1, $3); }
+  | value OP_MOD value    { $$ = new BINARY_OP_NODE(BinaryOp::MOD, $1, $3); } */
   ;
 
 value:
@@ -121,7 +121,7 @@ identifier:
 
 %%
 
-void yyerror(void* scanner, std::unique_ptr<LangAST::Node>& result, const char *s) {
+void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const char *s) {
   char* text = yyget_text(scanner);
   int line = yyget_lineno(scanner);
 
