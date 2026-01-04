@@ -330,6 +330,31 @@ private:
     std::unique_ptr<ExpressionNode> expr_;
 };
 
+class ReadNode : public CommandNode {
+public:
+    ReadNode(std::unique_ptr<IdentifierNode> id) : id_(std::move(id)) {}
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "READ:\n" + id_->to_string(level + 1);
+    }
+
+    InstructionList to_tac_instructions() const override {
+        InstructionList instrs;
+        
+        instrs.push_back(make_node<Tac::ReadNode>(tac_var(id_->get_name())));
+        
+        return instrs;
+    }
+
+    const std::unique_ptr<IdentifierNode>& id() const {
+        return id_;
+    }
+private:
+    std::unique_ptr<IdentifierNode> id_;
+};
+
 class AssignmentNode : public CommandNode {
 public:
     AssignmentNode(std::unique_ptr<IdentifierNode> id, std::unique_ptr<ExpressionNode> expr) : 

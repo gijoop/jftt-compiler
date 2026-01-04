@@ -1,0 +1,7 @@
+PROGRAM IS
+x
+IN
+    READ x;
+    x := x + 5;
+    WRITE x;
+END

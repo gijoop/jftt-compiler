@@ -55,6 +55,7 @@ void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const
 %token KW_IN "IN"
 %token KW_END "END"
 %token KW_WRITE "WRITE"
+%token KW_READ "READ"
 
 // Operators
 %token OP_PLUS "+"
@@ -99,6 +100,7 @@ commands:
 command:
     identifier OP_ASSIGN expr SEMICOLON { $$ = new LangAST::AssignmentNode(std::unique_ptr<LangAST::IdentifierNode>($1), std::unique_ptr<LangAST::ExpressionNode>($3)); }
   | KW_WRITE value SEMICOLON             { $$ = new LangAST::WriteNode(std::unique_ptr<LangAST::ExpressionNode>($2)); }
+  | KW_READ identifier SEMICOLON         { $$ = new LangAST::ReadNode(std::unique_ptr<LangAST::IdentifierNode>($2)); }
   ;
 
 expr: 

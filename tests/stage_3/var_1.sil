@@ -1,4 +1,5 @@
 PROGRAM IS
+x
 IN
     x := 10;
     WRITE x;

@@ -21,6 +21,7 @@ void yyerror(void* scanner, LangAST::ProgramNode** result, const char *s);
 "IN"       { return KW_IN; }
 "END"      { return KW_END; }
 "WRITE"    { return KW_WRITE; }
+"READ"     { return KW_READ; }
 
 ":="       { return OP_ASSIGN; }
 ","        { return OP_COMMA; }

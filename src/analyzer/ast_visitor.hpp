@@ -6,6 +6,7 @@ class AssignmentNode;
 class IdentifierNode;
 class BinaryOpNode;
 class WriteNode;
+class ReadNode;
 class ProgramNode;
 class MainNode;
 class CommandsNode;
@@ -18,6 +19,7 @@ public:
     virtual void visit(IdentifierNode& node);
     virtual void visit(ConstantNode& node);
     virtual void visit(WriteNode& node);
+    virtual void visit(ReadNode& node);
     virtual void visit(BinaryOpNode& node);
     virtual void visit(AssignmentNode& node);
     virtual void visit(CommandsNode& node);

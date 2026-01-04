@@ -10,6 +10,10 @@ void AstVisitor::visit(WriteNode& node) {
     node.expr()->accept(*this);
 }
 
+void AstVisitor::visit(ReadNode& node) {
+    node.id()->accept(*this);
+}
+
 void AstVisitor::visit(BinaryOpNode& node) {
     node.left()->accept(*this);
     node.right()->accept(*this);

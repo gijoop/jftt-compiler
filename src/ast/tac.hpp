@@ -147,6 +147,28 @@ private:
     std::unique_ptr<ValueNode> val_;
 };
 
+class ReadNode : public InstructionNode {
+public:
+    ReadNode(std::unique_ptr<VarNode> target) : target_(std::move(target)) {}
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "READ INTO:\n" + target_->to_string(level + 1);
+    }
+
+    ASMCode to_asm() const override {
+        ASMCode code;
+        auto target_addr = SymbolTable::get_address(target_->get_name());
+
+        code.push_back(std::make_unique<AsmAST::ReadNode>());
+
+        code.push_back(asm_store(target_addr));
+
+        return code;
+    }
+private:
+    std::unique_ptr<VarNode> target_;
+};
+
 class AddNode : public InstructionNode {
 public:
     AddNode(std::unique_ptr<VarNode> target, 
