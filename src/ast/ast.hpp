@@ -8,51 +8,11 @@
 
 #include "util.hpp"
 #include "symbol_table.hpp"
-#include "operator.hpp"
+#include "types.hpp"
 
-#include "analyzer/ast_visitor.hpp"
-#include "ast/tac.hpp"
+#include "ast/visitor.hpp"
 
-namespace LangAST {
-
-using InstructionList = std::vector<std::unique_ptr<Tac::InstructionNode>>;
-
-struct TacExpressionResult {
-    InstructionList instructions;
-    std::unique_ptr<Tac::ValueNode> result;
-};
-
-struct TacConditionResult {
-    InstructionList instructions;
-    std::string result_var;
-    BinaryCondOp op;
-};
-
-inline void append_instr(InstructionList& dest, InstructionList src) {
-    dest.insert(
-        dest.end(),
-        std::make_move_iterator(src.begin()),
-        std::make_move_iterator(src.end())
-    );
-}
-
-template <typename T, typename... Args>
-auto make_node(Args&&... args) {
-    return std::make_unique<T>(std::forward<Args>(args)...);
-}
-
-inline auto tac_write(std::unique_ptr<Tac::ValueNode> val) {
-    return make_node<Tac::WriteNode>(std::move(val));
-}
-inline auto tac_program(std::vector<std::unique_ptr<Tac::InstructionNode>> instructions) {
-    return make_node<Tac::ProgramNode>(std::move(instructions));
-}
-inline auto tac_var(const std::string& name) {
-    return make_node<Tac::VarNode>(name);
-}
-inline auto tac_const(long long value) {
-    return make_node<Tac::ConstantNode>(value);
-}
+namespace AST {
 
 class Node {
 public:
@@ -65,8 +25,6 @@ public:
     void accept(AstVisitor& v) override { v.visit(*this); }
 
 class CommandNode : public Node {
-public:
-    virtual InstructionList to_tac_instructions() const = 0;
 };
 
 class CommandsNode : public Node {
@@ -88,15 +46,6 @@ public:
         return result;
     }
 
-    InstructionList to_tac_instructions() const {
-        InstructionList instrs;
-        for (const auto& cmd : commands_) {
-            auto cmd_instrs = cmd->to_tac_instructions();
-            append_instr(instrs, std::move(cmd_instrs));
-        }
-        return instrs;
-    }
-
     void add_command(std::unique_ptr<CommandNode> cmd) {
         commands_.push_back(std::move(cmd));
     }
@@ -109,10 +58,7 @@ private:
     std::vector<std::unique_ptr<CommandNode>> commands_;
 };
 
-class ExpressionNode : public Node {
-public:
-    virtual TacExpressionResult to_tac_expression() const = 0;
-};
+class ExpressionNode : public Node {};
 
 class ValueNode : public ExpressionNode {};
 
@@ -134,71 +80,6 @@ public:
                left_->to_string(level + 1) + "\n" +
                right_->to_string(level + 1);
     } 
-
-    TacExpressionResult to_tac_expression() const override {
-        auto left_res = left_->to_tac_expression();
-        auto right_res = right_->to_tac_expression();
-
-        InstructionList instrs;
-
-        append_instr(instrs, std::move(left_res.instructions));
-        append_instr(instrs, std::move(right_res.instructions));
-
-        std::string temp_name = SymbolTable::get_temp_var_name();
-
-        switch (op_) {
-            case BinaryOp::ADD:
-                instrs.push_back(
-                    make_node<Tac::AddNode>(
-                        tac_var(temp_name),
-                        std::move(left_res.result),
-                        std::move(right_res.result)
-                    )
-                );
-                break;
-            case BinaryOp::SUB:
-                instrs.push_back(
-                    make_node<Tac::SubtractNode>(
-                        tac_var(temp_name),
-                        std::move(left_res.result),
-                        std::move(right_res.result)
-                    )
-                );
-                break;
-            case BinaryOp::MUL:
-                instrs.push_back(
-                    make_node<Tac::MultiplyNode>(
-                        tac_var(temp_name),
-                        std::move(left_res.result),
-                        std::move(right_res.result)
-                    )
-                );
-                break;
-            case BinaryOp::DIV:
-                instrs.push_back(
-                    make_node<Tac::DivideNode>(
-                        tac_var(temp_name),
-                        std::move(left_res.result),
-                        std::move(right_res.result)
-                    )
-                );
-                break;
-            case BinaryOp::MOD:
-                instrs.push_back(
-                    make_node<Tac::ModuloNode>(
-                        tac_var(temp_name),
-                        std::move(left_res.result),
-                        std::move(right_res.result)
-                    )
-                );
-                break;
-        }
-
-        return {
-            std::move(instrs),
-            std::make_unique<Tac::VarNode>(temp_name)
-        };
-    }
 
     const std::unique_ptr<ValueNode>& left() const {
         return left_;
@@ -236,21 +117,6 @@ public:
                right_->to_string(level + 1);
     }
 
-    TacConditionResult to_tac_condition() const {
-        auto left = left_->to_tac_expression();
-        auto right = right_->to_tac_expression();
-
-        InstructionList instrs;
-        append_instr(instrs, std::move(left.instructions));
-        append_instr(instrs, std::move(right.instructions));
-
-        std::string temp_final = SymbolTable::get_temp_var_name();
-
-        instrs.push_back(make_node<Tac::CompareNode>(tac_var(temp_final), std::move(right.result), std::move(left.result), op_));
-
-        return { std::move(instrs), temp_final, op_ };
-    }
-
     const std::unique_ptr<ValueNode>& left() const {
         return left_;
     }
@@ -281,13 +147,6 @@ public:
 
     const std::string& get_name() const { return name_; }
 
-    TacExpressionResult to_tac_expression() const override {
-        return {
-            InstructionList{},
-            tac_var(name_)
-        };
-    }
-
 private:
     std::string name_;
 };
@@ -300,13 +159,6 @@ public:
 
     std::string to_string(int level = 0) const override {
         return util::pad(level) + "NUM: " + std::to_string(value_);
-    }
-
-    TacExpressionResult to_tac_expression() const override {
-        return {
-            InstructionList{},
-            tac_const(value_)
-        };
     }
 
     const long long value() const {
@@ -357,14 +209,6 @@ public:
         return util::pad(level) + "WRITE:\n" + expr_->to_string(level + 1);
     }
 
-    InstructionList to_tac_instructions() const override {
-        auto res = expr_->to_tac_expression();
-        InstructionList instrs = std::move(res.instructions);
-        
-        instrs.push_back(tac_write(std::move(res.result)));
-        return instrs;
-    }
-
     const std::unique_ptr<ValueNode>& expr() const {
         return expr_;
     }
@@ -381,14 +225,6 @@ public:
 
     std::string to_string(int level = 0) const override {
         return util::pad(level) + "READ:\n" + id_->to_string(level + 1);
-    }
-
-    InstructionList to_tac_instructions() const override {
-        InstructionList instrs;
-        
-        instrs.push_back(make_node<Tac::ReadNode>(tac_var(id_->get_name())));
-        
-        return instrs;
     }
 
     const std::unique_ptr<IdentifierNode>& id() const {
@@ -410,18 +246,6 @@ public:
         return util::pad(level) + "ASSIGNMENT:\n" +
                id_->to_string(level + 1) + "\n" +
                expr_->to_string(level + 1);
-    }
-
-    InstructionList to_tac_instructions() const override {
-        auto res = expr_->to_tac_expression();
-        InstructionList instrs = std::move(res.instructions);
-        instrs.push_back(
-            make_node<Tac::CopyNode>(
-                tac_var(id_->get_name()),
-                std::move(res.result)
-            )
-        );
-        return instrs;
     }
 
     const std::unique_ptr<IdentifierNode>& id() const {
@@ -455,13 +279,6 @@ public:
         return result;
     }
 
-    InstructionList to_tac() const {
-        InstructionList instrs;
-        auto cmds_instrs = commands_->to_tac_instructions();
-        append_instr(instrs, std::move(cmds_instrs));
-        return instrs;
-    }
-
     const std::unique_ptr<DeclarationsNode>& declarations() const {
         return decls_;
     }
@@ -485,12 +302,6 @@ public:
         return util::pad(level) + "PROGRAM:\n" + main_->to_string(level + 1);
     }
 
-    std::unique_ptr<Tac::ProgramNode> to_tac_program() const {
-        return tac_program(
-            std::move(main_->to_tac())
-        );
-    }
-
     const std::unique_ptr<MainNode>& main() const {
         return main_;
     }
@@ -498,4 +309,4 @@ private:
     std::unique_ptr<MainNode> main_;
 };
 
-} // namespace LangAST
+} // namespace AST

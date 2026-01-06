@@ -1,5 +1,6 @@
 #include <cstdio>
-#include "parser_wrapper.hpp"
+
+#include "parser/parser_wrapper.hpp"
 #include "parser.hpp"
 
 typedef struct yy_buffer_state* YY_BUFFER_STATE;
@@ -9,7 +10,7 @@ int yylex_init(void**);
 int yylex_destroy(void*);
 void yyset_lineno(int, void*);
 
-int yyparse(void* scanner, LangAST::ProgramNode** result);
+int yyparse(void* scanner, AST::ProgramNode** result);
 
 ParserWrapper::ParserWrapper() : result(nullptr), scanner(nullptr) {
     yylex_init(&scanner);

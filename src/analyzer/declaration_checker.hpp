@@ -1,11 +1,11 @@
 #pragma once
 
-#include "analyzer/ast_visitor.hpp"
+#include "ast/visitor.hpp"
 #include "analyzer/semantic_error.hpp"
-#include "ast/lang.hpp"
+#include "ast/ast.hpp"
 #include "symbol_table.hpp"
 
-namespace LangAST {
+namespace AST {
 
 class DeclarationChecker : public AstVisitor {
 public:
@@ -28,4 +28,4 @@ public:
     }
 };
 
-} // namespace LangAST
+} // namespace AST

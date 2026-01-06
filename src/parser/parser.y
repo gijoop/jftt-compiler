@@ -1,6 +1,6 @@
 %code requires {
-    #include "ast/lang.hpp" 
-    #include "operator.hpp"
+    #include "ast/ast.hpp" 
+    #include "types.hpp"
 }
 
 %{
@@ -13,19 +13,19 @@
 %define parse.error verbose
 %lex-param { void* scanner }
 %parse-param { void* scanner }
-%parse-param { std::unique_ptr<LangAST::ProgramNode>& result }
+%parse-param { std::unique_ptr<AST::ProgramNode>& result }
 
 %union {
-    LangAST::Node* node;
-    LangAST::ExpressionNode* expression;
-    LangAST::CommandNode* command;
-    LangAST::CommandsNode* commands;
-    LangAST::DeclarationsNode* declarations;
-    LangAST::MainNode* main;
-    LangAST::ProgramNode* program_all;
-    LangAST::IdentifierNode* identifier;
-    LangAST::ValueNode* value;
-    LangAST::BinaryCondNode* condition;
+    AST::Node* node;
+    AST::ExpressionNode* expression;
+    AST::CommandNode* command;
+    AST::CommandsNode* commands;
+    AST::DeclarationsNode* declarations;
+    AST::MainNode* main;
+    AST::ProgramNode* program_all;
+    AST::IdentifierNode* identifier;
+    AST::ValueNode* value;
+    AST::BinaryCondNode* condition;
     std::string* str;
     long long num;
 }
@@ -34,10 +34,10 @@
 int yylex(YYSTYPE* yylval_param, void * yyscanner);
 extern int yyget_lineno(void*);
 extern char* yyget_text(void*);
-void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const char *s);
+void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const char *s);
 #define YYLEX_PARAM scanner
-#define BINARY_OP_NODE(op, v1, v2) LangAST::BinaryOpNode(op, std::unique_ptr<LangAST::ValueNode>(v1), std::unique_ptr<LangAST::ValueNode>(v2))
-#define BINARY_COND_OP_NODE(op, v1, v2) LangAST::BinaryCondOpNode(op, std::unique_ptr<LangAST::ValueNode>(v1), std::unique_ptr<LangAST::ValueNode>(v2))
+#define BINARY_OP_NODE(op, v1, v2) AST::BinaryOpNode(op, std::unique_ptr<AST::ValueNode>(v1), std::unique_ptr<AST::ValueNode>(v2))
+#define BINARY_COND_OP_NODE(op, v1, v2) AST::BinaryCondOpNode(op, std::unique_ptr<AST::ValueNode>(v1), std::unique_ptr<AST::ValueNode>(v2))
 }
 
 %type <program_all> program_all
@@ -87,37 +87,37 @@ void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const
 %%
 program_all: 
     main      {
-      $$ = new LangAST::ProgramNode(std::unique_ptr<LangAST::MainNode>($1)); 
-      result = std::unique_ptr<LangAST::ProgramNode>($$);
+      $$ = new AST::ProgramNode(std::unique_ptr<AST::MainNode>($1)); 
+      result = std::unique_ptr<AST::ProgramNode>($$);
     }
   ;
 
 main: 
     KW_PROGRAM KW_IS declarations KW_IN commands KW_END {
-      auto decls = std::unique_ptr<LangAST::DeclarationsNode>($3);
-      auto cmds = std::unique_ptr<LangAST::CommandsNode>($5);
-      $$ = new LangAST::MainNode(std::move(decls), std::move(cmds));
+      auto decls = std::unique_ptr<AST::DeclarationsNode>($3);
+      auto cmds = std::unique_ptr<AST::CommandsNode>($5);
+      $$ = new AST::MainNode(std::move(decls), std::move(cmds));
     }
   | KW_PROGRAM KW_IS KW_IN commands KW_END { 
-      auto cmds = std::unique_ptr<LangAST::CommandsNode>($4);
-      $$ = new LangAST::MainNode(std::move(cmds));
+      auto cmds = std::unique_ptr<AST::CommandsNode>($4);
+      $$ = new AST::MainNode(std::move(cmds));
     }
   ;
 
 declarations:
-    declarations OP_COMMA identifier { $$ = $1; $$->add_declaration(std::unique_ptr<LangAST::IdentifierNode>($3)); }
-  | identifier                       { $$ = new LangAST::DeclarationsNode(std::unique_ptr<LangAST::IdentifierNode>($1)); }
+    declarations OP_COMMA identifier { $$ = $1; $$->add_declaration(std::unique_ptr<AST::IdentifierNode>($3)); }
+  | identifier                       { $$ = new AST::DeclarationsNode(std::unique_ptr<AST::IdentifierNode>($1)); }
   ;
 
 commands: 
-    commands command { $$ = $1; $$->add_command(std::unique_ptr<LangAST::CommandNode>($2)); }
-  | command          { $$ = new LangAST::CommandsNode(std::unique_ptr<LangAST::CommandNode>($1)); }
+    commands command { $$ = $1; $$->add_command(std::unique_ptr<AST::CommandNode>($2)); }
+  | command          { $$ = new AST::CommandsNode(std::unique_ptr<AST::CommandNode>($1)); }
   ;
 
 command:
-    identifier OP_ASSIGN expr SEMICOLON { $$ = new LangAST::AssignmentNode(std::unique_ptr<LangAST::IdentifierNode>($1), std::unique_ptr<LangAST::ExpressionNode>($3)); }
-  | KW_WRITE value SEMICOLON             { $$ = new LangAST::WriteNode(std::unique_ptr<LangAST::ValueNode>($2)); }
-  | KW_READ identifier SEMICOLON         { $$ = new LangAST::ReadNode(std::unique_ptr<LangAST::IdentifierNode>($2)); }
+    identifier OP_ASSIGN expr SEMICOLON { $$ = new AST::AssignmentNode(std::unique_ptr<AST::IdentifierNode>($1), std::unique_ptr<AST::ExpressionNode>($3)); }
+  | KW_WRITE value SEMICOLON             { $$ = new AST::WriteNode(std::unique_ptr<AST::ValueNode>($2)); }
+  | KW_READ identifier SEMICOLON         { $$ = new AST::ReadNode(std::unique_ptr<AST::IdentifierNode>($2)); }
   ;
 
 expr: 
@@ -140,16 +140,16 @@ condition:
 
 value:
     identifier     { $$ = $1; }
-  | NUMBER         { $$ = new LangAST::ConstantNode($1); }
+  | NUMBER         { $$ = new AST::ConstantNode($1); }
   ;
 
 identifier:
-    PIDENTIFIER    { $$ = new LangAST::IdentifierNode(*$1); delete $1; }
+    PIDENTIFIER    { $$ = new AST::IdentifierNode(*$1); delete $1; }
   ;
 
 %%
 
-void yyerror(void* scanner, std::unique_ptr<LangAST::ProgramNode>& result, const char *s) {
+void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const char *s) {
   char* text = yyget_text(scanner);
   int line = yyget_lineno(scanner);
 

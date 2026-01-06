@@ -9,7 +9,7 @@
 
 namespace Tac {
 
-using ASMCode = std::vector<std::unique_ptr<AsmAST::Node>>;
+using ASMCode = std::vector<std::unique_ptr<Asm::Node>>;
 
 // Helper functions to create ASM instructions
 inline void append_code(ASMCode& dest, ASMCode src) {
@@ -25,22 +25,22 @@ auto make_instr(Args&&... args) {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
-inline auto asm_halt()                        { SymbolTable::inc_ic(); return make_instr<AsmAST::HaltNode>(); }
-inline auto asm_store(long long address)      { SymbolTable::inc_ic(); return make_instr<AsmAST::StoreNode>(address); }
-inline auto asm_load(long long address)       { SymbolTable::inc_ic(); return make_instr<AsmAST::LoadNode>(address); }
-inline auto asm_write()                       { SymbolTable::inc_ic(); return make_instr<AsmAST::WriteNode>(); }
-inline auto asm_read()                        { SymbolTable::inc_ic(); return make_instr<AsmAST::ReadNode>(); }
-inline auto asm_swap(Register reg)            { SymbolTable::inc_ic(); return make_instr<AsmAST::SwapNode>(reg); }
-inline auto asm_reset(Register reg)           { SymbolTable::inc_ic(); return make_instr<AsmAST::ResetNode>(reg); }
-inline auto asm_add(Register reg)             { SymbolTable::inc_ic(); return make_instr<AsmAST::AddNode>(reg); }
-inline auto asm_subtract(Register reg)        { SymbolTable::inc_ic(); return make_instr<AsmAST::SubtractNode>(reg); }
-inline auto asm_shift_left(Register reg)      { SymbolTable::inc_ic(); return make_instr<AsmAST::ShiftLeftNode>(reg); }
-inline auto asm_shift_right(Register reg)     { SymbolTable::inc_ic(); return make_instr<AsmAST::ShiftRightNode>(reg); }
-inline auto asm_increment(Register reg)       { SymbolTable::inc_ic(); return make_instr<AsmAST::IncrementNode>(reg); }
-inline auto asm_jump(std::shared_ptr<AsmAST::Label> label) { SymbolTable::inc_ic(); return make_instr<AsmAST::JumpNode>(label); }
-inline auto asm_jump_if_zero(std::shared_ptr<AsmAST::Label> label) { SymbolTable::inc_ic(); return make_instr<AsmAST::JumpIfZeroNode>(label); }
-inline auto asm_jump_if_positive(std::shared_ptr<AsmAST::Label> label) { SymbolTable::inc_ic(); return make_instr<AsmAST::JumpIfPositiveNode>(label); }
-inline auto asm_label_marker(std::shared_ptr<AsmAST::Label> label) { label->address_ = SymbolTable::get_ic(); return make_instr<AsmAST::LabelMarkerNode>(label); }
+inline auto asm_halt()                        { SymbolTable::inc_ic(); return make_instr<Asm::HaltNode>(); }
+inline auto asm_store(long long address)      { SymbolTable::inc_ic(); return make_instr<Asm::StoreNode>(address); }
+inline auto asm_load(long long address)       { SymbolTable::inc_ic(); return make_instr<Asm::LoadNode>(address); }
+inline auto asm_write()                       { SymbolTable::inc_ic(); return make_instr<Asm::WriteNode>(); }
+inline auto asm_read()                        { SymbolTable::inc_ic(); return make_instr<Asm::ReadNode>(); }
+inline auto asm_swap(Register reg)            { SymbolTable::inc_ic(); return make_instr<Asm::SwapNode>(reg); }
+inline auto asm_reset(Register reg)           { SymbolTable::inc_ic(); return make_instr<Asm::ResetNode>(reg); }
+inline auto asm_add(Register reg)             { SymbolTable::inc_ic(); return make_instr<Asm::AddNode>(reg); }
+inline auto asm_subtract(Register reg)        { SymbolTable::inc_ic(); return make_instr<Asm::SubtractNode>(reg); }
+inline auto asm_shift_left(Register reg)      { SymbolTable::inc_ic(); return make_instr<Asm::ShiftLeftNode>(reg); }
+inline auto asm_shift_right(Register reg)     { SymbolTable::inc_ic(); return make_instr<Asm::ShiftRightNode>(reg); }
+inline auto asm_increment(Register reg)       { SymbolTable::inc_ic(); return make_instr<Asm::IncrementNode>(reg); }
+inline auto asm_jump(std::shared_ptr<Asm::Label> label) { SymbolTable::inc_ic(); return make_instr<Asm::JumpNode>(label); }
+inline auto asm_jump_if_zero(std::shared_ptr<Asm::Label> label) { SymbolTable::inc_ic(); return make_instr<Asm::JumpIfZeroNode>(label); }
+inline auto asm_jump_if_positive(std::shared_ptr<Asm::Label> label) { SymbolTable::inc_ic(); return make_instr<Asm::JumpIfPositiveNode>(label); }
+inline auto asm_label_marker(std::shared_ptr<Asm::Label> label) { label->address_ = SymbolTable::get_ic(); return make_instr<Asm::LabelMarkerNode>(label); }
 
 class Node {
 public:
@@ -242,7 +242,7 @@ private:
 
 class JumpNode : public InstructionNode {
 public:
-    JumpNode(std::shared_ptr<AsmAST::Label> label) : target_label_(label) {}
+    JumpNode(std::shared_ptr<Asm::Label> label) : target_label_(label) {}
 
     std::string to_string(int level = 0) const override {
         return util::pad(level) + "JUMP TO: " + std::to_string(target_label_->address_);
@@ -254,12 +254,12 @@ public:
         return code;
     }
 private:
-    std::shared_ptr<AsmAST::Label> target_label_;
+    std::shared_ptr<Asm::Label> target_label_;
 };
 
 class JumpIfZeroNode : public InstructionNode {
 public:
-    JumpIfZeroNode(std::unique_ptr<ValueNode> condition, std::shared_ptr<AsmAST::Label> label) : 
+    JumpIfZeroNode(std::unique_ptr<ValueNode> condition, std::shared_ptr<Asm::Label> label) : 
         condition_(std::move(condition)), 
         target_label_(label) {}
 
@@ -279,12 +279,12 @@ public:
     }
 private:
     std::unique_ptr<ValueNode> condition_;
-    std::shared_ptr<AsmAST::Label> target_label_;
+    std::shared_ptr<Asm::Label> target_label_;
 };
 
 class JumpIfPositiveNode : public InstructionNode {
 public:
-    JumpIfPositiveNode(std::unique_ptr<ValueNode> condition, std::shared_ptr<AsmAST::Label> label) : 
+    JumpIfPositiveNode(std::unique_ptr<ValueNode> condition, std::shared_ptr<Asm::Label> label) : 
         condition_(std::move(condition)), 
         target_label_(label) {}
     
@@ -304,7 +304,7 @@ public:
     }
 private:
     std::unique_ptr<ValueNode> condition_;
-    std::shared_ptr<AsmAST::Label> target_label_;
+    std::shared_ptr<Asm::Label> target_label_;
 };
 
 class AddNode : public InstructionNode {
@@ -394,9 +394,9 @@ public:
 
     ASMCode to_asm() const override {
         ASMCode code;
-        auto label_loop = std::make_shared<AsmAST::Label>("LOOP_START");
-        auto label_bit_zero = std::make_shared<AsmAST::Label>("BIT_ZERO");
-        auto label_end = std::make_shared<AsmAST::Label>("LOOP_END");
+        auto label_loop = std::make_shared<Asm::Label>("LOOP_START");
+        auto label_bit_zero = std::make_shared<Asm::Label>("BIT_ZERO");
+        auto label_end = std::make_shared<Asm::Label>("LOOP_END");
 
         append_code(code, right_->to_asm());   // ra = right
         code.push_back(asm_swap(Register::RB)); // rb = right

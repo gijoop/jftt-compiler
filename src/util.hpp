@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "register.hpp"
-#include "operator.hpp"
+#include "types.hpp"
+#include "tac/tac.hpp"
 
 namespace util {
 
@@ -67,6 +67,23 @@ inline std::string to_string(BinaryCondOp op) {
             return ">=";
         default:
             return "unknown";
+    }
+}
+
+inline Tac::OpCode to_tac_op(BinaryOp op) {
+    switch (op) {
+        case BinaryOp::ADD:
+            return Tac::OpCode::ADD;
+        case BinaryOp::SUB:
+            return Tac::OpCode::SUB;
+        case BinaryOp::MUL:
+            return Tac::OpCode::MUL;
+        case BinaryOp::DIV:
+            return Tac::OpCode::DIV;
+        case BinaryOp::MOD:
+            return Tac::OpCode::MOD;
+        default:
+            throw std::runtime_error("Unknown BinaryOp");
     }
 }
 

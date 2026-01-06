@@ -2,9 +2,10 @@
 #include <fstream>
 #include <string>
 
-#include "ast/lang.hpp"
-#include "ast/tac.hpp"
-#include "parser_wrapper.hpp"
+#include "ast/ast.hpp"
+#include "tac/tac_generator.hpp"
+#include "asm/asm_generator.hpp"
+#include "parser/parser_wrapper.hpp"
 #include "analyzer/declaration_checker.hpp"
 
 #define USAGE "Usage: " << argv[0] << " <source_code> <output_file>"
@@ -37,7 +38,7 @@ int main(int argc, char** argv) {
     }
 
     try {
-        LangAST::DeclarationChecker decl_checker;
+        AST::DeclarationChecker decl_checker;
         lang_ast->accept(decl_checker);
     } catch (const SemanticError& e) {
         std::cerr << e.what() << std::endl;
@@ -45,10 +46,29 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "Lang AST:\n" << lang_ast->to_string() << std::endl;
-    auto tac = lang_ast->to_tac_program();
 
-    std::cout << "TAC:\n" << tac->to_string() << std::endl;
-    auto asm_code = tac->to_asm();
+
+    Tac::Program tac_program;
+    {
+        TacGenerator tac_gen(tac_program);
+        lang_ast->accept(tac_gen);
+    }
+
+    std::cout << "Generated TAC Instructions:\n";
+    for (const auto& instr : tac_program.instructions) {
+        std::cout << instr.to_string() << std::endl;
+    }
+    TacToAsmCompiler compiler(tac_program);
+    auto asm_code = compiler.compile();
+
+    // int instr_count = 0;
+    // for (const auto& instr : asm_code) {
+    //     if (instr.op == Asm::Code::LABEL) {
+    //         instr.label->address = instr_count;
+    //         continue;
+    //     } 
+    //     instr_count++;
+    // }
 
     std::string output_file = argv[2];
     std::ofstream out(output_file);
@@ -56,11 +76,9 @@ int main(int argc, char** argv) {
         std::cerr << "Error: Could not open output file " << output_file << std::endl;
         return 1;
     }
-
     for (const auto& instr : asm_code) {
-        out << instr->to_string() << "\n";
+        out << instr.to_string() << std::endl;
     }
-
     out.close();
     std::cout << "Compilation successful! Saved to: " << output_file << std::endl;
 
