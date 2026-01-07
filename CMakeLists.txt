@@ -36,8 +36,11 @@ add_executable(tests
     test/add_test.cpp
     test/sub_test.cpp
     test/mul_test.cpp
+    test/div_test.cpp
+    test/mod_test.cpp
     test/if_test.cpp
     test/while_test.cpp
+    test/repeat_test.cpp
 )
 target_link_libraries(tests PRIVATE compiler_core GTest::gtest_main)
 

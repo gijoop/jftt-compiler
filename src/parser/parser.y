@@ -50,7 +50,7 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %type <value> value
 %type <condition> condition
 
-%token SEMICOLON ";"
+
 %token <num> NUMBER "NUMBER"
 %token <str> PIDENTIFIER "IDENTIFIER"
 
@@ -76,7 +76,6 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %token KW_REPEAT "REPEAT"
 %token KW_UNTIL "UNTIL"
 
-
 // Operators
 %token OP_ASSIGN ":="
 %token OP_PLUS "+"
@@ -93,6 +92,7 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %token OP_GE ">="
 %token OP_LE "<="
 
+%token SEMICOLON ";"
 %token COMMA ","
 %token LPAREN "("
 %token RPAREN ")"
@@ -138,6 +138,7 @@ command:
   | KW_IF condition KW_THEN commands KW_ENDIF                   { $$ = new AST::IfNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4)); }
   | KW_IF condition KW_THEN commands KW_ELSE commands KW_ENDIF  { $$ = new AST::IfNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4), std::unique_ptr<AST::CommandsNode>($6)); }
   | KW_WHILE condition KW_DO commands KW_ENDWHILE               { $$ = new AST::WhileNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4)); }
+  | KW_REPEAT commands KW_UNTIL condition SEMICOLON             { $$ = new AST::RepeatNode(std::unique_ptr<AST::BinaryCondNode>($4), std::unique_ptr<AST::CommandsNode>($2)); }
   | KW_WRITE value SEMICOLON                                    { $$ = new AST::WriteNode(std::unique_ptr<AST::ValueNode>($2)); }
   | KW_READ identifier SEMICOLON                                { $$ = new AST::ReadNode(std::unique_ptr<AST::IdentifierNode>($2)); }
   ;

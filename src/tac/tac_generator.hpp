@@ -126,8 +126,8 @@ public:
         node.commands()->accept(*this);
 
         node.condition()->accept(*this);
-        // If condition is false, exit loop
-        program.emit({Tac::OpCode::JZERO, last_result, std::nullopt, label_end});
+        // If condition is true, exit loop
+        program.emit({Tac::OpCode::JPOS, last_result, std::nullopt, label_end});
 
         program.emit({Tac::OpCode::JMP, label_start, std::nullopt, std::nullopt});
 

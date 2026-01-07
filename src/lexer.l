@@ -32,6 +32,9 @@ void yyerror(void* scanner, AST::ProgramNode** result, const char *s);
 "DO"       { return KW_DO; }
 "ENDWHILE" { return KW_ENDWHILE; }
 
+"REPEAT"   { return KW_REPEAT; }
+"UNTIL"    { return KW_UNTIL; }
+
 ":="       { return OP_ASSIGN; }
 ","        { return COMMA; }
 

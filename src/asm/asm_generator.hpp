@@ -129,6 +129,128 @@ public:
                     break;
                 }
 
+                case Tac::OpCode::DIV:
+                case Tac::OpCode::MOD: {
+                    // Generate unique labels
+                    auto label_align = std::make_shared<Asm::Label>("DIV_ALIGN");
+                    auto label_calc  = std::make_shared<Asm::Label>("DIV_CALC");
+                    auto label_check = std::make_shared<Asm::Label>("DIV_CHECK");
+                    auto label_end   = std::make_shared<Asm::Label>("DIV_END");
+
+                    // ---------------------------------------------------------
+                    // 1. SETUP & LOADING (Order is critical!)
+                    // ---------------------------------------------------------
+
+                    // A. Load Divisor (arg2) -> RB
+                    load_to_ra(*instr.arg2); 
+                    // CHECK ZERO BEFORE SWAP (while value is still in RA)
+                    asm_code.push_back(Asm::make(Code::JZERO, label_end)); 
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // RB = Divisor
+
+                    // B. Load Dividend (arg1) -> RC
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RC)); // RC = Dividend (Remainder)
+
+                    // C. Init Quotient (RD) = 0
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA)); // RA = 0
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RD));  // RD = 0, RA = OldRD
+
+                    // D. Init Mask (RE) = 1
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA)); // RA = 0
+                    asm_code.push_back(Asm::make(Code::INC, Register::RA));   // RA = 1
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RE));  // RE = 1, RA = OldRE
+
+                    // ---------------------------------------------------------
+                    // 2. ALIGNMENT PHASE (Shift Divisor Left)
+                    // ---------------------------------------------------------
+                    asm_code.push_back(Asm::make(Code::LABEL, label_align));
+
+                    // Check: Is Divisor (RB) > Remainder (RC)?
+                    // Calc: RA = RB - RC
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RC));
+                    // If RB - RC > 0, RB is too big, so we are done aligning.
+                    asm_code.push_back(Asm::make(Code::JPOS, label_calc));
+
+                    // Shift Divisor (RB) Left
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));
+                    asm_code.push_back(Asm::make(Code::SHL, Register::RA));
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
+
+                    // Shift Mask (RE) Left
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RE));
+                    asm_code.push_back(Asm::make(Code::SHL, Register::RA));
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RE));
+
+                    asm_code.push_back(Asm::make(Code::JUMP, label_align));
+
+                    // ---------------------------------------------------------
+                    // 3. CALCULATION PHASE (Subtract and Shift Right)
+                    // ---------------------------------------------------------
+                    asm_code.push_back(Asm::make(Code::LABEL, label_calc));
+
+                    // Loop Condition: If Mask (RE) is 0, we are finished.
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RE));
+                    asm_code.push_back(Asm::make(Code::JZERO, label_end));
+
+                    // Check: Does Divisor (RB) fit in Remainder (RC)?
+                    // We want to know if RC >= RB.
+                    // Test: RA = RB - RC.
+                    // If RA > 0 (Pos), then RB > RC (Doesn't fit).
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RC));
+                    asm_code.push_back(Asm::make(Code::JPOS, label_check));
+
+                    // IT FITS:
+                    // 1. Remainder = Remainder - Divisor
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RC));
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RB));
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RC));
+
+                    // 2. Quotient = Quotient + Mask
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RD));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RE));
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RD));
+
+                    asm_code.push_back(Asm::make(Code::LABEL, label_check));
+
+                    // Shift Divisor (RB) Right
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));
+                    asm_code.push_back(Asm::make(Code::SHR, Register::RA));
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
+
+                    // Shift Mask (RE) Right
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RE));
+                    asm_code.push_back(Asm::make(Code::SHR, Register::RA));
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RE));
+
+                    asm_code.push_back(Asm::make(Code::JUMP, label_calc));
+
+                    // ---------------------------------------------------------
+                    // 4. FINALIZE (Store Result)
+                    // ---------------------------------------------------------
+                    asm_code.push_back(Asm::make(Code::LABEL, label_end));
+                    
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    if (instr.op == Tac::OpCode::DIV) {
+                        asm_code.push_back(Asm::make(Code::ADD, Register::RD)); // Result = Quotient
+                    } else {
+                        asm_code.push_back(Asm::make(Code::ADD, Register::RC)); // Result = Remainder
+                    }
+                    
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    break;
+                }
+
                 case Tac::OpCode::ASSIGN: {
                     load_to_ra(*instr.arg1);
                     asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
