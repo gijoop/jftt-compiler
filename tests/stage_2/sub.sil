@@ -1,6 +1,0 @@
-PROGRAM IS
-x
-IN
-    x := 5000-125;
-    WRITE x;
-END

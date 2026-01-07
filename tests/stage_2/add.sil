@@ -1,6 +1,0 @@
-PROGRAM IS
-x
-IN
-    x := 123+12345;
-    WRITE x;
-END

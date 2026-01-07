@@ -46,6 +46,20 @@ public:
         last_result = op_res;
     }
 
+    void visit(AST::BinaryCondNode& node) override {
+        node.left()->accept(*this);
+        Tac::Operand op_left = last_result;
+
+        node.right()->accept(*this);
+        Tac::Operand op_right = last_result;
+
+        Tac::Operand op_res = program.new_temp();
+        Tac::OpCode code = util::to_tac_op(node.op());
+
+        program.emit({code, op_left, op_right, op_res});
+        last_result = op_res;
+    }
+
     void visit(AST::AssignmentNode& node) override {
         node.expr()->accept(*this);
         Tac::Operand target = Tac::Operand::make_var(node.id()->get_name());
@@ -70,23 +84,53 @@ public:
         program.emit({Tac::OpCode::HALT, std::nullopt, std::nullopt, std::nullopt});
     }
 
-    // Przykład obsługi przyszłego IF (dla instrukcji warunkowych)
-    /*
-    void visit(IfNode& node) {
+    void visit(AST::IfNode& node) override {
         Tac::Operand label_else = program.new_label();
         Tac::Operand label_end = program.new_label();
 
         node.condition()->accept(*this);
-        // Zakładamy, że condition zwraca 0 dla fałszu
-        program.emit({Tac::OpCode::JIFZ, last_result, std::nullopt, label_else});
+        // IF condition is false, jump to ELSE
+        program.emit({Tac::OpCode::JZERO, last_result, std::nullopt, label_else});
 
-        node.then_block()->accept(*this);
+        node.then_commands()->accept(*this);
         program.emit({Tac::OpCode::JMP, label_end, std::nullopt, std::nullopt});
 
         program.emit({Tac::OpCode::LABEL, label_else, std::nullopt, std::nullopt});
-        if(node.else_block()) node.else_block()->accept(*this);
+        if(node.else_commands()) node.else_commands().value()->accept(*this);
         
         program.emit({Tac::OpCode::LABEL, label_end, std::nullopt, std::nullopt});
     }
-    */
+
+    void visit(AST::WhileNode& node) override {
+        Tac::Operand label_start = program.new_label();
+        Tac::Operand label_end = program.new_label();
+
+        program.emit({Tac::OpCode::LABEL, label_start, std::nullopt, std::nullopt});
+
+        node.condition()->accept(*this);
+        // If condition is false, exit loop
+        program.emit({Tac::OpCode::JZERO, last_result, std::nullopt, label_end});
+
+        node.commands()->accept(*this);
+        program.emit({Tac::OpCode::JMP, label_start, std::nullopt, std::nullopt});
+
+        program.emit({Tac::OpCode::LABEL, label_end, std::nullopt, std::nullopt});
+    }
+
+    void visit(AST::RepeatNode& node) override {
+        Tac::Operand label_start = program.new_label();
+        Tac::Operand label_end = program.new_label();
+
+        program.emit({Tac::OpCode::LABEL, label_start, std::nullopt, std::nullopt});
+        
+        node.commands()->accept(*this);
+
+        node.condition()->accept(*this);
+        // If condition is false, exit loop
+        program.emit({Tac::OpCode::JZERO, last_result, std::nullopt, label_end});
+
+        program.emit({Tac::OpCode::JMP, label_start, std::nullopt, std::nullopt});
+
+        program.emit({Tac::OpCode::LABEL, label_end, std::nullopt, std::nullopt});
+    }
 };

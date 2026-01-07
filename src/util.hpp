@@ -87,4 +87,23 @@ inline Tac::OpCode to_tac_op(BinaryOp op) {
     }
 }
 
+inline Tac::OpCode to_tac_op(BinaryCondOp op) {
+    switch (op) {
+        case BinaryCondOp::EQ:
+            return Tac::OpCode::EQ;
+        case BinaryCondOp::NEQ:
+            return Tac::OpCode::NEQ;
+        case BinaryCondOp::LT:
+            return Tac::OpCode::LT;
+        case BinaryCondOp::LTE:
+            return Tac::OpCode::LTE;
+        case BinaryCondOp::GT:
+            return Tac::OpCode::GT;
+        case BinaryCondOp::GTE:
+            return Tac::OpCode::GTE;
+        default:
+            throw std::runtime_error("Unknown BinaryCondOp");
+    }
+}
+
 } // namespace util

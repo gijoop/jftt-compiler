@@ -11,7 +11,7 @@
 
 using namespace Asm;
 
-class TacToAsmCompiler {
+class AsmGenerator {
     using ASMCode = std::vector<Asm::Instruction>;
 
     Tac::Program& tac_program;
@@ -26,6 +26,7 @@ class TacToAsmCompiler {
             std::vector<bool> bits;
             bits.reserve(64);
             long long temp = op.value;
+
             while (temp > 0) {
                 bits.push_back(temp % 2 != 0);
                 temp /= 2;
@@ -44,8 +45,15 @@ class TacToAsmCompiler {
         }
     }
 
+    void copy_to_ra(Register reg) {
+        if (reg == Register::RA) return;
+
+        asm_code.push_back(make(Code::RESET, Register::RA));
+        asm_code.push_back(make(Code::ADD, reg));
+    }
+
 public:
-    TacToAsmCompiler(Tac::Program& p) : tac_program(p) {}
+    AsmGenerator(Tac::Program& p) : tac_program(p) {}
 
     ASMCode compile() {
         std::unordered_map<std::string, std::shared_ptr<Asm::Label>> labels;
@@ -69,9 +77,9 @@ public:
                 }
 
                 case Tac::OpCode::SUB: {
-                    load_to_ra(*instr.arg1);
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
                     load_to_ra(*instr.arg2);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
+                    load_to_ra(*instr.arg1);
                     asm_code.push_back(Asm::make(Code::SUB, Register::RB));  // RA = t1 - t0
                     asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result))); // zapisz do t2
                     break;
@@ -167,6 +175,144 @@ public:
 
                 case Tac::OpCode::HALT: {
                     asm_code.push_back(Asm::make(Code::HALT));
+                    break;
+                }
+
+                case Tac::OpCode::EQ: {
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = arg1
+                    load_to_ra(*instr.arg2);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RC)); // rc = arg2
+                    copy_to_ra(Register::RC); // ra = arg2
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RB)); // ra = arg2 - arg1
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // ra = arg1, rb = arg2 - arg1
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RC)); // ra = arg1 - arg2
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RB)); // ra = (arg2 - arg1) + (arg1 - arg2)
+
+                    auto label_set_true = std::make_shared<Asm::Label>("EQ_SET_TRUE");
+                    auto label_end = std::make_shared<Asm::Label>("EQ_END");
+                    asm_code.push_back(Asm::make(Code::JZERO, label_set_true));
+                    // False case
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::JUMP, label_end));
+                    // True case
+                    asm_code.push_back(Asm::make(Code::LABEL, label_set_true));
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::INC, Register::RA));
+                    // End
+                    asm_code.push_back(Asm::make(Code::LABEL, label_end));
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    break;
+                }
+                case Tac::OpCode::NEQ: {
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = arg1
+                    load_to_ra(*instr.arg2);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RC)); // rc = arg2
+                    copy_to_ra(Register::RC); // ra = arg2
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RB)); // ra = arg2 - arg1
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // ra = arg1, rb = arg2 - arg1
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RC)); // ra = arg1 - arg2
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RB)); // ra = (arg2 - arg1) + (arg1 - arg2)
+
+                    auto label_set_true = std::make_shared<Asm::Label>("NEQ_SET_TRUE");
+                    auto label_end = std::make_shared<Asm::Label>("NEQ_END");
+                    asm_code.push_back(Asm::make(Code::JPOS, label_set_true));
+                    // False case
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::JUMP, label_end));
+                    // True case
+                    asm_code.push_back(Asm::make(Code::LABEL, label_set_true));
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::INC, Register::RA));
+                    // End
+                    asm_code.push_back(Asm::make(Code::LABEL, label_end));
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    break;
+                }
+                case Tac::OpCode::LT: {
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = arg1
+                    load_to_ra(*instr.arg2);
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RB)); // ra = arg1 - arg2
+
+                    auto label_set_true = std::make_shared<Asm::Label>("LT_SET_TRUE");
+                    auto label_end = std::make_shared<Asm::Label>("LT_END");
+                    asm_code.push_back(Asm::make(Code::JPOS, label_set_true));
+                    // False case
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::JUMP, label_end));
+                    // True case
+                    asm_code.push_back(Asm::make(Code::LABEL, label_set_true));
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::INC, Register::RA));
+                    // End
+                    asm_code.push_back(Asm::make(Code::LABEL, label_end));
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    break;
+                }
+                case Tac::OpCode::GT: {
+                    load_to_ra(*instr.arg2);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = arg2
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RB)); // ra = arg2 - arg1
+
+                    auto label_set_true = std::make_shared<Asm::Label>("GT_SET_TRUE");
+                    auto label_end = std::make_shared<Asm::Label>("GT_END");
+                    asm_code.push_back(Asm::make(Code::JPOS, label_set_true));
+                    // False case
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::JUMP, label_end));
+                    // True case
+                    asm_code.push_back(Asm::make(Code::LABEL, label_set_true));
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::INC, Register::RA));
+                    // End
+                    asm_code.push_back(Asm::make(Code::LABEL, label_end));
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    break;
+                }
+                case Tac::OpCode::LTE: {
+                    load_to_ra(*instr.arg2);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = arg2
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RB)); // ra = arg2 - arg1
+
+                    auto label_set_false = std::make_shared<Asm::Label>("LTE_SET_FALSE");
+                    auto label_end = std::make_shared<Asm::Label>("LTE_END");
+                    asm_code.push_back(Asm::make(Code::JPOS, label_set_false));
+                    // True case
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::INC, Register::RA));
+                    asm_code.push_back(Asm::make(Code::JUMP, label_end));
+                    // False case
+                    asm_code.push_back(Asm::make(Code::LABEL, label_set_false));
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    // End
+                    asm_code.push_back(Asm::make(Code::LABEL, label_end));
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    break;
+                }
+                case Tac::OpCode::GTE: {
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = arg1
+                    load_to_ra(*instr.arg2);
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RB)); // ra = arg1 - arg2
+
+                    auto label_set_false = std::make_shared<Asm::Label>("GTE_SET_FALSE");
+                    auto label_end = std::make_shared<Asm::Label>("GTE_END");
+                    asm_code.push_back(Asm::make(Code::JPOS, label_set_false));
+                    // True case
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::INC, Register::RA));
+                    asm_code.push_back(Asm::make(Code::JUMP, label_end));
+                    // False case
+                    asm_code.push_back(Asm::make(Code::LABEL, label_set_false));
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::JUMP, label_end));
+                    // End
+                    asm_code.push_back(Asm::make(Code::LABEL, label_end));
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
                     break;
                 }
 

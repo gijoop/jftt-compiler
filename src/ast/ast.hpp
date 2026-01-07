@@ -217,6 +217,110 @@ private:
     std::unique_ptr<ValueNode> expr_;
 };
 
+class IfNode : public CommandNode {
+public:
+    IfNode(
+        std::unique_ptr<BinaryCondNode> condition, 
+        std::unique_ptr<CommandsNode> then_commands,
+        std::optional<std::unique_ptr<CommandsNode>> else_commands = std::nullopt) :
+        condition_(std::move(condition)),
+        then_commands_(std::move(then_commands)),
+        else_commands_(std::move(else_commands)) {}
+    
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "IF:\n" +
+                             condition_->to_string(level + 1) + "\n" +
+                             util::pad(level) + "THEN:\n" +
+                             then_commands_->to_string(level + 1);
+        if (else_commands_) {
+            result += "\n" + util::pad(level) + "ELSE:\n" +
+                      (*else_commands_)->to_string(level + 1);
+        }
+        return result;
+    }
+    
+    const std::unique_ptr<BinaryCondNode>& condition() const {
+        return condition_;
+    }
+
+    const std::unique_ptr<CommandsNode>& then_commands() const {
+        return then_commands_;
+    }
+
+    const std::optional<std::unique_ptr<CommandsNode>>& else_commands() const {
+        return else_commands_;
+    }
+
+private:
+    std::unique_ptr<BinaryCondNode> condition_;
+    std::unique_ptr<CommandsNode> then_commands_;
+    std::optional<std::unique_ptr<CommandsNode>> else_commands_;
+};
+
+class WhileNode : public CommandNode {
+public:
+    WhileNode(
+        std::unique_ptr<BinaryCondNode> condition, 
+        std::unique_ptr<CommandsNode> commands) :
+        condition_(std::move(condition)),
+        commands_(std::move(commands)) {}
+    
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "WHILE:\n" +
+                             condition_->to_string(level + 1) + "\n" +
+                             util::pad(level) + "DO:\n" +
+                             commands_->to_string(level + 1);
+        return result;
+    }
+
+    const std::unique_ptr<BinaryCondNode>& condition() const {
+        return condition_;
+    }
+
+    const std::unique_ptr<CommandsNode>& commands() const {
+        return commands_;
+    }
+
+private:
+    std::unique_ptr<BinaryCondNode> condition_;
+    std::unique_ptr<CommandsNode> commands_;
+};
+
+class RepeatNode : public CommandNode {
+public:
+    RepeatNode(
+        std::unique_ptr<BinaryCondNode> condition, 
+        std::unique_ptr<CommandsNode> commands) :
+        condition_(std::move(condition)),
+        commands_(std::move(commands)) {}
+    
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "REPEAT:\n" +
+                             commands_->to_string(level + 1) + "\n" +
+                             util::pad(level) + "UNTIL:\n" +
+                             condition_->to_string(level + 1);
+        return result;
+    }
+
+    const std::unique_ptr<BinaryCondNode>& condition() const {
+        return condition_;
+    }
+
+    const std::unique_ptr<CommandsNode>& commands() const {
+        return commands_;
+    }
+
+private:
+    std::unique_ptr<BinaryCondNode> condition_;
+    std::unique_ptr<CommandsNode> commands_;
+};
+
 class ReadNode : public CommandNode {
 public:
     ReadNode(std::unique_ptr<IdentifierNode> id) : id_(std::move(id)) {}

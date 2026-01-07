@@ -23,8 +23,17 @@ void yyerror(void* scanner, AST::ProgramNode** result, const char *s);
 "WRITE"    { return KW_WRITE; }
 "READ"     { return KW_READ; }
 
+"IF"       { return KW_IF; }
+"THEN"     { return KW_THEN; }
+"ELSE"     { return KW_ELSE; }
+"ENDIF"    { return KW_ENDIF; }
+
+"WHILE"    { return KW_WHILE; }
+"DO"       { return KW_DO; }
+"ENDWHILE" { return KW_ENDWHILE; }
+
 ":="       { return OP_ASSIGN; }
-","        { return OP_COMMA; }
+","        { return COMMA; }
 
 "+"        { return OP_PLUS; }
 "-"        { return OP_MINUS; }

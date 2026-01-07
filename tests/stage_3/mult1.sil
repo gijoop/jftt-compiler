@@ -1,6 +1,0 @@
-PROGRAM IS
-x
-IN
-    x := 5 * 5;
-    WRITE x;
-END

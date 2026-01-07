@@ -12,6 +12,9 @@ class CommandsNode;
 class ConstantNode;
 class DeclarationsNode;
 class BinaryCondNode;
+class IfNode;
+class WhileNode;
+class RepeatNode;
 } // namespace AST
 
 class AstVisitor {
@@ -28,4 +31,7 @@ public:
     virtual void visit(AST::MainNode& node);
     virtual void visit(AST::ProgramNode& node);
     virtual void visit(AST::BinaryCondNode& node);
+    virtual void visit(AST::IfNode& node);
+    virtual void visit(AST::WhileNode& node);
+    virtual void visit(AST::RepeatNode& node);
 };

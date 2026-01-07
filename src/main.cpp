@@ -58,17 +58,8 @@ int main(int argc, char** argv) {
     for (const auto& instr : tac_program.instructions) {
         std::cout << instr.to_string() << std::endl;
     }
-    TacToAsmCompiler compiler(tac_program);
+    AsmGenerator compiler(tac_program);
     auto asm_code = compiler.compile();
-
-    // int instr_count = 0;
-    // for (const auto& instr : asm_code) {
-    //     if (instr.op == Asm::Code::LABEL) {
-    //         instr.label->address = instr_count;
-    //         continue;
-    //     } 
-    //     instr_count++;
-    // }
 
     std::string output_file = argv[2];
     std::ofstream out(output_file);
