@@ -80,7 +80,15 @@ public:
     }
 
     void visit(AST::ProgramNode& node) override {
+        auto main_label = Tac::Operand::make_label("MAIN");
+        program.emit({Tac::OpCode::JMP, main_label, std::nullopt, std::nullopt});
+
+        node.procedures()->accept(*this);
+
+        program.emit({Tac::OpCode::LABEL, main_label, std::nullopt, std::nullopt});
+
         node.main()->accept(*this);
+
         program.emit({Tac::OpCode::HALT, std::nullopt, std::nullopt, std::nullopt});
     }
 
@@ -132,5 +140,29 @@ public:
         program.emit({Tac::OpCode::JMP, label_start, std::nullopt, std::nullopt});
 
         program.emit({Tac::OpCode::LABEL, label_end, std::nullopt, std::nullopt});
+    }
+
+    void visit(AST::ProcHeadNode& node) override {}
+
+    void visit(AST::ProcedureNode& node) override {
+        Tac::Operand proc_label = Tac::Operand::make_label(node.head()->name());
+        program.emit({Tac::OpCode::LABEL, proc_label, std::nullopt, std::nullopt});
+        
+        auto tmp_proc_return = program.new_temp();
+        program.emit({Tac::OpCode::FUNC_ENTER, tmp_proc_return, std::nullopt, std::nullopt});
+
+        // Procedure body
+        node.head()->accept(*this);
+        node.commands()->accept(*this);
+
+        // End of procedure - return
+        program.emit({Tac::OpCode::FUNC_EXIT, tmp_proc_return, std::nullopt, std::nullopt});
+        program.emit({Tac::OpCode::RETURN, std::nullopt, std::nullopt, std::nullopt});
+    }
+
+    void visit(AST::ProcedureCallNode& node) override {
+        // Call procedure
+        Tac::Operand proc_label = Tac::Operand::make_label(node.name());
+        program.emit({Tac::OpCode::CALL, proc_label, std::nullopt, std::nullopt});
     }
 };

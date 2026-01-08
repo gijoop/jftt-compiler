@@ -15,6 +15,10 @@ class BinaryCondNode;
 class IfNode;
 class WhileNode;
 class RepeatNode;
+class ProcHeadNode;
+class ProcedureNode;
+class ProceduresNode;
+class ProcedureCallNode;
 } // namespace AST
 
 class AstVisitor {
@@ -34,4 +38,8 @@ public:
     virtual void visit(AST::IfNode& node);
     virtual void visit(AST::WhileNode& node);
     virtual void visit(AST::RepeatNode& node);
+    virtual void visit(AST::ProcHeadNode& node);
+    virtual void visit(AST::ProcedureNode& node);
+    virtual void visit(AST::ProceduresNode& node);
+    virtual void visit(AST::ProcedureCallNode& node);
 };

@@ -2,8 +2,11 @@
 
 #include <map>
 #include <string>
+#include <set>
+#include <algorithm>
 
 #include "ast/ast.hpp"
+#include "tac/tac.hpp"
 
 class SymbolTable {
 public:
@@ -37,7 +40,7 @@ public:
     }
 
 private:
-    SymbolTable() : next_addr_(0) {}
+    SymbolTable() : next_addr_(0), table_() {}
     
     static SymbolTable& instance() {
         static SymbolTable inst;

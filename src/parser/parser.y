@@ -26,6 +26,10 @@
     AST::IdentifierNode* identifier;
     AST::ValueNode* value;
     AST::BinaryCondNode* condition;
+    AST::ProcHeadNode* proc_head;
+    AST::ProcedureNode* procedure;
+    AST::ProceduresNode* procedures;
+    AST::ProcedureCallNode* proc_call;
     std::string* str;
     long long num;
 }
@@ -49,7 +53,9 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %type <expression> expr
 %type <value> value
 %type <condition> condition
-
+%type <procedures> procedures
+%type <proc_head> proc_head
+%type <proc_call> proc_call
 
 %token <num> NUMBER "NUMBER"
 %token <str> PIDENTIFIER "IDENTIFIER"
@@ -99,22 +105,27 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 
 %%
 program_all: 
-    main      {
-      $$ = new AST::ProgramNode(std::unique_ptr<AST::MainNode>($1)); 
+    procedures main      {
+      $$ = new AST::ProgramNode(std::unique_ptr<AST::ProceduresNode>($1), std::unique_ptr<AST::MainNode>($2)); 
       result = std::unique_ptr<AST::ProgramNode>($$);
     }
   ;
 
-/* procedures:
+procedures:
     procedures KW_PROCEDURE proc_head KW_IS declarations KW_IN commands KW_END {
-      auto ident = std::unique_ptr<AST::IdentifierNode>($2);
-      auto decls = std::unique_ptr<AST::DeclarationsNode>($4);
+      auto head = std::unique_ptr<AST::ProcHeadNode>($3);
+      auto decls = std::unique_ptr<AST::DeclarationsNode>($5);
+      auto cmds = std::unique_ptr<AST::CommandsNode>($7);
+      $$ = $1;
+      $$->add_procedure(std::unique_ptr<AST::ProcedureNode>(new AST::ProcedureNode(std::move(head), std::move(decls), std::move(cmds))));
+    }
+  | procedures KW_PROCEDURE proc_head KW_IS KW_IN commands KW_END {
+      auto head = std::unique_ptr<AST::ProcHeadNode>($3);
       auto cmds = std::unique_ptr<AST::CommandsNode>($6);
       $$ = $1;
-      $$->add_procedure(std::unique_ptr<AST::ProcedureNode>(new AST::ProcedureNode(std::move(ident), std::move(decls), std::move(cmds))));
+      $$->add_procedure(std::unique_ptr<AST::ProcedureNode>(new AST::ProcedureNode(std::move(head), std::move(cmds))));
     }
-  | KW_PROCEDURE proc_head KW_IS declarations KW_IN commands KW_END {}
-  | { $$ = new AST::ProceduresNode(); } */
+  | { $$ = new AST::ProceduresNode(); }
 
 main: 
     KW_PROGRAM KW_IS declarations KW_IN commands KW_END {
@@ -139,21 +150,22 @@ command:
   | KW_IF condition KW_THEN commands KW_ELSE commands KW_ENDIF  { $$ = new AST::IfNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4), std::unique_ptr<AST::CommandsNode>($6)); }
   | KW_WHILE condition KW_DO commands KW_ENDWHILE               { $$ = new AST::WhileNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4)); }
   | KW_REPEAT commands KW_UNTIL condition SEMICOLON             { $$ = new AST::RepeatNode(std::unique_ptr<AST::BinaryCondNode>($4), std::unique_ptr<AST::CommandsNode>($2)); }
-  | KW_WRITE value SEMICOLON                                    { $$ = new AST::WriteNode(std::unique_ptr<AST::ValueNode>($2)); }
+  | proc_call SEMICOLON                                         {}
   | KW_READ identifier SEMICOLON                                { $$ = new AST::ReadNode(std::unique_ptr<AST::IdentifierNode>($2)); }
+  | KW_WRITE value SEMICOLON                                    { $$ = new AST::WriteNode(std::unique_ptr<AST::ValueNode>($2)); }
   ;
 
-/* proc_head:
-    identifier LPAREN RPAREN { $$ = $1; }
+proc_head:
+    PIDENTIFIER LPAREN RPAREN { $$ = new AST::ProcHeadNode(*$1); delete $1; }
   ;
 
 proc_call:
-    identifier LPAREN RPAREN  { $$ = $1; }
-  ; */
+    PIDENTIFIER LPAREN RPAREN  { $$ = new AST::ProcedureCallNode(*$1); delete $1; }
+  ;
 
 declarations:
-    declarations COMMA identifier { $$ = $1; $$->add_declaration(std::unique_ptr<AST::IdentifierNode>($3)); }
-  | identifier                       { $$ = new AST::DeclarationsNode(std::unique_ptr<AST::IdentifierNode>($1)); }
+    declarations COMMA PIDENTIFIER    { $$ = $1; $$->add_declaration(*$3); delete $3; }
+  | PIDENTIFIER                       { $$ = new AST::DeclarationsNode(*$1); delete $1; }
   ;
 
 expr: 

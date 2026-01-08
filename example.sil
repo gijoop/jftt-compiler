@@ -1,15 +1,9 @@
-PROGRAM IS
-    n, p
+PROCEDURE test() IS
 IN
-    READ n ;
-    REPEAT
-        p := n / 2 ;
-        p := 2 * p ;
-        IF n > p THEN
-            WRITE 1 ;
-        ELSE
-            WRITE 0 ;
-        ENDIF
-        n := n / 2 ;
-    UNTIL n = 0 ;
+    WRITE 42;
+END
+
+PROGRAM IS
+IN
+    test();
 END

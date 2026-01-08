@@ -295,6 +295,27 @@ public:
                     break;
                 }
 
+                case Tac::OpCode::CALL: {
+                    auto lbl = labels[instr.arg1->name];
+                    asm_code.push_back(Asm::make(Code::CALL, lbl));
+                    break;
+                }
+
+                case Tac::OpCode::RETURN: {
+                    asm_code.push_back(Asm::make(Code::RETURN));
+                    break;
+                }
+
+                case Tac::OpCode::FUNC_ENTER: {
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    break;
+                }
+
+                case Tac::OpCode::FUNC_EXIT: {
+                    asm_code.push_back(Asm::make(Code::LOAD, SymbolTable::get_address(*instr.result)));
+                    break;
+                }
+
                 case Tac::OpCode::HALT: {
                     asm_code.push_back(Asm::make(Code::HALT));
                     break;

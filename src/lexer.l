@@ -15,8 +15,11 @@ void yyerror(void* scanner, AST::ProgramNode** result, const char *s);
 [_a-z]+     { yylval->str = new std::string(yytext); return PIDENTIFIER; }
 [0-9]+      { yylval->num = std::stoi(yytext); return NUMBER; }
 ";"         { return SEMICOLON; }
+"("         { return LPAREN; }
+")"         { return RPAREN; }
 [ \t\n]+      ;
-"PROGRAM"  { return KW_PROGRAM; }
+"PROGRAM"   { return KW_PROGRAM; }
+"PROCEDURE" { return KW_PROCEDURE; }
 "IS"       { return KW_IS; }
 "IN"       { return KW_IN; }
 "END"      { return KW_END; }

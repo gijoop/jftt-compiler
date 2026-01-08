@@ -13,9 +13,9 @@ public:
 
     // Rejestrujemy zmienne
     void visit(DeclarationsNode& node) override {
-        for (auto& id : node.ids()) {
-            if (!SymbolTable::declare(id->get_name())) {
-                throw SemanticError("Double declaration of " + id->get_name());
+        for (auto& name : node.names()) {
+            if (!SymbolTable::declare(name)) {
+                throw SemanticError("Double declaration of " + name);
             }
         }
     }

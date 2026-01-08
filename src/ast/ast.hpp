@@ -171,32 +171,32 @@ private:
 
 class DeclarationsNode : public Node {
 public:
-    DeclarationsNode(std::vector<std::unique_ptr<IdentifierNode>> ids) : 
-        ids_(std::move(ids)) {}
+    DeclarationsNode(std::vector<std::string> names) : 
+        names_(std::move(names)) {}
 
-    DeclarationsNode(std::unique_ptr<IdentifierNode> id) {
-        ids_.push_back(std::move(id));
+    DeclarationsNode(std::string name) {
+        names_.push_back(std::move(name));
     }
 
     ACCEPT_VISITOR
 
     std::string to_string(int level = 0) const override {
         std::string result = util::pad(level) + "DECLARATIONS:\n";
-        for (const auto& id : ids_) {
-            result += id->to_string(level + 1) + "\n";
+        for (const auto& name : names_) {
+            result += util::pad(level + 1) + name + "\n";
         }
         return result;
     }
 
-    void add_declaration(std::unique_ptr<IdentifierNode> id) {
-        ids_.push_back(std::move(id));
+    void add_declaration(std::string name) {
+        names_.push_back(std::move(name));
     }
 
-    std::vector<std::unique_ptr<IdentifierNode>>& ids() {
-        return ids_;
+    std::vector<std::string>& names() {
+        return names_;
     }
 private:
-    std::vector<std::unique_ptr<IdentifierNode>> ids_;
+    std::vector<std::string> names_;
 };
 
 class WriteNode : public CommandNode {
@@ -364,26 +364,132 @@ private:
     std::unique_ptr<ExpressionNode> expr_;
 };
 
+class ProcHeadNode : public Node {
+public:
+    ProcHeadNode(std::string name) : name_(name) {}
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "PROC_HEAD: " + name_;
+    }
+
+    const std::string& name() const {
+        return name_;
+    }
+private:
+    std::string name_;
+};
+
+class ProcedureNode : public Node {
+public:
+    ProcedureNode(
+        std::unique_ptr<ProcHeadNode> head, 
+        std::optional<std::unique_ptr<DeclarationsNode>> decls,
+        std::unique_ptr<CommandsNode> cmds) :
+        head_(std::move(head)),
+        decls_(std::move(decls)),
+        commands_(std::move(cmds)) {}
+
+    ProcedureNode(
+        std::unique_ptr<ProcHeadNode> head, 
+        std::unique_ptr<CommandsNode> cmds) :
+        head_(std::move(head)),
+        decls_(std::nullopt),
+        commands_(std::move(cmds)) {}
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "PROCEDURE:\n" +
+               head_->to_string(level + 1) + "\n";
+        if (decls_)  result += (*decls_)->to_string(level + 1) + "\n";
+        result += commands_->to_string(level + 1);
+        return result;
+    }
+
+    const std::unique_ptr<ProcHeadNode>& head() const {
+        return head_;
+    }
+
+    const std::optional<std::unique_ptr<DeclarationsNode>>& declarations() const {
+        return decls_;
+    }
+
+    const std::unique_ptr<CommandsNode>& commands() const {
+        return commands_;
+    }
+private:
+    std::unique_ptr<ProcHeadNode> head_;
+    std::optional<std::unique_ptr<DeclarationsNode>> decls_;
+    std::unique_ptr<CommandsNode> commands_;
+};
+
+class ProceduresNode : public Node {
+public:
+    ProceduresNode() = default;
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "PROCEDURES:\n";
+        for (const auto& proc : procedures_) {
+            result += proc->to_string(level + 1) + "\n";
+        }
+        return result;
+    }
+
+    void add_procedure(std::unique_ptr<ProcedureNode> proc) {
+        procedures_.push_back(std::move(proc));
+    }
+
+    const std::vector<std::unique_ptr<ProcedureNode>>& procedures() const {
+        return procedures_;
+    }
+
+private:
+    std::vector<std::unique_ptr<ProcedureNode>> procedures_;
+};
+
+class ProcedureCallNode : public CommandNode {
+public:
+    ProcedureCallNode(const std::string& name) : name_(name) {}
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        return util::pad(level) + "PROC_CALL: " + name_;
+    }
+    const std::string& name() const {
+        return name_;
+    }
+
+private:
+    std::string name_;
+};
+
 class MainNode : public Node {
 public:
-    MainNode(std::unique_ptr<DeclarationsNode> decls, std::unique_ptr<CommandsNode> cmds) : 
+    MainNode(
+        std::optional<std::unique_ptr<DeclarationsNode>> decls,
+        std::unique_ptr<CommandsNode> cmds) : 
         decls_(std::move(decls)), 
         commands_(std::move(cmds)) {}
 
     MainNode(std::unique_ptr<CommandsNode> cmds) : 
-        decls_(nullptr), 
+        decls_(std::nullopt), 
         commands_(std::move(cmds)) {}
 
     ACCEPT_VISITOR
 
     std::string to_string(int level = 0) const override {
         std::string result = util::pad(level) + "MAIN:\n";
-        if (decls_) result += decls_->to_string(level + 1) + "\n";
+        if (decls_) result += (*decls_)->to_string(level + 1) + "\n";
         if (commands_) result += commands_->to_string(level + 1);
         return result;
     }
 
-    const std::unique_ptr<DeclarationsNode>& declarations() const {
+    const std::optional<std::unique_ptr<DeclarationsNode>>& declarations() const {
         return decls_;
     }
 
@@ -392,24 +498,29 @@ public:
     }
 
 private:
-    std::unique_ptr<DeclarationsNode> decls_;
+    std::optional<std::unique_ptr<DeclarationsNode>> decls_;
     std::unique_ptr<CommandsNode> commands_;
 };
 
 class ProgramNode : public Node {
 public:
-    ProgramNode(std::unique_ptr<MainNode> main) : main_(std::move(main)) {}
+    ProgramNode(std::unique_ptr<ProceduresNode> procedures, std::unique_ptr<MainNode> main) : procedures_(std::move(procedures)), main_(std::move(main)) {}
 
     ACCEPT_VISITOR
 
     std::string to_string(int level = 0) const override {
-        return util::pad(level) + "PROGRAM:\n" + main_->to_string(level + 1);
+        return util::pad(level) + "PROGRAM:\n" + procedures_->to_string(level + 1) + "\n" + main_->to_string(level + 1);
+    }
+
+    const std::unique_ptr<ProceduresNode>& procedures() const {
+        return procedures_;
     }
 
     const std::unique_ptr<MainNode>& main() const {
         return main_;
     }
 private:
+    std::unique_ptr<ProceduresNode> procedures_;
     std::unique_ptr<MainNode> main_;
 };
 
