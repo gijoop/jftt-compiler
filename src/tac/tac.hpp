@@ -96,8 +96,6 @@ struct Instruction {
 class Program {
 public:
     std::vector<Instruction> instructions;
-    int temp_counter = 0;
-    int label_counter = 0;
 
     Operand new_temp() {
         return Operand::make_temp(temp_counter++);
@@ -110,6 +108,9 @@ public:
     void emit(Instruction instr) {
         instructions.push_back(instr);
     }
+private:
+    int temp_counter = 0;
+    int label_counter = 0;
 };
 
 } // namespace Tac

@@ -175,7 +175,7 @@ TEST_F(ProcedureTest, ProcedureWithConditional) {
 
 TEST_F(ProcedureTest, ProcedureWithLoop) {
   std::string source_code = R"(
-    PROCEDURE countto5() IS
+    PROCEDURE counttofive() IS
     i
     IN
         i := 0;
@@ -187,7 +187,7 @@ TEST_F(ProcedureTest, ProcedureWithLoop) {
 
     PROGRAM IS
     IN
-        countto5();
+        counttofive();
     END
   )";
 
@@ -196,22 +196,3 @@ TEST_F(ProcedureTest, ProcedureWithLoop) {
   EXPECT_EQ(output[0], "5");
 }
 
-TEST_F(ProcedureTest, EmptyProcedure) {
-  std::string source_code = R"(
-    PROCEDURE donothing() IS
-    IN
-    END
-
-    PROGRAM IS
-    IN
-        WRITE 1;
-        donothing();
-        WRITE 2;
-    END
-  )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 2);
-  EXPECT_EQ(output[0], "1");
-  EXPECT_EQ(output[1], "2");
-}

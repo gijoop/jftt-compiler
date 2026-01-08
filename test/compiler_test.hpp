@@ -16,21 +16,12 @@
 class CompilerTest : public testing::Test {
 protected:
 
-  void SetUp() override {}
-
-  virtual void TearDown() {
+  void SetUp() override {
     SymbolTable::reset();
-    test_count++;
   }
 
-  static void SetUpTestSuite() {
-    total_cost = 0;
-    test_count = 0;
-  }
-
-  static void TearDownTestSuite() {
-    float avg_cost = total_cost / static_cast<float>(test_count);
-    std::cout << "Average cost over " << test_count << " tests: " << avg_cost << std::endl;
+  void TearDown() override {
+    SymbolTable::reset();
   }
 
   std::string run_vm(const std::string& asm_code) {
@@ -102,22 +93,8 @@ protected:
         size_t start = line.find("> ") + 2;
         write_outputs.push_back(line.substr(start));
       }
-      if(line.find("koszt: \x1B[31m") != std::string::npos) {
-        size_t start = line.find("koszt: \x1B[31m") + 12;
-        size_t stop = line.find(";\x1B[34m;", start);
-        std::string cost_str = line.substr(start, stop - start);
-        cost_str.erase(std::remove(cost_str.begin(), cost_str.end(), ','), cost_str.end());
-        float cost = std::stoi(cost_str);
-        total_cost += cost;
-      }
     }
 
     return write_outputs;
   }
-
-  ParserWrapper parser;
-  AST::DeclarationChecker decl_checker;
-
-  inline static long total_cost;
-  inline static int test_count;
 };

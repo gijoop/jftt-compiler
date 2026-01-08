@@ -307,12 +307,12 @@ public:
                 }
 
                 case Tac::OpCode::FUNC_ENTER: {
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.arg1)));
                     break;
                 }
 
                 case Tac::OpCode::FUNC_EXIT: {
-                    asm_code.push_back(Asm::make(Code::LOAD, SymbolTable::get_address(*instr.result)));
+                    asm_code.push_back(Asm::make(Code::LOAD, SymbolTable::get_address(*instr.arg1)));
                     break;
                 }
 

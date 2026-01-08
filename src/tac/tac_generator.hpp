@@ -147,7 +147,7 @@ public:
     void visit(AST::ProcedureNode& node) override {
         Tac::Operand proc_label = Tac::Operand::make_label(node.head()->name());
         program.emit({Tac::OpCode::LABEL, proc_label, std::nullopt, std::nullopt});
-        
+
         auto tmp_proc_return = program.new_temp();
         program.emit({Tac::OpCode::FUNC_ENTER, tmp_proc_return, std::nullopt, std::nullopt});
 
