@@ -153,7 +153,7 @@ public:
 
         // Procedure body
         node.head()->accept(*this);
-        node.commands()->accept(*this);
+        node.commands()->accept(*this); 
 
         // End of procedure - return
         program.emit({Tac::OpCode::FUNC_EXIT, tmp_proc_return, std::nullopt, std::nullopt});
@@ -161,8 +161,22 @@ public:
     }
 
     void visit(AST::ProcedureCallNode& node) override {
+        auto arg_count = node.args()->arguments().size();
+        auto count_const = Tac::Operand::make_const(static_cast<long long>(arg_count));
+        
+        long long first_ref_id = -1;
+        for (const auto& arg : node.args()->arguments()) {
+            auto arg_var = Tac::Operand::make_var(arg);
+            auto arg_reference = program.new_temp();
+            program.emit({Tac::OpCode::PARAM, arg_var, arg_reference, std::nullopt});
+            if (first_ref_id == -1) {
+                first_ref_id = arg_reference.temp_id;
+            }
+        }
         // Call procedure
         Tac::Operand proc_label = Tac::Operand::make_label(node.name());
-        program.emit({Tac::OpCode::CALL, proc_label, std::nullopt, std::nullopt});
+        
+        auto first_ref = Tac::Operand::make_temp(first_ref_id);
+        program.emit({Tac::OpCode::CALL, proc_label, count_const, first_ref});
     }
 };

@@ -52,7 +52,9 @@ void AstVisitor::visit(AST::RepeatNode& node) {
     node.condition()->accept(*this);
 }
 
-void AstVisitor::visit(AST::ProcHeadNode& node) {}
+void AstVisitor::visit(AST::ProcHeadNode& node) {
+    node.args_decl()->accept(*this);
+}
 
 void AstVisitor::visit(AST::ProcedureNode& node) {
     node.head()->accept(*this);
@@ -66,7 +68,9 @@ void AstVisitor::visit(AST::ProceduresNode& node) {
     }
 }
 
-void AstVisitor::visit(AST::ProcedureCallNode& node) {}
+void AstVisitor::visit(AST::ProcedureCallNode& node) {
+    node.args()->accept(*this);
+}
 
 void AstVisitor::visit(AST::MainNode& node) {
     if (node.declarations()) (*node.declarations())->accept(*this);
@@ -77,3 +81,7 @@ void AstVisitor::visit(AST::ProgramNode& node) {
     node.procedures()->accept(*this);
     node.main()->accept(*this);
 }
+
+void AstVisitor::visit(AST::ArgumentsNode& node) {}
+
+void AstVisitor::visit(AST::ArgumentsDeclNode& node) {}

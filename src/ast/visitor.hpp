@@ -19,6 +19,8 @@ class ProcHeadNode;
 class ProcedureNode;
 class ProceduresNode;
 class ProcedureCallNode;
+class ArgumentsNode;
+class ArgumentsDeclNode;
 } // namespace AST
 
 class AstVisitor {
@@ -42,4 +44,6 @@ public:
     virtual void visit(AST::ProcedureNode& node);
     virtual void visit(AST::ProceduresNode& node);
     virtual void visit(AST::ProcedureCallNode& node);
+    virtual void visit(AST::ArgumentsNode& node);
+    virtual void visit(AST::ArgumentsDeclNode& node);
 };

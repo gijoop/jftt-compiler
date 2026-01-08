@@ -30,6 +30,8 @@
     AST::ProcedureNode* procedure;
     AST::ProceduresNode* procedures;
     AST::ProcedureCallNode* proc_call;
+    AST::ArgumentsNode* args;
+    AST::ArgumentsDeclNode* args_decl;
     std::string* str;
     long long num;
 }
@@ -56,6 +58,8 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %type <procedures> procedures
 %type <proc_head> proc_head
 %type <proc_call> proc_call
+%type <args> args
+%type <args_decl> args_decl
 
 %token <num> NUMBER "NUMBER"
 %token <str> PIDENTIFIER "IDENTIFIER"
@@ -150,22 +154,40 @@ command:
   | KW_IF condition KW_THEN commands KW_ELSE commands KW_ENDIF  { $$ = new AST::IfNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4), std::unique_ptr<AST::CommandsNode>($6)); }
   | KW_WHILE condition KW_DO commands KW_ENDWHILE               { $$ = new AST::WhileNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4)); }
   | KW_REPEAT commands KW_UNTIL condition SEMICOLON             { $$ = new AST::RepeatNode(std::unique_ptr<AST::BinaryCondNode>($4), std::unique_ptr<AST::CommandsNode>($2)); }
-  | proc_call SEMICOLON                                         {}
+  | proc_call SEMICOLON                                         { $$ = $1; }
   | KW_READ identifier SEMICOLON                                { $$ = new AST::ReadNode(std::unique_ptr<AST::IdentifierNode>($2)); }
   | KW_WRITE value SEMICOLON                                    { $$ = new AST::WriteNode(std::unique_ptr<AST::ValueNode>($2)); }
   ;
 
 proc_head:
-    PIDENTIFIER LPAREN RPAREN { $$ = new AST::ProcHeadNode(*$1); delete $1; }
+    PIDENTIFIER LPAREN args_decl RPAREN {
+      auto args_decl_ptr = std::unique_ptr<AST::ArgumentsDeclNode>($3);
+      $$ = new AST::ProcHeadNode(*$1, std::move(args_decl_ptr)); 
+      delete $1;
+    }
   ;
 
 proc_call:
-    PIDENTIFIER LPAREN RPAREN  { $$ = new AST::ProcedureCallNode(*$1); delete $1; }
+    PIDENTIFIER LPAREN args RPAREN  { 
+      auto args_ptr = std::unique_ptr<AST::ArgumentsNode>($3);
+      $$ = new AST::ProcedureCallNode(*$1, std::move(args_ptr)); 
+      delete $1;
+    }
   ;
 
 declarations:
     declarations COMMA PIDENTIFIER    { $$ = $1; $$->add_declaration(*$3); delete $3; }
   | PIDENTIFIER                       { $$ = new AST::DeclarationsNode(*$1); delete $1; }
+  ;
+
+args_decl:
+    args_decl COMMA PIDENTIFIER    { $$ = $1; $$->add_argument(*$3); delete $3; }
+  | PIDENTIFIER                    { $$ = new AST::ArgumentsDeclNode(*$1); delete $1; }
+  ;
+
+args:
+    args COMMA PIDENTIFIER    { $$ = $1; $$->add_argument(*$3); delete $3; }
+  | PIDENTIFIER               { $$ = new AST::ArgumentsNode(*$1); delete $1; }
   ;
 
 expr: 

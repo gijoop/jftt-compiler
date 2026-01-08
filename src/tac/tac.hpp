@@ -45,6 +45,7 @@ enum class OpCode {
     RETURN,    // Powrót z procedury
     FUNC_ENTER,
     FUNC_EXIT,
+    PARAM,
     WRITE,
     READ,
     HALT
@@ -80,6 +81,7 @@ struct Instruction {
             case OpCode::RETURN: s += "RETURN "; break;
             case OpCode::FUNC_ENTER: s += "FUNC_ENTER "; break;
             case OpCode::FUNC_EXIT: s += "FUNC_EXIT "; break;
+            case OpCode::PARAM: s += "PARAM "; break;
             case OpCode::ASSIGN: s += "ASSIGN "; break;
             case OpCode::WRITE: s += "WRITE "; break;
             case OpCode::READ: s += "READ "; break;

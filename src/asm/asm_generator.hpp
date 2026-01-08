@@ -297,6 +297,10 @@ public:
 
                 case Tac::OpCode::CALL: {
                     auto lbl = labels[instr.arg1->name];
+                    load_to_ra(*instr.arg2); // number of arguments
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = count
+                    load_to_ra(*instr.result); // first reference
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RC)); // rc = first_ref
                     asm_code.push_back(Asm::make(Code::CALL, lbl));
                     break;
                 }
@@ -313,6 +317,12 @@ public:
 
                 case Tac::OpCode::FUNC_EXIT: {
                     asm_code.push_back(Asm::make(Code::LOAD, SymbolTable::get_address(*instr.arg1)));
+                    break;
+                }
+
+                case Tac::OpCode::PARAM: {
+                    load_to_ra({Tac::Operand::make_const(SymbolTable::get_address(*instr.arg1))});
+                    asm_code.push_back(Asm::make(Code::LOAD, SymbolTable::get_address(*instr.arg2)));
                     break;
                 }
 
