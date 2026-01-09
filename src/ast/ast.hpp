@@ -364,6 +364,64 @@ private:
     std::unique_ptr<ExpressionNode> expr_;
 };
 
+class ArgumentsDeclNode : public Node {
+public:
+    ArgumentsDeclNode(std::vector<std::string> args) : args_(std::move(args)) {}
+
+    ArgumentsDeclNode(std::string arg) {
+        args_.push_back(std::move(arg));
+    }
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "ARGS_DECL:\n";
+        for (const auto& arg : args_) {
+            result += util::pad(level + 1) + arg + "\n";
+        }
+        return result;
+    }
+
+    void add_argument(std::string arg) {
+        args_.push_back(std::move(arg));
+    }
+
+    std::vector<std::string>& arguments() {
+        return args_;
+    }
+private:
+    std::vector<std::string> args_;
+};
+
+class ArgumentsNode : public Node {
+public:
+    ArgumentsNode(std::vector<std::string> args) : args_(std::move(args)) {}
+
+    ArgumentsNode(std::string arg) {
+        args_.push_back(std::move(arg));
+    }
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "ARGS:\n";
+        for (const auto& arg : args_) {
+            result += util::pad(level + 1) + arg + "\n";
+        }
+        return result;
+    }
+
+    void add_argument(std::string arg) {
+        args_.push_back(std::move(arg));
+    }
+
+    std::vector<std::string>& arguments() {
+        return args_;
+    }
+private:
+    std::vector<std::string> args_;
+};
+
 class ProcHeadNode : public Node {
 public:
     ProcHeadNode(
@@ -488,64 +546,6 @@ public:
 private:
     std::string name_;
     std::unique_ptr<ArgumentsNode> args_;
-};
-
-class ArgumentsDeclNode : public Node {
-public:
-    ArgumentsDeclNode(std::vector<std::string> args) : args_(std::move(args)) {}
-
-    ArgumentsDeclNode(std::string arg) {
-        args_.push_back(std::move(arg));
-    }
-
-    ACCEPT_VISITOR
-
-    std::string to_string(int level = 0) const override {
-        std::string result = util::pad(level) + "ARGS_DECL:\n";
-        for (const auto& arg : args_) {
-            result += util::pad(level + 1) + arg + "\n";
-        }
-        return result;
-    }
-
-    void add_argument(std::string arg) {
-        args_.push_back(std::move(arg));
-    }
-
-    std::vector<std::string>& arguments() {
-        return args_;
-    }
-private:
-    std::vector<std::string> args_;
-};
-
-class ArgumentsNode : public Node {
-public:
-    ArgumentsNode(std::vector<std::string> args) : args_(std::move(args)) {}
-
-    ArgumentsNode(std::string arg) {
-        args_.push_back(std::move(arg));
-    }
-
-    ACCEPT_VISITOR
-
-    std::string to_string(int level = 0) const override {
-        std::string result = util::pad(level) + "ARGS:\n";
-        for (const auto& arg : args_) {
-            result += util::pad(level + 1) + arg + "\n";
-        }
-        return result;
-    }
-
-    void add_argument(std::string arg) {
-        args_.push_back(std::move(arg));
-    }
-
-    std::vector<std::string>& arguments() {
-        return args_;
-    }
-private:
-    std::vector<std::string> args_;
 };
 
 class MainNode : public Node {

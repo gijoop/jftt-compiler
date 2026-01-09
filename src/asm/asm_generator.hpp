@@ -40,8 +40,24 @@ class AsmGenerator {
                     asm_code.push_back(make(Code::SHL, Register::RA));
                 }
             }
+        } else if (op.type == Tac::OperandType::REFERENCE) {
+            long long param_addr = SymbolTable::get_address(op);
+            asm_code.push_back(Asm::make(Code::LOAD, param_addr));  // RA = address stored in param
+            asm_code.push_back(Asm::make(Code::RLOAD, Register::RA)); // RA = value at that address
         } else {
-            asm_code.push_back(make(Code::LOAD, SymbolTable::get_address(op)));
+            asm_code.push_back(Asm::make(Code::LOAD, SymbolTable::get_address(op)));
+        }
+    }
+
+    void store_ra(Tac::Operand op) {
+        if (op.type == Tac::OperandType::REFERENCE) {
+            asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // Save value to RB
+            long long param_addr = SymbolTable::get_address(op);
+            asm_code.push_back(Asm::make(Code::LOAD, param_addr));   // RA = target address
+            asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // RA = value, RB = address
+            asm_code.push_back(Asm::make(Code::RSTORE, Register::RB)); // mem[RB] = RA
+        } else {
+            asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(op)));
         }
     }
 
@@ -72,7 +88,7 @@ public:
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
                     load_to_ra(*instr.arg2);
                     asm_code.push_back(Asm::make(Code::ADD, Register::RB));  // RA = t1 + t0
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result))); // zapisz do t2
+                    store_ra(*instr.result); // zapisz do t2
                     break;
                 }
 
@@ -81,7 +97,7 @@ public:
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
                     load_to_ra(*instr.arg1);
                     asm_code.push_back(Asm::make(Code::SUB, Register::RB));  // RA = t1 - t0
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result))); // zapisz do t2
+                    store_ra(*instr.result); // zapisz do t2
                     break;
                 }
                 
@@ -125,7 +141,7 @@ public:
                     asm_code.push_back(Asm::make(Code::RESET, Register::RA));
                     asm_code.push_back(Asm::make(Code::ADD, Register::RC)); // Wynik do ra
 
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    store_ra(*instr.result);
                     break;
                 }
 
@@ -247,13 +263,14 @@ public:
                         asm_code.push_back(Asm::make(Code::ADD, Register::RC)); // Result = Remainder
                     }
                     
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    store_ra(*instr.result);
                     break;
                 }
 
                 case Tac::OpCode::ASSIGN: {
                     load_to_ra(*instr.arg1);
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+
+                    store_ra(*instr.result);
                     break;
                 }
 
@@ -265,7 +282,7 @@ public:
 
                 case Tac::OpCode::READ: {
                     asm_code.push_back(Asm::make(Code::READ));
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    store_ra(*instr.result);
                     break;
                 }
 
@@ -297,10 +314,6 @@ public:
 
                 case Tac::OpCode::CALL: {
                     auto lbl = labels[instr.arg1->name];
-                    load_to_ra(*instr.arg2); // number of arguments
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = count
-                    load_to_ra(*instr.result); // first reference
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RC)); // rc = first_ref
                     asm_code.push_back(Asm::make(Code::CALL, lbl));
                     break;
                 }
@@ -321,8 +334,15 @@ public:
                 }
 
                 case Tac::OpCode::PARAM: {
-                    load_to_ra({Tac::Operand::make_const(SymbolTable::get_address(*instr.arg1))});
-                    asm_code.push_back(Asm::make(Code::LOAD, SymbolTable::get_address(*instr.arg2)));
+                    if (instr.arg1->type == Tac::OperandType::REFERENCE) {
+                        long long param_addr = SymbolTable::get_address(*instr.arg1);
+                        asm_code.push_back(Asm::make(Code::LOAD, param_addr));  // RA = address stored in the reference
+                    } else {
+                        long long actual_param_addr = SymbolTable::get_address(*instr.arg1);
+                        load_to_ra(Tac::Operand::make_const(actual_param_addr));
+                    }
+                    
+                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.arg2)));
                     break;
                 }
 
@@ -380,7 +400,7 @@ public:
                     asm_code.push_back(Asm::make(Code::INC, Register::RA));
                     // End
                     asm_code.push_back(Asm::make(Code::LABEL, label_end));
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    store_ra(*instr.result);
                     break;
                 }
                 case Tac::OpCode::LT: {
@@ -401,7 +421,7 @@ public:
                     asm_code.push_back(Asm::make(Code::INC, Register::RA));
                     // End
                     asm_code.push_back(Asm::make(Code::LABEL, label_end));
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    store_ra(*instr.result);
                     break;
                 }
                 case Tac::OpCode::GT: {
@@ -422,7 +442,7 @@ public:
                     asm_code.push_back(Asm::make(Code::INC, Register::RA));
                     // End
                     asm_code.push_back(Asm::make(Code::LABEL, label_end));
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    store_ra(*instr.result);
                     break;
                 }
                 case Tac::OpCode::LTE: {
@@ -443,7 +463,7 @@ public:
                     asm_code.push_back(Asm::make(Code::RESET, Register::RA));
                     // End
                     asm_code.push_back(Asm::make(Code::LABEL, label_end));
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    store_ra(*instr.result);
                     break;
                 }
                 case Tac::OpCode::GTE: {
@@ -465,7 +485,7 @@ public:
                     asm_code.push_back(Asm::make(Code::JUMP, label_end));
                     // End
                     asm_code.push_back(Asm::make(Code::LABEL, label_end));
-                    asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(*instr.result)));
+                    store_ra(*instr.result);
                     break;
                 }
 

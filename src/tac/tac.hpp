@@ -7,7 +7,7 @@
 
 namespace Tac {
 
-enum class OperandType { CONSTANT, VARIABLE, TEMP, LABEL };
+enum class OperandType { CONSTANT, VARIABLE, TEMP, LABEL, REFERENCE };
 
 struct Operand {
     OperandType type;
@@ -21,6 +21,7 @@ struct Operand {
             case OperandType::VARIABLE: return name;
             case OperandType::TEMP: return "tmp." + std::to_string(temp_id);
             case OperandType::LABEL: return name;
+            case OperandType::REFERENCE: return "&" + name;
         }
         return "?";
     }
@@ -30,6 +31,7 @@ struct Operand {
     static Operand make_var(const std::string& n) { return {OperandType::VARIABLE, n, 0, 0}; }
     static Operand make_temp(int id) { return {OperandType::TEMP, "", 0, id}; }
     static Operand make_label(const std::string& n) { return {OperandType::LABEL, n, 0, 0}; }
+    static Operand make_reference(const std::string& n) { return {OperandType::REFERENCE, n, 0, 0}; }
 };
 
 enum class OpCode {
@@ -110,6 +112,11 @@ public:
     void emit(Instruction instr) {
         instructions.push_back(instr);
     }
+
+    int next_temp_id() const {
+        return temp_counter;
+    }
+
 private:
     int temp_counter = 0;
     int label_counter = 0;

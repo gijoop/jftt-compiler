@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 #include "ast/visitor.hpp"
 #include "tac/tac.hpp"
@@ -10,11 +11,24 @@
 class TacGenerator : public AstVisitor {
     Tac::Program& program;
     Tac::Operand last_result;
+    
+    std::string current_procedure;
+    std::unordered_map<std::string, std::string> param_to_reference; // param_name -> reference_name
 
 public:
     TacGenerator(Tac::Program& p) : program(p), last_result(Tac::Operand::make_const(0)) {}
 
     void visit(AST::IdentifierNode& node) override {
+        if (!current_procedure.empty()) {
+            auto it = param_to_reference.find(node.get_name());
+            if (it != param_to_reference.end()) {
+                last_result = Tac::Operand::make_reference(it->second);
+                return;
+            } else{
+                last_result = Tac::Operand::make_var(current_procedure + "." + node.get_name());
+                return;
+            }
+        }
         last_result = Tac::Operand::make_var(node.get_name());
     }
 
@@ -62,7 +76,17 @@ public:
 
     void visit(AST::AssignmentNode& node) override {
         node.expr()->accept(*this);
-        Tac::Operand target = Tac::Operand::make_var(node.id()->get_name());
+        Tac::Operand target;
+        if (!current_procedure.empty()) {
+            auto it = param_to_reference.find(node.id()->get_name());
+            if (it != param_to_reference.end()) {
+                target = Tac::Operand::make_reference(it->second);
+            } else {
+                target = Tac::Operand::make_var(current_procedure + "." + node.id()->get_name());
+            }
+        } else {
+            target = Tac::Operand::make_var(node.id()->get_name());
+        }
         
         program.emit({Tac::OpCode::ASSIGN, last_result, std::nullopt, target});
     }
@@ -80,7 +104,7 @@ public:
     }
 
     void visit(AST::ProgramNode& node) override {
-        auto main_label = Tac::Operand::make_label("MAIN");
+        auto main_label = Tac::Operand::make_label("main");
         program.emit({Tac::OpCode::JMP, main_label, std::nullopt, std::nullopt});
 
         node.procedures()->accept(*this);
@@ -145,6 +169,18 @@ public:
     void visit(AST::ProcHeadNode& node) override {}
 
     void visit(AST::ProcedureNode& node) override {
+        // Enter procedure context
+        current_procedure = node.head()->name();
+        
+        // Register parameters for this procedure
+        std::vector<std::string> param_names;
+        for (const auto& arg : node.head()->args_decl()->arguments()) {
+            param_names.push_back(arg);
+            std::string ref_name = current_procedure + ".arg." + std::to_string(param_names.size() - 1);
+            param_to_reference[arg] = ref_name;
+        }
+        
+        // Procedure label
         Tac::Operand proc_label = Tac::Operand::make_label(node.head()->name());
         program.emit({Tac::OpCode::LABEL, proc_label, std::nullopt, std::nullopt});
 
@@ -158,25 +194,34 @@ public:
         // End of procedure - return
         program.emit({Tac::OpCode::FUNC_EXIT, tmp_proc_return, std::nullopt, std::nullopt});
         program.emit({Tac::OpCode::RETURN, std::nullopt, std::nullopt, std::nullopt});
+        
+        // Exit procedure context and clean up parameter mappings
+        for (const auto& param : param_names) {
+            param_to_reference.erase(param);
+        }
+        current_procedure.clear();
     }
 
     void visit(AST::ProcedureCallNode& node) override {
-        auto arg_count = node.args()->arguments().size();
-        auto count_const = Tac::Operand::make_const(static_cast<long long>(arg_count));
-        
-        long long first_ref_id = -1;
+        int i = 0;
         for (const auto& arg : node.args()->arguments()) {
-            auto arg_var = Tac::Operand::make_var(arg);
-            auto arg_reference = program.new_temp();
-            program.emit({Tac::OpCode::PARAM, arg_var, arg_reference, std::nullopt});
-            if (first_ref_id == -1) {
-                first_ref_id = arg_reference.temp_id;
+            Tac::Operand arg_var;
+            if (!current_procedure.empty()) {
+                auto it = param_to_reference.find(arg);
+                if (it != param_to_reference.end()) {
+                    arg_var = Tac::Operand::make_reference(it->second);
+                } else {
+                    arg_var = Tac::Operand::make_var(current_procedure + "." + arg);
+                }
+            } else {
+                arg_var = Tac::Operand::make_var(arg);
             }
+            auto arg_reference = Tac::Operand::make_reference(node.name() + ".arg." + std::to_string(i++));
+            program.emit({Tac::OpCode::PARAM, arg_var, arg_reference, std::nullopt});
         }
+        
         // Call procedure
         Tac::Operand proc_label = Tac::Operand::make_label(node.name());
-        
-        auto first_ref = Tac::Operand::make_temp(first_ref_id);
-        program.emit({Tac::OpCode::CALL, proc_label, count_const, first_ref});
+        program.emit({Tac::OpCode::CALL, proc_label, std::nullopt, std::nullopt});
     }
 };

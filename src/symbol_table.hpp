@@ -12,7 +12,7 @@ class SymbolTable {
 public:
     static long long get_address(Tac::Operand op) {
         std::string name;
-        if (op.type == Tac::OperandType::VARIABLE) {
+        if (op.type == Tac::OperandType::VARIABLE || op.type == Tac::OperandType::REFERENCE) {
             name = op.name;
         } else if (op.type == Tac::OperandType::TEMP) {
             name = "tmp." + std::to_string(op.temp_id);
