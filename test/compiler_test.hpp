@@ -11,6 +11,7 @@
 #include "asm/asm_generator.hpp"
 #include "parser/parser_wrapper.hpp"
 #include "analyzer/declaration_checker.hpp"
+#include "analyzer/recursive_call_checker.hpp"
 #include "symbol_table.hpp"
 
 class CompilerTest : public testing::Test {
@@ -63,6 +64,9 @@ protected:
 
     AST::DeclarationChecker decl_checker;
     ast->accept(decl_checker);
+
+    AST::RecursiveCallChecker rec_checker;
+    ast->accept(rec_checker);
 
     Tac::Program tac_program;
     {

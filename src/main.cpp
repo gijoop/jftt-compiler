@@ -7,6 +7,7 @@
 #include "asm/asm_generator.hpp"
 #include "parser/parser_wrapper.hpp"
 #include "analyzer/declaration_checker.hpp"
+#include "analyzer/recursive_call_checker.hpp"
 
 #define USAGE "Usage: " << argv[0] << " <source_code> <output_file>"
 
@@ -31,27 +32,30 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto lang_ast = parser.get_result();
-    if (!lang_ast) {
+    auto ast = parser.get_result();
+    if (!ast) {
         std::cerr << "Error: No AST generated." << std::endl;
         return 1;
     }
 
-    // try {
-    //     AST::DeclarationChecker decl_checker;
-    //     lang_ast->accept(decl_checker);
-    // } catch (const SemanticError& e) {
-    //     std::cerr << e.what() << std::endl;
-    //     return 1;
-    // }
+    try {
+        AST::DeclarationChecker decl_checker;
+        ast->accept(decl_checker);
 
-    std::cout << "Lang AST:\n" << lang_ast->to_string() << std::endl;
+        AST::RecursiveCallChecker rec_checker;
+        ast->accept(rec_checker);
+    } catch (const SemanticError& e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+
+    std::cout << "Lang AST:\n" << ast->to_string() << std::endl;
 
 
     Tac::Program tac_program;
     {
         TacGenerator tac_gen(tac_program);
-        lang_ast->accept(tac_gen);
+        ast->accept(tac_gen);
     }
 
     std::cout << "Generated TAC Instructions:\n";
