@@ -17,7 +17,7 @@ enum class Code {
     ADD, SUB, SWAP, RESET, INC, DEC, SHL, SHR,
     JUMP, JPOS, JZERO, CALL, RETURN,
     HALT,
-    LABEL // Specjalny "rozkaz" oznaczający miejsce etykiety
+    LABEL
 };
 
 struct Label {
@@ -46,7 +46,6 @@ struct Instruction {
             case Code::LOAD:   instr_str = "LOAD " + std::to_string(value); break;
             case Code::STORE:  instr_str = "STORE " + std::to_string(value); break;
             
-            // Rejestrowe
             case Code::RLOAD:  instr_str = "RLOAD " + util::to_string(reg); break;
             case Code::RSTORE: instr_str = "RSTORE " + util::to_string(reg); break;
             case Code::ADD:    instr_str = "ADD " + util::to_string(reg); break;
@@ -58,14 +57,12 @@ struct Instruction {
             case Code::SHL:    instr_str = "SHL " + util::to_string(reg); break;
             case Code::SHR:    instr_str = "SHR " + util::to_string(reg); break;
 
-            // Skoki (obsługa przypadku, gdy label jest null, choć nie powinno się to zdarzyć)
             case Code::JUMP:   instr_str = "JUMP " + (label ? std::to_string(label->address) : "?"); break;
             case Code::JPOS:   instr_str = "JPOS " + (label ? std::to_string(label->address) : "?"); break;
             case Code::JZERO:  instr_str = "JZERO " + (label ? std::to_string(label->address) : "?"); break;
             case Code::CALL:   instr_str = "CALL " + (label ? std::to_string(label->address) : "?"); break;
             case Code::RETURN:  instr_str = "RTRN"; break;
 
-            // Etykieta
             case Code::LABEL:  return "# LABEL " + (label ? label->name : "???");
         }
 

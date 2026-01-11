@@ -106,4 +106,8 @@ inline Tac::OpCode to_tac_op(BinaryCondOp op) {
     }
 }
 
+inline std::string quote(const std::string& str) {
+    return "\"" + str + "\"";
+}
+
 } // namespace util

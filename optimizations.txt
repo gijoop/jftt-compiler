@@ -1,2 +1,0 @@
-1. Mul/Div by 2
-2. Div/Mod by 0/1

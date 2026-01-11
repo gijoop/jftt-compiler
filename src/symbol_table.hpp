@@ -2,7 +2,7 @@
 
 #include <map>
 #include <string>
-#include <set>
+#include <unordered_set>
 #include <algorithm>
 
 #include "ast/ast.hpp"
@@ -21,18 +21,6 @@ public:
         declare(name);
         return instance().table_[name];
     }
-    
-    static bool declare(const std::string& name) {
-        if (is_declared(name)) {
-            return false;
-        }
-        instance().table_[name] = instance().next_addr_++;
-        return true;
-    }
-
-    static bool is_declared(const std::string& name) {
-        return instance().table_.find(name) != instance().table_.end();
-    }
 
     static void reset() {
         instance().table_.clear();
@@ -45,6 +33,18 @@ private:
     static SymbolTable& instance() {
         static SymbolTable inst;
         return inst;
+    }
+
+    static bool declare(const std::string& name) {
+        if (is_declared(name)) {
+            return false;
+        }
+        instance().table_[name] = instance().next_addr_++;
+        return true;
+    }
+
+    static bool is_declared(const std::string& name) {
+        return instance().table_.find(name) != instance().table_.end();
     }
 
     std::map<std::string, long long> table_;

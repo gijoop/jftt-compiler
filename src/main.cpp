@@ -7,7 +7,7 @@
 #include "asm/asm_generator.hpp"
 #include "parser/parser_wrapper.hpp"
 #include "analyzer/declaration_checker.hpp"
-#include "analyzer/recursive_call_checker.hpp"
+#include "analyzer/procedure_checker.hpp"
 
 #define USAGE "Usage: " << argv[0] << " <source_code> <output_file>"
 
@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
         AST::DeclarationChecker decl_checker;
         ast->accept(decl_checker);
 
-        AST::RecursiveCallChecker rec_checker;
+        AST::ProcedureChecker rec_checker;
         ast->accept(rec_checker);
     } catch (const SemanticError& e) {
         std::cerr << e.what() << std::endl;

@@ -88,7 +88,7 @@ public:
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
                     load_to_ra(*instr.arg2);
                     asm_code.push_back(Asm::make(Code::ADD, Register::RB));  // RA = t1 + t0
-                    store_ra(*instr.result); // zapisz do t2
+                    store_ra(*instr.result); // store to t2
                     break;
                 }
 
@@ -97,7 +97,7 @@ public:
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
                     load_to_ra(*instr.arg1);
                     asm_code.push_back(Asm::make(Code::SUB, Register::RB));  // RA = t1 - t0
-                    store_ra(*instr.result); // zapisz do t2
+                    store_ra(*instr.result); // store to t2
                     break;
                 }
                 
@@ -153,9 +153,7 @@ public:
                     auto label_check = std::make_shared<Asm::Label>("DIV_CHECK");
                     auto label_end   = std::make_shared<Asm::Label>("DIV_END");
 
-                    // ---------------------------------------------------------
-                    // 1. SETUP & LOADING (Order is critical!)
-                    // ---------------------------------------------------------
+                    // 1. Setup & Loading
 
                     // A. Load Divisor (arg2) -> RB
                     load_to_ra(*instr.arg2); 
@@ -176,9 +174,7 @@ public:
                     asm_code.push_back(Asm::make(Code::INC, Register::RA));   // RA = 1
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RE));  // RE = 1, RA = OldRE
 
-                    // ---------------------------------------------------------
-                    // 2. ALIGNMENT PHASE (Shift Divisor Left)
-                    // ---------------------------------------------------------
+                    // 2. Alignment Phase (Shift Divisor Left)
                     asm_code.push_back(Asm::make(Code::LABEL, label_align));
 
                     // Check: Is Divisor (RB) > Remainder (RC)?
@@ -203,9 +199,7 @@ public:
 
                     asm_code.push_back(Asm::make(Code::JUMP, label_align));
 
-                    // ---------------------------------------------------------
-                    // 3. CALCULATION PHASE (Subtract and Shift Right)
-                    // ---------------------------------------------------------
+                    // 3. Calculation Phase (Subtract and Shift Right)
                     asm_code.push_back(Asm::make(Code::LABEL, label_calc));
 
                     // Loop Condition: If Mask (RE) is 0, we are finished.
@@ -213,7 +207,7 @@ public:
                     asm_code.push_back(Asm::make(Code::ADD, Register::RE));
                     asm_code.push_back(Asm::make(Code::JZERO, label_end));
 
-                    // Check: Does Divisor (RB) fit in Remainder (RC)?
+                    // Check: Does Divisor RB fit in Remainder RC?
                     // We want to know if RC >= RB.
                     // Test: RA = RB - RC.
                     // If RA > 0 (Pos), then RB > RC (Doesn't fit).
@@ -251,9 +245,7 @@ public:
 
                     asm_code.push_back(Asm::make(Code::JUMP, label_calc));
 
-                    // ---------------------------------------------------------
-                    // 4. FINALIZE (Store Result)
-                    // ---------------------------------------------------------
+                    // 4. Finalize
                     asm_code.push_back(Asm::make(Code::LABEL, label_end));
                     
                     asm_code.push_back(Asm::make(Code::RESET, Register::RA));

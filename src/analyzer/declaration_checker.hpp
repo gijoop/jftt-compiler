@@ -5,66 +5,98 @@
 #include "ast/ast.hpp"
 #include "symbol_table.hpp"
 
+using namespace util;
+
 namespace AST {
 
 class DeclarationChecker : public AstVisitor {
 public:
     DeclarationChecker() = default;
 
-    // Rejestrujemy zmienne
+    bool is_variable_declared(const std::string& name) {
+        return declared_variables_.find(name) != declared_variables_.end();
+    }
+
+    bool declare_variable(const std::string& name) {
+        if (is_variable_declared(name)) {
+            return false;
+        }
+        declared_variables_.insert(name);
+        return true;
+    }
+
     void visit(DeclarationsNode& node) override {
         for (auto& name : node.names()) {
             std::string full_name;
-            if (!current_procedure.empty()) {
-                full_name = current_procedure + "." + name;
+            std::string procedure_error = "";
+            if (!current_procedure_.empty()) {
+                full_name = current_procedure_ + "." + name;
+                procedure_error = " in procedure " + quote(current_procedure_);
             } else {
                 full_name = name;
             }
-            if (!SymbolTable::declare(full_name)) {
-                throw SemanticError("Double declaration of " + full_name);
+            if (!declare_variable(full_name)) {
+                throw SemanticError("Double declaration of " + quote(name) + procedure_error);
             }
         }
     }
 
-    // Sprawdzamy użycie
     void visit(IdentifierNode& node) override {
         std::string full_name;
-        if (!current_procedure.empty()) {
-            full_name = current_procedure + "." + node.get_name();
+        if (!current_procedure_.empty()) {
+            full_name = current_procedure_ + "." + node.get_name();
         } else {
             full_name = node.get_name();
         }
-        if (!SymbolTable::is_declared(full_name)) {
-            throw SemanticError("Variable not declared: " + full_name);
+        if (!is_variable_declared(full_name)) {
+            throw SemanticError("Variable not declared " + quote(full_name));
+        }
+    }
+
+    void visit(ArgumentsNode& node) override {
+        for (const auto& arg : node.arguments()) {
+            std::string full_name;
+            if (!current_procedure_.empty()) {
+                full_name = current_procedure_ + "." + arg;
+            } else {
+                full_name = arg;
+            }
+            if (!is_variable_declared(full_name)) {
+                throw SemanticError("Variable not declared " + quote(full_name));
+            }
         }
     }
 
     void visit(ProcedureNode& node) override {
-        current_procedure = node.head()->name();
+        current_procedure_ = node.head()->name();
 
-        for (const auto& arg : node.head()->args_decl()->arguments()) {
-            std::string ref_name;
-            if (!current_procedure.empty()) {
-                ref_name = current_procedure + "." + arg;
-            } else {
-                ref_name = arg;
-            }
-            if (!SymbolTable::declare(ref_name)) {
-                throw SemanticError("Double declaration of parameter " + arg + " in procedure " + current_procedure);
-            }
-        }
+        node.head()->accept(*this);
 
-        // Sprawdzamy ciało procedury
         if (node.declarations()) {
             (*node.declarations())->accept(*this);
         }
 
         node.commands()->accept(*this);
 
-        current_procedure.clear();
+        current_procedure_.clear();
+    }
+
+    void visit(ArgumentsDeclNode& node) override {
+        for (const auto& arg : node.arguments()) {
+            std::string ref_name;
+            if (!current_procedure_.empty()) {
+                ref_name = current_procedure_ + "." + arg;
+            } else {
+                ref_name = arg;
+            }
+            if (!declare_variable(ref_name)) {
+                throw SemanticError("Double declaration of parameter " + quote(arg) + " in procedure " + quote(current_procedure_));
+            }
+        }
     }
 private:
-    std::string current_procedure;
+    std::string current_procedure_;
+    std::unordered_set<std::string> declared_variables_;
 };
 
 } // namespace AST

@@ -33,6 +33,7 @@ add_executable(tests
     test/write_test.cpp 
     test/var_test.cpp 
     test/decl_checker_test.cpp
+    test/proc_checker_test.cpp
     test/add_test.cpp
     test/sub_test.cpp
     test/mul_test.cpp
