@@ -42,8 +42,8 @@ class AsmGenerator {
             }
         } else if (op.type == Tac::OperandType::REFERENCE) {
             long long param_addr = SymbolTable::get_address(op);
-            asm_code.push_back(Asm::make(Code::LOAD, param_addr));  // RA = address stored in param
-            asm_code.push_back(Asm::make(Code::RLOAD, Register::RA)); // RA = value at that address
+            asm_code.push_back(Asm::make(Code::LOAD, param_addr));  // ra = address stored in param
+            asm_code.push_back(Asm::make(Code::RLOAD, Register::RA)); // ra = value at that address
         } else {
             asm_code.push_back(Asm::make(Code::LOAD, SymbolTable::get_address(op)));
         }
@@ -51,11 +51,11 @@ class AsmGenerator {
 
     void store_ra(Tac::Operand op) {
         if (op.type == Tac::OperandType::REFERENCE) {
-            asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // Save value to RB
+            asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // Save value to rb
             long long param_addr = SymbolTable::get_address(op);
-            asm_code.push_back(Asm::make(Code::LOAD, param_addr));   // RA = target address
-            asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // RA = value, RB = address
-            asm_code.push_back(Asm::make(Code::RSTORE, Register::RB)); // mem[RB] = RA
+            asm_code.push_back(Asm::make(Code::LOAD, param_addr));   // ra = target address
+            asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // ra = value, rb = address
+            asm_code.push_back(Asm::make(Code::RSTORE, Register::RB)); // mem[rb] = ra
         } else {
             asm_code.push_back(Asm::make(Code::STORE, SymbolTable::get_address(op)));
         }
@@ -105,7 +105,7 @@ class AsmGenerator {
             long long base_addr = SymbolTable::get_address(arr_op);
             long long start_index = SymbolTable::get_array_start_index(arr_op.name);
             
-            // RA = base_addr - start_index (so that base_addr + index - start_index = correct address)
+            // ra = base_addr - start_index (so that base_addr + index - start_index = correct address)
             load_const_to_reg(base_addr - start_index, Register::RA);
         }
         
@@ -124,14 +124,14 @@ public:
             }
         }
 
-        // 2. Code generation
         for(const auto& instr : tac_program.instructions) {
             switch(instr.op) {
                 case Tac::OpCode::ADD: {
                     load_to_ra(*instr.arg1);
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
                     load_to_ra(*instr.arg2);
-                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));  // RA = t1 + t0
+                    // TODO: Optimize for constants and increments
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));  // ra = t1 + t0
                     store_ra(*instr.result); // store to t2
                     break;
                 }
@@ -140,7 +140,7 @@ public:
                     load_to_ra(*instr.arg2);
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
                     load_to_ra(*instr.arg1);
-                    asm_code.push_back(Asm::make(Code::SUB, Register::RB));  // RA = t1 - t0
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RB));  // ra = t1 - t0
                     store_ra(*instr.result); // store to t2
                     break;
                 }
@@ -197,34 +197,34 @@ public:
                     auto label_check = std::make_shared<Asm::Label>("DIV_CHECK");
                     auto label_end   = std::make_shared<Asm::Label>("DIV_END");
 
-                    // Load Divisor (arg2) -> RB
+                    // Load Divisor (arg2) -> rb
                     load_to_ra(*instr.arg2); 
                     // CHECK ZERO BEFORE SWAP (while value is still in RA)
                     asm_code.push_back(Asm::make(Code::JZERO, label_end)); 
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // RB = Divisor
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = Divisor
 
                     // Load Dividend (arg1) -> RC
                     load_to_ra(*instr.arg1);
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RC)); // RC = Dividend (Remainder)
 
                     // Init Quotient (RD) = 0
-                    asm_code.push_back(Asm::make(Code::RESET, Register::RA)); // RA = 0
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA)); // ra = 0
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RD));  // RD = 0, RA = OldRD
 
                     // Init Mask (RE) = 1
-                    asm_code.push_back(Asm::make(Code::RESET, Register::RA)); // RA = 0
-                    asm_code.push_back(Asm::make(Code::INC, Register::RA));   // RA = 1
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA)); // ra = 0
+                    asm_code.push_back(Asm::make(Code::INC, Register::RA));   // ra = 1
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RE));  // RE = 1, RA = OldRE
 
                     // Alignment Phase (Shift Divisor Left)
                     asm_code.push_back(Asm::make(Code::LABEL, label_align));
 
                     // Check: Is Divisor (RB) > Remainder (RC)?
-                    // Calc: RA = RB - RC
+                    // Calc: RA = rb - RC
                     asm_code.push_back(Asm::make(Code::RESET, Register::RA));
                     asm_code.push_back(Asm::make(Code::ADD, Register::RB));
                     asm_code.push_back(Asm::make(Code::SUB, Register::RC));
-                    // If RB - RC > 0, RB is too big, so we are done aligning.
+                    // If rb - RC > 0, rb is too big, so we are done aligning.
                     asm_code.push_back(Asm::make(Code::JPOS, label_calc));
 
                     // Shift Divisor (RB) Left
@@ -249,10 +249,10 @@ public:
                     asm_code.push_back(Asm::make(Code::ADD, Register::RE));
                     asm_code.push_back(Asm::make(Code::JZERO, label_end));
 
-                    // Check: Does Divisor RB fit in Remainder RC?
-                    // We want to know if RC >= RB.
-                    // Test: RA = RB - RC.
-                    // If RA > 0 (Pos), then RB > RC (Doesn't fit).
+                    // Check: Does Divisor rb fit in Remainder RC?
+                    // We want to know if RC >= rb.
+                    // Test: RA = rb - RC.
+                    // If RA > 0 (Pos), then rb > RC (Doesn't fit).
                     asm_code.push_back(Asm::make(Code::RESET, Register::RA));
                     asm_code.push_back(Asm::make(Code::ADD, Register::RB));
                     asm_code.push_back(Asm::make(Code::SUB, Register::RC));
@@ -370,7 +370,7 @@ public:
                 case Tac::OpCode::PARAM: {
                     if (instr.arg1->type == Tac::OperandType::REFERENCE) {
                         long long param_addr = SymbolTable::get_address(*instr.arg1);
-                        asm_code.push_back(Asm::make(Code::LOAD, param_addr));  // RA = address stored in the reference
+                        asm_code.push_back(Asm::make(Code::LOAD, param_addr));  // ra = address stored in the reference
                     } else {
                         long long actual_param_addr = SymbolTable::get_address(*instr.arg1);
                         load_to_ra(Tac::Operand::make_const(actual_param_addr));
@@ -381,48 +381,38 @@ public:
                 }
 
                 case Tac::OpCode::ARRAY_LOAD: {
-                    // result = arr[index]
-                    // arg1 = array operand, arg2 = index operand, result = target
                     calc_array_address(*instr.arg1, *instr.arg2);
-                    // RA now contains the address of arr[index]
-                    asm_code.push_back(Asm::make(Code::RLOAD, Register::RA)); // RA = mem[RA]
+                    // ra = address of arr[index]
+                    asm_code.push_back(Asm::make(Code::RLOAD, Register::RA));
                     store_ra(*instr.result);
                     break;
                 }
 
-                case Tac::OpCode::ARRAY_STORE: {
-                    // arr[index] = value
-                    // arg1 = array operand, arg2 = index operand, result = value to store
-                    
-                    // First load the value to store
+                case Tac::OpCode::ARRAY_ASSIGN: {
                     load_to_ra(*instr.result);
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RC)); // RC = value to store
                     
-                    // Calculate array address
                     calc_array_address(*instr.arg1, *instr.arg2);
-                    // RA now contains the address
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // RB = address
+                    // ra = address of arr[index]
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = address
                     
                     // Store value
                     asm_code.push_back(Asm::make(Code::RESET, Register::RA));
-                    asm_code.push_back(Asm::make(Code::ADD, Register::RC)); // RA = value
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RC)); // ra = value
                     asm_code.push_back(Asm::make(Code::RSTORE, Register::RB)); // mem[RB] = RA
                     break;
                 }
 
                 case Tac::OpCode::ARRAY_PARAM: {
-                    // Pass array base address to procedure parameter
-                    // arg1 = array operand, arg2 = reference to store into
-                    
                     if (instr.arg1->type == Tac::OperandType::REFERENCE) {
-                        // Array was passed to us as parameter, forward the reference
+                        // forward the reference
                         long long param_addr = SymbolTable::get_address(*instr.arg1);
-                        asm_code.push_back(Asm::make(Code::LOAD, param_addr)); // RA = stored base address
+                        asm_code.push_back(Asm::make(Code::LOAD, param_addr));
                     } else if (instr.arg1->type == Tac::OperandType::ARRAY) {
-                        // Local array - compute base address adjusted for start_index
+                        // compute base address adjusted for start_index
                         long long base_addr = SymbolTable::get_address(*instr.arg1);
                         long long start_index = SymbolTable::get_array_start_index(instr.arg1->name);
-                        // Pass (base_addr - start_index) so that procedure can use base + index directly
+                        // pass (base_addr - start_index) so that procedure can use base + index directly
                         load_const_to_reg(base_addr - start_index, Register::RA);
                     }
                     
@@ -579,7 +569,7 @@ public:
             }
         }
 
-        // 3. Assign addresses to labels
+        // Assign addresses to labels
         long long address_counter = 0;
         for (auto& instr : asm_code) {
             if (instr.op == Code::LABEL) {

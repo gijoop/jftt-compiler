@@ -54,7 +54,7 @@ enum class OpCode {
     READ,
     HALT,
     ARRAY_LOAD,
-    ARRAY_STORE,
+    ARRAY_ASSIGN,
     ARRAY_PARAM
 };
 
@@ -94,7 +94,7 @@ struct Instruction {
             case OpCode::READ: s += "READ "; break;
             case OpCode::HALT: s += "HALT"; break;
             case OpCode::ARRAY_LOAD: s += "ARRAY_LOAD "; break;
-            case OpCode::ARRAY_STORE: s += "ARRAY_STORE "; break;
+            case OpCode::ARRAY_ASSIGN: s += "ARRAY_ASSIGN "; break;
             case OpCode::ARRAY_PARAM: s += "ARRAY_PARAM "; break;
             default: s += "OP "; break;
         }

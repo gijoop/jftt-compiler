@@ -47,6 +47,12 @@ void AstVisitor::visit(AST::WhileNode& node) {
     node.commands()->accept(*this);
 }
 
+void AstVisitor::visit(AST::ForNode& node) {
+    node.start_val()->accept(*this);
+    node.end_val()->accept(*this);
+    node.commands()->accept(*this);
+}
+
 void AstVisitor::visit(AST::RepeatNode& node) {
     node.commands()->accept(*this);
     node.condition()->accept(*this);

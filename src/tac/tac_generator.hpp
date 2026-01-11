@@ -97,7 +97,7 @@ public:
             auto idx_op = get_index_operand(*id);
             auto temp = program.new_temp();
             emit(Tac::OpCode::READ, std::nullopt, std::nullopt, temp);
-            emit(Tac::OpCode::ARRAY_STORE, arr_op, idx_op, temp);
+            emit(Tac::OpCode::ARRAY_ASSIGN, arr_op, idx_op, temp);
         } else {
             auto target = resolve_var(id->get_name());
             emit(Tac::OpCode::READ, std::nullopt, std::nullopt, target);
@@ -134,7 +134,7 @@ public:
         if (id->get_type() == AST::IdType::ARRAY) {
             auto arr_op = resolve_array(id->get_name());
             auto idx_op = get_index_operand(*id);
-            emit(Tac::OpCode::ARRAY_STORE, arr_op, idx_op, value);
+            emit(Tac::OpCode::ARRAY_ASSIGN, arr_op, idx_op, value);
         } else {
             auto target = resolve_var(id->get_name());
             emit(Tac::OpCode::ASSIGN, value, std::nullopt, target);
@@ -208,6 +208,40 @@ public:
         emit(Tac::OpCode::JPOS, last_result, std::nullopt, label_end);
         emit(Tac::OpCode::JMP, label_start);
         emit(Tac::OpCode::LABEL, label_end);
+    }
+
+    void visit(AST::ForNode& node) override {
+        auto label_start = program.new_label();
+        auto label_end = program.new_label();
+
+        node.start_val()->accept(*this);
+        auto start_val = last_result;
+        
+        auto iterator = Tac::Operand::make_var(node.iterator());
+        emit(Tac::OpCode::ADD, iterator, start_val, iterator);
+        
+        node.end_val()->accept(*this);
+        auto end_val = last_result;
+
+        emit(Tac::OpCode::LABEL, label_start);
+
+        node.commands()->accept(*this);
+
+        // Assuming start_val <= end_val for TO and start_val >= end_val for DOWNTO
+        auto comp_result = program.new_temp();
+        if (node.direction() == AST::ForNode::Direction::TO) {
+            emit(Tac::OpCode::SUB, end_val, iterator, comp_result);
+        } else {
+            emit(Tac::OpCode::SUB, iterator, end_val, comp_result);
+        }
+
+        if (node.direction() == AST::ForNode::Direction::TO) {
+            emit(Tac::OpCode::ADD, iterator, Tac::Operand::make_const(1), iterator);
+        } else {
+            emit(Tac::OpCode::SUB, iterator, Tac::Operand::make_const(1), iterator);
+        }
+        
+        emit(Tac::OpCode::JPOS, comp_result, std::nullopt, label_start);
     }
 
     void visit(AST::ProcedureNode& node) override {

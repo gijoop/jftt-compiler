@@ -386,6 +386,66 @@ private:
     std::unique_ptr<CommandsNode> commands_;
 };
 
+class ForNode : public CommandNode {
+public:
+    enum class Direction {
+        TO,
+        DOWNTO
+    };
+
+    ForNode(
+        std::string iterator,
+        std::unique_ptr<ValueNode> start_val,
+        std::unique_ptr<ValueNode> end_val,
+        Direction direction,
+        std::unique_ptr<CommandsNode> commands) :
+        iterator_(std::move(iterator)),
+        start_val_(std::move(start_val)),
+        end_val_(std::move(end_val)),
+        direction_(direction),
+        commands_(std::move(commands)) {}
+
+    ACCEPT_VISITOR
+
+    std::string to_string(int level = 0) const override {
+        std::string result = util::pad(level) + "FOR: " + iterator_ + "\n" +
+                             util::pad(level + 1) + "FROM:\n" +
+                             start_val_->to_string(level + 2) + "\n" +
+                             util::pad(level + 1) + (direction_ == Direction::TO ? "TO:\n" : "DOWNTO:\n") +
+                             end_val_->to_string(level + 2) + "\n" +
+                             util::pad(level) + "DO:\n" +
+                             commands_->to_string(level + 1);
+        return result;
+    }
+
+    const std::string& iterator() const {
+        return iterator_;
+    }
+
+    const std::unique_ptr<ValueNode>& start_val() const {
+        return start_val_;
+    }
+
+    const std::unique_ptr<ValueNode>& end_val() const {
+        return end_val_;
+    }
+
+    Direction direction() const {
+        return direction_;
+    }
+
+    const std::unique_ptr<CommandsNode>& commands() const {
+        return commands_;
+    }
+
+private:
+    std::string iterator_;
+    std::unique_ptr<ValueNode> start_val_;
+    std::unique_ptr<ValueNode> end_val_;
+    Direction direction_;
+    std::unique_ptr<CommandsNode> commands_;
+};
+
 class ReadNode : public CommandNode {
 public:
     ReadNode(std::unique_ptr<IdentifierNode> id) : id_(std::move(id)) {}

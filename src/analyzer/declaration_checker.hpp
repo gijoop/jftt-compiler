@@ -95,6 +95,17 @@ public:
             }
         }
     }
+
+    void visit(ForNode& node) override {
+        node.start_val()->accept(*this);
+        node.end_val()->accept(*this);
+
+        if (!declare_variable(node.iterator())) {
+            throw SemanticError("Double declaration of " + quote(node.iterator()));
+        }
+
+        node.commands()->accept(*this);
+    }
 private:
     std::string current_procedure_;
     std::unordered_set<std::string> declared_variables_;

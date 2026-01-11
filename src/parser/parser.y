@@ -87,6 +87,12 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %token KW_REPEAT "REPEAT"
 %token KW_UNTIL "UNTIL"
 
+%token KW_FOR "FOR"
+%token KW_FROM "FROM"
+%token KW_TO "TO"
+%token KW_DOWNTO "DOWNTO"
+%token KW_ENDFOR "ENDFOR"
+
 // Operators
 %token OP_ASSIGN ":="
 %token OP_PLUS "+"
@@ -158,6 +164,15 @@ command:
   | KW_IF condition KW_THEN commands KW_ELSE commands KW_ENDIF  { $$ = new AST::IfNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4), std::unique_ptr<AST::CommandsNode>($6)); }
   | KW_WHILE condition KW_DO commands KW_ENDWHILE               { $$ = new AST::WhileNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4)); }
   | KW_REPEAT commands KW_UNTIL condition SEMICOLON             { $$ = new AST::RepeatNode(std::unique_ptr<AST::BinaryCondNode>($4), std::unique_ptr<AST::CommandsNode>($2)); }
+  | KW_FOR PIDENTIFIER KW_FROM value KW_TO value KW_DO commands KW_ENDFOR {
+      $$ = new AST::ForNode(*$2, std::unique_ptr<AST::ValueNode>($4), std::unique_ptr<AST::ValueNode>($6), AST::ForNode::Direction::TO, std::unique_ptr<AST::CommandsNode>($8));
+      delete $2;
+    }
+  | KW_FOR PIDENTIFIER KW_FROM value KW_DOWNTO value KW_DO commands KW_ENDFOR {
+      $$ = new AST::ForNode(*$2, std::unique_ptr<AST::ValueNode>($4), std::unique_ptr<AST::ValueNode>($6), AST::ForNode::Direction::DOWNTO, std::unique_ptr<AST::CommandsNode>($8));
+      delete $2;
+    }
+  
   | proc_call SEMICOLON                                         { $$ = $1; }
   | KW_READ identifier SEMICOLON                                { $$ = new AST::ReadNode(std::unique_ptr<AST::IdentifierNode>($2)); }
   | KW_WRITE value SEMICOLON                                    { $$ = new AST::WriteNode(std::unique_ptr<AST::ValueNode>($2)); }

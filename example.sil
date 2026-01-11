@@ -1,18 +1,8 @@
-PROCEDURE test(array) IS
-IN
-    WRITE array[1];
-    WRITE array[3];
-    WRITE array[4];
-    WRITE array[5];
-END
-
-
 PROGRAM IS
-    tab[0:5]
+x
 IN
-    tab[1] := 30;
-    tab[3] := 50;
-    tab[4] := 60;
-    tab[5] := 70;
-    test(tab);
+    x := 100;
+    FOR i FROM 120 DOWNTO x DO
+        WRITE i;
+    ENDFOR
 END
