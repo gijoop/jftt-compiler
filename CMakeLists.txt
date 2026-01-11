@@ -43,6 +43,7 @@ add_executable(tests
     test/while_test.cpp
     test/repeat_test.cpp
     test/procedure_test.cpp
+    test/array_test.cpp
 )
 target_link_libraries(tests PRIVATE compiler_core GTest::gtest_main)
 

@@ -14,6 +14,11 @@
 
 namespace AST {
 
+enum class IdType {
+    VARIABLE,
+    ARRAY
+};
+
 class Node {
 public:
     virtual ~Node() = default;
@@ -137,18 +142,57 @@ private:
 
 class IdentifierNode : public ValueNode {
 public:
-    IdentifierNode(const std::string& name) : name_(name) {}
+    IdentifierNode(std::string name) : 
+        type_(IdType::VARIABLE),
+        name_(std::move(name)),
+        index_name_(std::nullopt),
+        index_value_(std::nullopt) {}
+
+    IdentifierNode(std::string name, std::string index_name) :
+        type_(IdType::ARRAY),
+        name_(std::move(name)),
+        index_name_(std::move(index_name)),
+        index_value_(std::nullopt) {}
+    
+    IdentifierNode(std::string name, long long index_value) :
+        type_(IdType::ARRAY),
+        name_(std::move(name)),
+        index_name_(std::nullopt),
+        index_value_(index_value) {}
 
     ACCEPT_VISITOR
 
     std::string to_string(int level = 0) const override {
-        return util::pad(level) + "IDENTIFIER: " + name_;
+        std::string result = util::pad(level) + "IDENTIFIER: " + name_;
+        if (type_ == IdType::ARRAY) {
+            result += "[";
+            if (index_name_) {
+                result += *index_name_;
+            } else if (index_value_) {
+                result += std::to_string(*index_value_);
+            }
+            result += "]";
+        }
+        return result;
     }
+
+    const IdType get_type() const { return type_; }
 
     const std::string& get_name() const { return name_; }
 
+    const std::optional<std::string>& get_index_name() const {
+        return index_name_;
+    }
+
+    const std::optional<long long>& get_index_value() const {
+        return index_value_;
+    }
+
 private:
+    IdType type_;
     std::string name_;
+    std::optional<std::string> index_name_;
+    std::optional<long long> index_value_;
 };
 
 class ConstantNode : public ValueNode {
@@ -169,34 +213,55 @@ private:
     long long value_;
 };
 
+struct Declaration {
+    std::string name;
+    bool is_array = false;
+    long long start_index = 0;
+    long long end_index = 0;
+
+    static Declaration make_var(std::string n) { 
+        return {std::move(n), false, 0, 0}; 
+    }
+    
+    static Declaration make_array(std::string n, long long start, long long end) { 
+        return {std::move(n), true, start, end}; 
+    }
+};
+
 class DeclarationsNode : public Node {
 public:
-    DeclarationsNode(std::vector<std::string> names) : 
-        names_(std::move(names)) {}
+    DeclarationsNode(std::vector<Declaration> declarations) : 
+        declarations_(std::move(declarations)) {}
 
-    DeclarationsNode(std::string name) {
-        names_.push_back(std::move(name));
+    DeclarationsNode(Declaration declaration) {
+        declarations_.push_back(std::move(declaration));
     }
 
     ACCEPT_VISITOR
 
     std::string to_string(int level = 0) const override {
         std::string result = util::pad(level) + "DECLARATIONS:\n";
-        for (const auto& name : names_) {
-            result += util::pad(level + 1) + name + "\n";
+        for (const auto& declaration : declarations_) {
+            if (declaration.is_array) {
+                result += util::pad(level + 1) + "ARRAY " + declaration.name + 
+                          "[" + std::to_string(declaration.start_index) + 
+                          ".." + std::to_string(declaration.end_index) + "]\n";
+                continue;
+            }
+            result += util::pad(level + 1) + declaration.name + "\n";
         }
         return result;
     }
 
-    void add_declaration(std::string name) {
-        names_.push_back(std::move(name));
+    void add_declaration(Declaration declaration) {
+        declarations_.push_back(std::move(declaration));
     }
 
-    std::vector<std::string>& names() {
-        return names_;
+    std::vector<Declaration>& declarations() {
+        return declarations_;
     }
 private:
-    std::vector<std::string> names_;
+    std::vector<Declaration> declarations_;
 };
 
 class WriteNode : public CommandNode {

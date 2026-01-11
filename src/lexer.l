@@ -17,6 +17,10 @@ void yyerror(void* scanner, AST::ProgramNode** result, const char *s);
 ";"         { return SEMICOLON; }
 "("         { return LPAREN; }
 ")"         { return RPAREN; }
+"["         { return LBRACKET; }
+"]"         { return RBRACKET; }
+":"         { return COLON; }
+
 [ \t\n]+      ;
 "PROGRAM"   { return KW_PROGRAM; }
 "PROCEDURE" { return KW_PROCEDURE; }

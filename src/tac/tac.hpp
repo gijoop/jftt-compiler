@@ -7,13 +7,13 @@
 
 namespace Tac {
 
-enum class OperandType { CONSTANT, VARIABLE, TEMP, LABEL, REFERENCE };
+enum class OperandType { CONSTANT, VARIABLE, TEMP, LABEL, REFERENCE, ARRAY };
 
 struct Operand {
     OperandType type;
-    std::string name; // Dla VARIABLE i LABEL
-    long long value;  // Dla CONSTANT
-    int temp_id;      // Dla TEMP (np. 0 dla t0, 1 dla t1)
+    std::string name; // For VARIABLE, LABEL, ARRAY
+    long long value;  // For CONSTANT, also used for array start_index
+    int temp_id;      // For TEMP (e.g., 0 for t0, 1 for t1)
 
     std::string to_string() const {
         switch(type) {
@@ -22,6 +22,7 @@ struct Operand {
             case OperandType::TEMP: return "tmp." + std::to_string(temp_id);
             case OperandType::LABEL: return name;
             case OperandType::REFERENCE: return "&" + name;
+            case OperandType::ARRAY: return name + "[base]";
         }
         return "?";
     }
@@ -32,25 +33,29 @@ struct Operand {
     static Operand make_temp(int id) { return {OperandType::TEMP, "", 0, id}; }
     static Operand make_label(const std::string& n) { return {OperandType::LABEL, n, 0, 0}; }
     static Operand make_reference(const std::string& n) { return {OperandType::REFERENCE, n, 0, 0}; }
+    static Operand make_array(const std::string& n, long long start_index = 0) { return {OperandType::ARRAY, n, start_index, 0}; }
 };
 
 enum class OpCode {
     NOP,
-    ASSIGN,     // x = y
+    ASSIGN,
     ADD, SUB, MUL, DIV, MOD,
-    EQ, NEQ, LT, GT, LTE, GTE, // Wynik logiczny do zmiennej
-    JMP,        // Skok bezwarunkowy
-    JZERO,       // Skok jeśli arg1 == 0 (False)
-    JPOS,        // Skok jeśli arg1 > 0
-    LABEL,      // Miejsce docelowe skoku (arg1 to nazwa etykiety)
-    CALL,       // Wywołanie procedury
-    RETURN,    // Powrót z procedury
+    EQ, NEQ, LT, GT, LTE, GTE,
+    JMP,
+    JZERO,
+    JPOS,
+    LABEL,
+    CALL,
+    RETURN,
     FUNC_ENTER,
     FUNC_EXIT,
     PARAM,
     WRITE,
     READ,
-    HALT
+    HALT,
+    ARRAY_LOAD,
+    ARRAY_STORE,
+    ARRAY_PARAM
 };
 
 struct Instruction {
@@ -88,6 +93,9 @@ struct Instruction {
             case OpCode::WRITE: s += "WRITE "; break;
             case OpCode::READ: s += "READ "; break;
             case OpCode::HALT: s += "HALT"; break;
+            case OpCode::ARRAY_LOAD: s += "ARRAY_LOAD "; break;
+            case OpCode::ARRAY_STORE: s += "ARRAY_STORE "; break;
+            case OpCode::ARRAY_PARAM: s += "ARRAY_PARAM "; break;
             default: s += "OP "; break;
         }
 

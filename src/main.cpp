@@ -65,6 +65,8 @@ int main(int argc, char** argv) {
     AsmGenerator compiler(tac_program);
     auto asm_code = compiler.compile();
 
+    std::cout << "Symbol Table:\n" << SymbolTable::dump() << std::endl;
+
     std::string output_file = argv[2];
     std::ofstream out(output_file);
     if (!out.is_open()) {

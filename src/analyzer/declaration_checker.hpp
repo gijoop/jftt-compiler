@@ -26,7 +26,8 @@ public:
     }
 
     void visit(DeclarationsNode& node) override {
-        for (auto& name : node.names()) {
+        for (auto& decls : node.declarations()) {
+            std::string name = decls.name;
             std::string full_name;
             std::string procedure_error = "";
             if (!current_procedure_.empty()) {

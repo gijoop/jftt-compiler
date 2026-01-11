@@ -32,6 +32,7 @@
     AST::ProcedureCallNode* proc_call;
     AST::ArgumentsNode* args;
     AST::ArgumentsDeclNode* args_decl;
+    AST::Declaration* declaration;
     std::string* str;
     long long num;
 }
@@ -106,6 +107,9 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %token COMMA ","
 %token LPAREN "("
 %token RPAREN ")"
+%token LBRACKET "["
+%token RBRACKET "]"
+%token COLON ":"
 
 %%
 program_all: 
@@ -176,8 +180,22 @@ proc_call:
   ;
 
 declarations:
-    declarations COMMA PIDENTIFIER    { $$ = $1; $$->add_declaration(*$3); delete $3; }
-  | PIDENTIFIER                       { $$ = new AST::DeclarationsNode(*$1); delete $1; }
+    declarations COMMA PIDENTIFIER    { 
+      auto decl = AST::Declaration::make_var(*$3);
+      $$ = $1; $$->add_declaration(decl); delete $3; 
+    }
+  | declarations COMMA PIDENTIFIER LBRACKET NUMBER COLON NUMBER RBRACKET {
+    auto decl = AST::Declaration::make_array(*$3, $5, $7);
+    $$ = $1; $$->add_declaration(decl); delete $3;
+  }
+  | PIDENTIFIER                       {
+    auto decl = AST::Declaration::make_var(*$1);
+    $$ = new AST::DeclarationsNode(decl); delete $1; 
+  }
+  | PIDENTIFIER LBRACKET NUMBER COLON NUMBER RBRACKET {
+      auto decl = AST::Declaration::make_array(*$1, $3, $5); 
+      $$ = new AST::DeclarationsNode(decl); delete $1; 
+  }
   ;
 
 args_decl:
@@ -214,7 +232,19 @@ value:
   ;
 
 identifier:
-    PIDENTIFIER    { $$ = new AST::IdentifierNode(*$1); delete $1; }
+    PIDENTIFIER    { 
+      $$ = new AST::IdentifierNode(*$1); 
+      delete $1; 
+    }
+  | PIDENTIFIER LBRACKET PIDENTIFIER RBRACKET {
+      $$ = new AST::IdentifierNode(*$1, *$3);
+      delete $1;
+      delete $3;
+    }
+  | PIDENTIFIER LBRACKET NUMBER RBRACKET {
+      $$ = new AST::IdentifierNode(*$1, $3);
+      delete $1;
+    }
   ;
 
 %%
