@@ -229,14 +229,13 @@ public:
         }
         emit(Tac::OpCode::JPOS, comp_result, std::nullopt, label_end);
         
-        auto iterator = Tac::Operand::make_var(node.iterator());
+        auto iterator = Tac::Operand::make_var(scoped(node.iterator()));
         emit(Tac::OpCode::ASSIGN, start_val, std::nullopt, iterator);
     
         emit(Tac::OpCode::LABEL, label_start);
 
         node.commands()->accept(*this);
 
-        // Assuming start_val <= end_val for TO and start_val >= end_val for DOWNTO
         if (node.direction() == AST::ForNode::Direction::TO) {
             emit(Tac::OpCode::SUB, end_val, iterator, comp_result);
             emit(Tac::OpCode::ADD, iterator, Tac::Operand::make_const(1), iterator);

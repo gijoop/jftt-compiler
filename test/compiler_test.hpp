@@ -12,7 +12,7 @@
 #include "parser/parser_wrapper.hpp"
 #include "analyzer/declaration_checker.hpp"
 #include "analyzer/procedure_checker.hpp"
-#include "symbol_table.hpp"
+#include "analyzer/type_checker.hpp"
 
 class CompilerTest : public testing::Test {
 protected:
@@ -67,6 +67,9 @@ protected:
 
     AST::ProcedureChecker rec_checker;
     ast->accept(rec_checker);
+
+    AST::TypeChecker type_checker;
+    ast->accept(type_checker);
 
     Tac::Program tac_program;
     {

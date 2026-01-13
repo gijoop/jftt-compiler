@@ -345,7 +345,7 @@ TEST_F(ArrayTest, ArrayElementInWhileCondition) {
 
 TEST_F(ArrayTest, PassArrayToProcedure) {
     std::string source_code = R"(
-        PROCEDURE printfirst(arr) IS
+        PROCEDURE printfirst(T arr) IS
         IN
             WRITE arr[0];
             WRITE arr[1];
@@ -371,7 +371,7 @@ TEST_F(ArrayTest, PassArrayToProcedure) {
 
 TEST_F(ArrayTest, ModifyArrayInProcedure) {
     std::string source_code = R"(
-        PROCEDURE addfive(arr) IS
+        PROCEDURE addfive(T arr) IS
         IN
             arr[0] := arr[0] + 5;
             arr[1] := arr[1] + 5;
@@ -400,7 +400,7 @@ TEST_F(ArrayTest, ModifyArrayInProcedure) {
 
 TEST_F(ArrayTest, PassArrayWithNonZeroStartToProcedure) {
     std::string source_code = R"(
-        PROCEDURE readarray(arr) IS
+        PROCEDURE readarray(T arr) IS
         IN
             WRITE arr[10];
             WRITE arr[11];
@@ -426,12 +426,12 @@ TEST_F(ArrayTest, PassArrayWithNonZeroStartToProcedure) {
 
 TEST_F(ArrayTest, NestedProcedureCallsWithArray) {
     std::string source_code = R"(
-        PROCEDURE inner(arr) IS
+        PROCEDURE inner(T arr) IS
         IN
             arr[0] := arr[0] + 1;
         END
 
-        PROCEDURE outer(arr) IS
+        PROCEDURE outer(T arr) IS
         IN
             inner(arr);
             inner(arr);
@@ -455,7 +455,7 @@ TEST_F(ArrayTest, NestedProcedureCallsWithArray) {
 
 TEST_F(ArrayTest, MultipleProcedureCallsWithSameArray) {
     std::string source_code = R"(
-        PROCEDURE increment(arr) IS
+        PROCEDURE increment(T arr) IS
         IN
             arr[0] := arr[0] + 1;
         END
@@ -478,7 +478,7 @@ TEST_F(ArrayTest, MultipleProcedureCallsWithSameArray) {
 
 TEST_F(ArrayTest, ProcedureWithArrayAndScalarParams) {
     std::string source_code = R"(
-        PROCEDURE setvalue(arr, val) IS
+        PROCEDURE setvalue(T arr, val) IS
         IN
             arr[0] := val;
         END
@@ -877,7 +877,7 @@ TEST_F(ArrayTest, FibonacciInArray) {
 
 TEST_F(ArrayTest, ArrayReversal) {
     std::string source_code = R"(
-        PROCEDURE reverse(arr, len) IS
+        PROCEDURE reverse(T arr, len) IS
             i, j, tmp
         IN
             i := 0;

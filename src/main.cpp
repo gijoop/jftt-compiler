@@ -8,6 +8,7 @@
 #include "parser/parser_wrapper.hpp"
 #include "analyzer/declaration_checker.hpp"
 #include "analyzer/procedure_checker.hpp"
+#include "analyzer/type_checker.hpp"
 
 #define USAGE "Usage: " << argv[0] << " <source_code> <output_file>"
 
@@ -44,6 +45,9 @@ int main(int argc, char** argv) {
 
         AST::ProcedureChecker rec_checker;
         ast->accept(rec_checker);
+
+        AST::TypeChecker type_checker;
+        ast->accept(type_checker);
     } catch (const SemanticError& e) {
         std::cerr << e.what() << std::endl;
         return 1;

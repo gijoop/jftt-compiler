@@ -13,9 +13,9 @@ cmake --build build --parallel
 
 # 2. Compile test programs
 
-test_file="example.sil"
+test_file="example.imp"
     
-base_name=$(basename "$test_file" .sil)
+base_name=$(basename "$test_file" .imp)
 asm_file="build/${base_name}.asm"
 
 echo ""
