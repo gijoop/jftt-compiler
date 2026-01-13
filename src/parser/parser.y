@@ -33,6 +33,7 @@
     AST::ArgumentsNode* args;
     AST::ArgumentsDeclNode* args_decl;
     AST::Declaration* declaration;
+    AST::ParamType param_type;
     std::string* str;
     long long num;
 }
@@ -61,32 +62,38 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %type <proc_call> proc_call
 %type <args> args
 %type <args_decl> args_decl
+%type <param_type> type
 
 %token <num> NUMBER "NUMBER"
 %token <str> PIDENTIFIER "IDENTIFIER"
 
-// Keywords
+// Program structure keywords
 %token KW_PROGRAM "PROGRAM"
 %token KW_PROCEDURE "PROCEDURE"
 %token KW_IS "IS"
 %token KW_IN "IN"
 %token KW_END "END"
 
+// Input/Output keywords
 %token KW_WRITE "WRITE"
 %token KW_READ "READ"
 
+// If statement keywords
 %token KW_IF "IF"
 %token KW_THEN "THEN"
 %token KW_ELSE "ELSE"
 %token KW_ENDIF "ENDIF"
 
+// While loop keywords
 %token KW_WHILE "WHILE"
 %token KW_DO "DO"
 %token KW_ENDWHILE "ENDWHILE"
 
+// Repeat loop keywords
 %token KW_REPEAT "REPEAT"
 %token KW_UNTIL "UNTIL"
 
+// For loop keywords
 %token KW_FOR "FOR"
 %token KW_FROM "FROM"
 %token KW_TO "TO"
@@ -109,6 +116,7 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %token OP_GE ">="
 %token OP_LE "<="
 
+// Punctuation
 %token SEMICOLON ";"
 %token COMMA ","
 %token LPAREN "("
@@ -116,6 +124,11 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 %token LBRACKET "["
 %token RBRACKET "]"
 %token COLON ":"
+
+// Types
+%token TYPE_T "TYPE_T"
+%token TYPE_I "TYPE_I"
+%token TYPE_O "TYPE_O"
 
 %%
 program_all: 
@@ -214,8 +227,15 @@ declarations:
   ;
 
 args_decl:
-    args_decl COMMA PIDENTIFIER    { $$ = $1; $$->add_argument(*$3); delete $3; }
-  | PIDENTIFIER                    { $$ = new AST::ArgumentsDeclNode(*$1); delete $1; }
+    args_decl COMMA type PIDENTIFIER    { $$ = $1; $$->add_argument({*$4, $3}); delete $4; }
+  | type PIDENTIFIER                    { $$ = new AST::ArgumentsDeclNode({*$2, $1}); delete $2; }
+  ;
+
+type:
+    TYPE_T    { $$ = AST::ParamType::ARRAY; }
+  | TYPE_O    { $$ = AST::ParamType::UNDEFINED; }
+  | TYPE_I    { $$ = AST::ParamType::CONST; }
+  |           { $$ = AST::ParamType::DEFAULT; }  
   ;
 
 args:

@@ -1,8 +1,16 @@
-PROGRAM IS
-x
+PROCEDURE init_array(arr, size) IS
 IN
-    x := 100;
-    FOR i FROM 120 DOWNTO x DO
-        WRITE i;
+    FOR i FROM 0 TO size DO
+        arr[i] := 10;
+    ENDFOR
+END
+
+PROGRAM IS
+my_arr[0:9], sum, arr_size
+IN
+    arr_size := 4;
+    init_array(my_arr, arr_size);
+    FOR i FROM 0 TO arr_size DO
+        WRITE my_arr[i];
     ENDFOR
 END

@@ -42,6 +42,7 @@ add_executable(tests
     test/if_test.cpp
     test/while_test.cpp
     test/repeat_test.cpp
+    test/for_test.cpp
     test/procedure_test.cpp
     test/array_test.cpp
 )

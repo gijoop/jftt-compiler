@@ -13,6 +13,10 @@ class DeclarationChecker : public AstVisitor {
 public:
     DeclarationChecker() = default;
 
+    std::string scoped(const std::string& name) const {
+        return current_procedure_.empty() ? name : current_procedure_ + "." + name;
+    }
+
     bool is_variable_declared(const std::string& name) {
         return declared_variables_.find(name) != declared_variables_.end();
     }
@@ -23,6 +27,10 @@ public:
         }
         declared_variables_.insert(name);
         return true;
+    }
+
+    bool undeclare_variable(const std::string& name) {
+        return declared_variables_.erase(name) > 0;
     }
 
     void visit(DeclarationsNode& node) override {
@@ -39,31 +47,25 @@ public:
             if (!declare_variable(full_name)) {
                 throw SemanticError("Double declaration of " + quote(name) + procedure_error);
             }
+
+            if (decls.is_array) {
+                if (decls.start_index > decls.end_index) {
+                    throw SemanticError("Invalid array bounds for " + quote(name) + procedure_error);
+                }
+            }
         }
     }
 
     void visit(IdentifierNode& node) override {
-        std::string full_name;
-        if (!current_procedure_.empty()) {
-            full_name = current_procedure_ + "." + node.get_name();
-        } else {
-            full_name = node.get_name();
-        }
-        if (!is_variable_declared(full_name)) {
-            throw SemanticError("Variable not declared " + quote(full_name));
+        if (!is_variable_declared(scoped(node.get_name()))) {
+            throw SemanticError("Variable not declared " + quote(node.get_name()));
         }
     }
 
     void visit(ArgumentsNode& node) override {
         for (const auto& arg : node.arguments()) {
-            std::string full_name;
-            if (!current_procedure_.empty()) {
-                full_name = current_procedure_ + "." + arg;
-            } else {
-                full_name = arg;
-            }
-            if (!is_variable_declared(full_name)) {
-                throw SemanticError("Variable not declared " + quote(full_name));
+            if (!is_variable_declared(scoped(arg))) {
+                throw SemanticError("Variable not declared " + quote(arg));
             }
         }
     }
@@ -84,14 +86,8 @@ public:
 
     void visit(ArgumentsDeclNode& node) override {
         for (const auto& arg : node.arguments()) {
-            std::string ref_name;
-            if (!current_procedure_.empty()) {
-                ref_name = current_procedure_ + "." + arg;
-            } else {
-                ref_name = arg;
-            }
-            if (!declare_variable(ref_name)) {
-                throw SemanticError("Double declaration of parameter " + quote(arg) + " in procedure " + quote(current_procedure_));
+            if (!declare_variable(scoped(arg.name))) {
+                throw SemanticError("Double declaration of parameter " + quote(arg.name) + " in procedure " + quote(current_procedure_));
             }
         }
     }
@@ -100,15 +96,29 @@ public:
         node.start_val()->accept(*this);
         node.end_val()->accept(*this);
 
-        if (!declare_variable(node.iterator())) {
+        if (!declare_variable(scoped(node.iterator()))) {
             throw SemanticError("Double declaration of " + quote(node.iterator()));
         }
 
+        iterators_.insert(scoped(node.iterator()));
         node.commands()->accept(*this);
+
+        iterators_.erase(scoped(node.iterator()));
+        undeclare_variable(scoped(node.iterator()));
+    }
+
+    void visit(AssignmentNode& node) override {
+        std::string var_name = node.id()->get_name();
+        if (iterators_.find(scoped(var_name)) != iterators_.end()) {
+            throw SemanticError("Cannot assign to loop iterator " + quote(var_name));
+        }
+        node.id()->accept(*this);
+        node.expr()->accept(*this);
     }
 private:
     std::string current_procedure_;
     std::unordered_set<std::string> declared_variables_;
+    std::unordered_set<std::string> iterators_;
 };
 
 } // namespace AST

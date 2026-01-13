@@ -64,6 +64,10 @@ void yyerror(void* scanner, AST::ProgramNode** result, const char *s);
 "<="       { return OP_LE; }
 ">="       { return OP_GE; }
 
+"T"         { return TYPE_T; }
+"O"         { return TYPE_O; }
+"I"         { return TYPE_I; }
+
 #.*         ;
 .          { return yytext[0]; }
 

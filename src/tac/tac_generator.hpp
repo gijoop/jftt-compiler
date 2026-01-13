@@ -216,32 +216,37 @@ public:
 
         node.start_val()->accept(*this);
         auto start_val = last_result;
-        
-        auto iterator = Tac::Operand::make_var(node.iterator());
-        emit(Tac::OpCode::ADD, iterator, start_val, iterator);
-        
+
         node.end_val()->accept(*this);
         auto end_val = last_result;
 
+        // Pre check for correct range
+        auto comp_result = program.new_temp();
+        if (node.direction() == AST::ForNode::Direction::TO) {
+            emit(Tac::OpCode::SUB, start_val, end_val, comp_result);
+        } else {
+            emit(Tac::OpCode::SUB, end_val, start_val, comp_result);
+        }
+        emit(Tac::OpCode::JPOS, comp_result, std::nullopt, label_end);
+        
+        auto iterator = Tac::Operand::make_var(node.iterator());
+        emit(Tac::OpCode::ASSIGN, start_val, std::nullopt, iterator);
+    
         emit(Tac::OpCode::LABEL, label_start);
 
         node.commands()->accept(*this);
 
         // Assuming start_val <= end_val for TO and start_val >= end_val for DOWNTO
-        auto comp_result = program.new_temp();
         if (node.direction() == AST::ForNode::Direction::TO) {
             emit(Tac::OpCode::SUB, end_val, iterator, comp_result);
-        } else {
-            emit(Tac::OpCode::SUB, iterator, end_val, comp_result);
-        }
-
-        if (node.direction() == AST::ForNode::Direction::TO) {
             emit(Tac::OpCode::ADD, iterator, Tac::Operand::make_const(1), iterator);
         } else {
+            emit(Tac::OpCode::SUB, iterator, end_val, comp_result);
             emit(Tac::OpCode::SUB, iterator, Tac::Operand::make_const(1), iterator);
         }
         
         emit(Tac::OpCode::JPOS, comp_result, std::nullopt, label_start);
+        emit(Tac::OpCode::LABEL, label_end);
     }
 
     void visit(AST::ProcedureNode& node) override {
@@ -250,8 +255,8 @@ public:
         int idx = 0;
         for (const auto& arg : node.head()->args_decl()->arguments()) {
             std::string ref_name = current_procedure + ".arg." + std::to_string(idx++);
-            param_to_reference[arg] = ref_name;
-            array_params.insert(arg);
+            param_to_reference[arg.name] = ref_name;
+            array_params.insert(arg.name);
         }
         
         emit(Tac::OpCode::LABEL, Tac::Operand::make_label(current_procedure));
@@ -266,8 +271,8 @@ public:
         emit(Tac::OpCode::RETURN);
         
         for (const auto& arg : node.head()->args_decl()->arguments()) {
-            param_to_reference.erase(arg);
-            array_params.erase(arg);
+            param_to_reference.erase(arg.name);
+            array_params.erase(arg.name);
         }
         current_procedure.clear();
     }

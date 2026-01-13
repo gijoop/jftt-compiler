@@ -19,6 +19,13 @@ enum class IdType {
     ARRAY
 };
 
+enum class ParamType {
+    DEFAULT,
+    ARRAY,
+    UNDEFINED,
+    CONST
+};
+
 class Node {
 public:
     virtual ~Node() = default;
@@ -489,11 +496,16 @@ private:
     std::unique_ptr<ExpressionNode> expr_;
 };
 
+struct ArgumentDecl {
+    std::string name;
+    ParamType type = ParamType::DEFAULT;
+};
+
 class ArgumentsDeclNode : public Node {
 public:
-    ArgumentsDeclNode(std::vector<std::string> args) : args_(std::move(args)) {}
+    ArgumentsDeclNode(std::vector<ArgumentDecl> args) : args_(std::move(args)) {}
 
-    ArgumentsDeclNode(std::string arg) {
+    ArgumentsDeclNode(ArgumentDecl arg) {
         args_.push_back(std::move(arg));
     }
 
@@ -502,20 +514,20 @@ public:
     std::string to_string(int level = 0) const override {
         std::string result = util::pad(level) + "ARGS_DECL:\n";
         for (const auto& arg : args_) {
-            result += util::pad(level + 1) + arg + "\n";
+            result += util::pad(level + 1) + arg.name + "\n";
         }
         return result;
     }
 
-    void add_argument(std::string arg) {
+    void add_argument(ArgumentDecl arg) {
         args_.push_back(std::move(arg));
     }
 
-    std::vector<std::string>& arguments() {
+    std::vector<ArgumentDecl>& arguments() {
         return args_;
     }
 private:
-    std::vector<std::string> args_;
+    std::vector<ArgumentDecl> args_;
 };
 
 class ArgumentsNode : public Node {
