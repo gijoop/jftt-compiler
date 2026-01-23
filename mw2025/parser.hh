@@ -67,12 +67,13 @@ using namespace std;
     YYUNDEF = 257,                 /* "invalid token"  */
     COM_0 = 258,                   /* COM_0  */
     COM_1 = 259,                   /* COM_1  */
-    JUMP_0 = 260,                  /* JUMP_0  */
-    JUMP_1 = 261,                  /* JUMP_1  */
-    STOP = 262,                    /* STOP  */
-    REG = 263,                     /* REG  */
-    NUMBER = 264,                  /* NUMBER  */
-    ERROR = 265                    /* ERROR  */
+    COM_2 = 260,                   /* COM_2  */
+    JUMP_0 = 261,                  /* JUMP_0  */
+    JUMP_1 = 262,                  /* JUMP_1  */
+    STOP = 263,                    /* STOP  */
+    REG = 264,                     /* REG  */
+    NUMBER = 265,                  /* NUMBER  */
+    ERROR = 266                    /* ERROR  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

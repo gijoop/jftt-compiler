@@ -13,7 +13,7 @@ cmake --build build --parallel
 
 # 2. Compile test programs
 
-test_file="example.imp"
+test_file=$1
     
 base_name=$(basename "$test_file" .imp)
 asm_file="build/${base_name}.asm"

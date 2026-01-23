@@ -45,6 +45,7 @@ add_executable(tests
     test/for_test.cpp
     test/procedure_test.cpp
     test/array_test.cpp
+    test/public_examples_test.cpp
 )
 target_link_libraries(tests PRIVATE compiler_core GTest::gtest_main)
 

@@ -32,6 +32,7 @@ void yyerror( vector< pair<int,long long> > & program, char const *s );
 %parse-param { vector< pair<int,long long> > & program }
 %token COM_0
 %token COM_1
+%token COM_2
 %token JUMP_0
 %token JUMP_1
 %token STOP
@@ -46,8 +47,8 @@ input :
 
 line :
     COM_0	  { program.push_back( make_pair($1,0) ); }
-  | COM_1 REG	  { program.push_back( make_pair($1,$2) ); }
   | COM_1 NUMBER  { program.push_back( make_pair($1,$2) ); }
+  | COM_2 REG	  { program.push_back( make_pair($1,$2) ); }
   | JUMP_0        { program.push_back( make_pair($1,0) ); }
   | JUMP_1 NUMBER { program.push_back( make_pair($1,$2) ); }
   | STOP          { program.push_back( make_pair($1,0) ); }
@@ -67,4 +68,3 @@ void run_parser( vector< pair<int,long long> > & program, FILE * data )
   yyparse( program );
   cout << cBlue << "Skończono czytanie kodu (liczba rozkazów: " << program.size() << ")." << cReset << endl;
 }
-

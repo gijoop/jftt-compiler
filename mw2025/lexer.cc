@@ -850,52 +850,52 @@ YY_RULE_SETUP
 case 7:
 YY_RULE_SETUP
 #line 24 "lexer.l"
-{ yylval = RLOAD;  return COM_1; };
+{ yylval = RLOAD;  return COM_2; };
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 25 "lexer.l"
-{ yylval = RSTORE; return COM_1; };
+{ yylval = RSTORE; return COM_2; };
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 26 "lexer.l"
-{ yylval = ADD;    return COM_1; };
+{ yylval = ADD;    return COM_2; };
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 27 "lexer.l"
-{ yylval = SUB;    return COM_1; };
+{ yylval = SUB;    return COM_2; };
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 28 "lexer.l"
-{ yylval = SWP;    return COM_1; };
+{ yylval = SWP;    return COM_2; };
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 29 "lexer.l"
-{ yylval = RST;    return COM_1; };
+{ yylval = RST;    return COM_2; };
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 30 "lexer.l"
-{ yylval = INC;    return COM_1; };
+{ yylval = INC;    return COM_2; };
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 31 "lexer.l"
-{ yylval = DEC;    return COM_1; };
+{ yylval = DEC;    return COM_2; };
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 32 "lexer.l"
-{ yylval = SHL;    return COM_1; };
+{ yylval = SHL;    return COM_2; };
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 33 "lexer.l"
-{ yylval = SHR;    return COM_1; };
+{ yylval = SHR;    return COM_2; };
 	YY_BREAK
 case 17:
 YY_RULE_SETUP

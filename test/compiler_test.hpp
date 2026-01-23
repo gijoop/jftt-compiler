@@ -25,17 +25,26 @@ protected:
     SymbolTable::reset();
   }
 
-  std::string run_vm(const std::string& asm_code) {
+  std::string run_vm(const std::string& asm_code, const std::vector<std::string>& input_data = {}) {
     std::string asm_filename = "/tmp/temp_code.asm";
+    std::string input_filename = "/tmp/temp_input.txt";
+
     {
       std::ofstream asm_file(asm_filename);
       asm_file << asm_code;
-    }   
+    }
+
+    {
+      std::ofstream input_file(input_filename);
+      for (const auto& line : input_data) {
+          input_file << line << "\n";
+      }
+    }
 
     std::array<char, 128> buffer;
     std::string result;
     
-    std::string cmd = "./mw2025/maszyna-wirtualna " + asm_filename;
+    std::string cmd = "/home/lucas/jftt-compiler/mw2025/maszyna-wirtualna " + asm_filename + " < " + input_filename;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
     
     if (!pipe) {
@@ -47,11 +56,12 @@ protected:
     }
 
     std::remove(asm_filename.c_str());
+    std::remove(input_filename.c_str());
     
     return result;
   }
 
-  std::vector<std::string> compile_and_run(const std::string& source_code) {
+  std::vector<std::string> compile_and_run(const std::string& source_code, const std::vector<std::string>& input_data = {}) {
     ParserWrapper parser;
     if (!parser.parse(source_code)) {
       throw std::runtime_error("Parsing failed");
@@ -85,7 +95,7 @@ protected:
       asm_code_str += instr.to_string() + "\n";
     }
 
-    std::string full_output = run_vm(asm_code_str);
+    std::string full_output = run_vm(asm_code_str, input_data);
 
     std::vector<std::string> output_lines;
     std::istringstream iss(full_output);
