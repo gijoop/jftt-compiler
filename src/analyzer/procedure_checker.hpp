@@ -32,8 +32,11 @@ public:
         }
 
         int expected_args = declared_procedures_[node.name()];
-        if (node.args()->arguments().size() != expected_args) {
-            throw SemanticError("Incorrect number of arguments in call to " + util::quote(node.name()));
+        int given_args = static_cast<int>(node.args()->arguments().size());
+        if (given_args != expected_args) {
+            throw SemanticError("Incorrect number of arguments in call to " + util::quote(node.name()) +
+                                ". Expected " + std::to_string(expected_args) + ", got " +
+                                std::to_string(given_args) + ".");
         }
 
         node.args()->accept(*this);

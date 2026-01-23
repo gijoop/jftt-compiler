@@ -125,8 +125,6 @@ TEST_F(PublicExamplesTest, Ex7_B) {
     EXPECT_EQ(output[2], "2222012");
 }
 
-// Skip Ex8 cause it's weird
-
 TEST_F(PublicExamplesTest, Ex9) {
     std::string source_code = static_cast<std::string>(PublicExamples::example9);
     std::vector<std::string> input_data = { "20", "9" };
