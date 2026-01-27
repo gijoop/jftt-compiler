@@ -9,7 +9,32 @@
 #include "compiler.hpp"
 
 class CompilerTest : public testing::Test {
-    protected:
+protected:
+
+    static inline int total_program_cost_ = 0;
+    static inline int total_instruction_count_ = 0;
+
+    static inline int max_program_cost_ = 0;
+    static inline int max_instruction_count_ = 0;
+
+    static inline int test_count_ = 0;
+
+    static void SetUpTestSuite() {
+        total_program_cost_ = 0;
+        total_instruction_count_ = 0;
+        max_program_cost_ = 0;
+        max_instruction_count_ = 0;
+        test_count_ = 0;
+    }
+
+    static void TearDownTestSuite() {
+        double avg_cost = total_program_cost_ / static_cast<double>(test_count_);
+        double avg_instructions = total_instruction_count_ / static_cast<double>(test_count_);
+
+        std::cout << "Average Program Cost: " << avg_cost << std::endl;
+        std::cout << "Average Instruction Count: " << avg_instructions << std::endl;
+    }
+
     
     void SetUp() override {
         SymbolTable::reset();
@@ -55,7 +80,7 @@ class CompilerTest : public testing::Test {
         return result;
     }
     
-    std::vector<std::string> compile_and_run(const std::string& source_code, const std::vector<std::string>& input_data = {}, bool optimize = true) {
+    std::vector<std::string> compile_and_run(const std::string& source_code, const std::vector<std::string>& input_data = {}, bool optimize = false) {
         Compiler compiler;
         compiler.set_optimization(optimize);
         std::string asm_code = compiler.compile(source_code);
@@ -69,14 +94,31 @@ class CompilerTest : public testing::Test {
             output_lines.push_back(line);
         }
         
-        std::vector<std::string> write_outputs; 
+        std::vector<std::string> write_outputs;
+        int program_cost = 0;
         for (auto& line : output_lines) {
             if (line.find("> ") != std::string::npos) {
                 size_t start = line.find("> ") + 2;
                 write_outputs.push_back(line.substr(start));
             }
+            else if (line.find("koszt: \033[31m") != std::string::npos) {
+                size_t start = line.find("koszt: \033[31m") + 13;
+                size_t end = line.find("\033[0m;", start);
+                std::string cost_str = line.substr(start, end - start);
+                cost_str.erase(remove_if(cost_str.begin(), cost_str.end(), isspace), cost_str.end());
+                program_cost = std::stoi(cost_str);
+            }
         }
-        
+
+        total_program_cost_ += program_cost;
+        max_program_cost_ = std::max(max_program_cost_, program_cost);
+
+        int instruction_count = std::count(asm_code.begin(), asm_code.end(), '\n');
+        max_instruction_count_ = std::max(max_instruction_count_, instruction_count);
+        total_instruction_count_ += instruction_count;
+
+        test_count_++;
+
         return write_outputs;
     }
 };
