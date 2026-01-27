@@ -4,11 +4,15 @@ project(JfttCompiler LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(BUILD_TESTS "Build tests" OFF)
+
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
-find_package(GTest REQUIRED)
 
-enable_testing()
+if(BUILD_TESTS)
+    find_package(GTest REQUIRED)
+    enable_testing()
+endif()
 
 BISON_TARGET(Parser src/parser/parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
     DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/parser.hpp)
@@ -29,25 +33,27 @@ target_include_directories(compiler_core PUBLIC src ${CMAKE_CURRENT_BINARY_DIR})
 add_executable(compiler src/main.cpp)
 target_link_libraries(compiler PRIVATE compiler_core)
 
-add_executable(tests 
-    test/write_test.cpp 
-    test/var_test.cpp 
-    test/decl_checker_test.cpp
-    test/proc_checker_test.cpp
-    test/add_test.cpp
-    test/sub_test.cpp
-    test/mul_test.cpp
-    test/div_test.cpp
-    test/mod_test.cpp
-    test/if_test.cpp
-    test/while_test.cpp
-    test/repeat_test.cpp
-    test/for_test.cpp
-    test/procedure_test.cpp
-    test/array_test.cpp
-    test/public_examples_test.cpp
-)
-target_link_libraries(tests PRIVATE compiler_core GTest::gtest_main)
+if(BUILD_TESTS)
+    add_executable(tests 
+        test/write_test.cpp 
+        test/var_test.cpp 
+        test/decl_checker_test.cpp
+        test/proc_checker_test.cpp
+        test/add_test.cpp
+        test/sub_test.cpp
+        test/mul_test.cpp
+        test/div_test.cpp
+        test/mod_test.cpp
+        test/if_test.cpp
+        test/while_test.cpp
+        test/repeat_test.cpp
+        test/for_test.cpp
+        test/procedure_test.cpp
+        test/array_test.cpp
+        test/public_examples_test.cpp
+    )
+    target_link_libraries(tests PRIVATE compiler_core GTest::gtest_main)
 
-include(GoogleTest)
-gtest_discover_tests(tests)
+    include(GoogleTest)
+    gtest_discover_tests(tests)
+endif()
