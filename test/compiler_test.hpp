@@ -55,8 +55,9 @@ class CompilerTest : public testing::Test {
         return result;
     }
     
-    std::vector<std::string> compile_and_run(const std::string& source_code, const std::vector<std::string>& input_data = {}) {
+    std::vector<std::string> compile_and_run(const std::string& source_code, const std::vector<std::string>& input_data = {}, bool optimize = true) {
         Compiler compiler;
+        compiler.set_optimization(optimize);
         std::string asm_code = compiler.compile(source_code);
         
         std::string full_output = run_vm(asm_code, input_data);

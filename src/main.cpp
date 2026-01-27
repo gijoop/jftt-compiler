@@ -1,10 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
 
 #include "compiler.hpp"
 
-#define USAGE "Usage: " << argv[0] << " <source_code> <output_file>"
+#define USAGE "Usage: " << argv[0] << " <source_code> <output_file> [-O0]"
 
 int main(int argc, char** argv) {
     if (argc < 3) {
@@ -14,6 +15,14 @@ int main(int argc, char** argv) {
 
     std::string source_file = argv[1];
     std::string output_file = argv[2];
+    bool optimize = true;
+    
+    // Check for -O0 flag to disable optimization
+    for (int i = 3; i < argc; ++i) {
+        if (std::strcmp(argv[i], "-O0") == 0) {
+            optimize = false;
+        }
+    }
 
     std::ifstream file(source_file);
     if (!file.is_open()) {
@@ -26,6 +35,7 @@ int main(int argc, char** argv) {
     file.close();
 
     Compiler compiler;
+    compiler.set_optimization(optimize);
     std::string asm_code;
     try {
         asm_code = compiler.compile(source_code);

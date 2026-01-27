@@ -563,6 +563,87 @@ public:
                     break;
                 }
 
+                // ============================================================
+                // Optimized operations from strength reduction
+                // ============================================================
+                
+                case Tac::OpCode::SHL_N: {
+                    // Shift left by N (multiply by 2^N)
+                    // arg1 = operand, arg2 = shift count (constant)
+                    load_to_ra(*instr.arg1);
+                    long long shift_count = instr.arg2->value;
+                    for (long long i = 0; i < shift_count; ++i) {
+                        asm_code.push_back(Asm::make(Code::SHL, Register::RA));
+                    }
+                    store_ra(*instr.result);
+                    break;
+                }
+
+                case Tac::OpCode::SHR_N: {
+                    // Shift right by N (divide by 2^N)
+                    // arg1 = operand, arg2 = shift count (constant)
+                    load_to_ra(*instr.arg1);
+                    long long shift_count = instr.arg2->value;
+                    for (long long i = 0; i < shift_count; ++i) {
+                        asm_code.push_back(Asm::make(Code::SHR, Register::RA));
+                    }
+                    store_ra(*instr.result);
+                    break;
+                }
+
+                case Tac::OpCode::MOD_POW2: {
+                    // Modulo by 2^N: x % 2^n = x - (x >> n) << n
+                    // arg1 = operand, arg2 = N (power, constant)
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = x
+                    
+                    long long n = instr.arg2->value;
+                    
+                    // ra = x >> n
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));
+                    for (long long i = 0; i < n; ++i) {
+                        asm_code.push_back(Asm::make(Code::SHR, Register::RA));
+                    }
+                    
+                    // ra = (x >> n) << n
+                    for (long long i = 0; i < n; ++i) {
+                        asm_code.push_back(Asm::make(Code::SHL, Register::RA));
+                    }
+                    
+                    // Swap so rb = (x >> n) << n
+                    asm_code.push_back(Asm::make(Code::SWAP, Register::RC));
+                    
+                    // Load original x into ra (from rb)
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
+                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));
+                    
+                    // ra = x - ((x >> n) << n)
+                    asm_code.push_back(Asm::make(Code::SUB, Register::RC));
+                    
+                    store_ra(*instr.result);
+                    break;
+                }
+
+                case Tac::OpCode::INC: {
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::INC, Register::RA));
+                    store_ra(*instr.result);
+                    break;
+                }
+
+                case Tac::OpCode::DEC: {
+                    load_to_ra(*instr.arg1);
+                    asm_code.push_back(Asm::make(Code::DEC, Register::RA));
+                    store_ra(*instr.result);
+                    break;
+                }
+
+                case Tac::OpCode::NOP: {
+                    // No operation - skip
+                    break;
+                }
+
                 default:
                     std::cerr << "Warning: Unsupported TAC operation in compilation to ASM." << std::endl;
                     break;

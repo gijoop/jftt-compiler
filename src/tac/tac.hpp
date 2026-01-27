@@ -55,7 +55,13 @@ enum class OpCode {
     HALT,
     ARRAY_LOAD,
     ARRAY_ASSIGN,
-    ARRAY_PARAM
+    ARRAY_PARAM,
+    // Optimized operations (strength reduction)
+    SHL_N,    // Shift left by N (multiply by 2^N)
+    SHR_N,    // Shift right by N (divide by 2^N)
+    MOD_POW2, // Modulo by 2^N
+    INC,      // Increment by 1
+    DEC       // Decrement by 1
 };
 
 struct Instruction {
@@ -96,6 +102,11 @@ struct Instruction {
             case OpCode::ARRAY_LOAD: s += "ARRAY_LOAD "; break;
             case OpCode::ARRAY_ASSIGN: s += "ARRAY_ASSIGN "; break;
             case OpCode::ARRAY_PARAM: s += "ARRAY_PARAM "; break;
+            case OpCode::SHL_N: s += "SHL_N "; break;
+            case OpCode::SHR_N: s += "SHR_N "; break;
+            case OpCode::MOD_POW2: s += "MOD_POW2 "; break;
+            case OpCode::INC: s += "INC "; break;
+            case OpCode::DEC: s += "DEC "; break;
             default: s += "OP "; break;
         }
 
