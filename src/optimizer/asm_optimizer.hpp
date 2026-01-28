@@ -11,9 +11,6 @@
 
 namespace Optimizer {
 
-// ============================================================================
-// Peephole Optimization Pass
-// ============================================================================
 // Applies local optimizations on small windows of instructions
 class PeepholePass : public AsmPass {
 public:
@@ -92,9 +89,6 @@ public:
     }
 };
 
-// ============================================================================
-// Jump Chain Optimization Pass
-// ============================================================================
 // Optimizes chains of jumps (e.g., JUMP L1 where L1: JUMP L2 -> JUMP L2)
 class JumpChainPass : public AsmPass {
 public:
@@ -146,9 +140,6 @@ public:
     }
 };
 
-// ============================================================================
-// Dead Label Elimination Pass
-// ============================================================================
 // Removes labels that are never referenced
 class DeadLabelPass : public AsmPass {
 public:
@@ -182,9 +173,7 @@ public:
     }
 };
 
-// ============================================================================
-// Instruction Combining Pass
-// ============================================================================
+
 // Combines sequences of instructions into more efficient ones
 class InstructionCombinePass : public AsmPass {
 public:
@@ -238,9 +227,7 @@ public:
     }
 };
 
-// ============================================================================
 // Factory function to create default ASM optimizer
-// ============================================================================
 inline AsmOptimizer create_default_asm_optimizer() {
     AsmOptimizer optimizer;
     

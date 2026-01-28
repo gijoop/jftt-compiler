@@ -56,12 +56,12 @@ enum class OpCode {
     ARRAY_LOAD,
     ARRAY_ASSIGN,
     ARRAY_PARAM,
-    // Optimized operations (strength reduction)
-    SHL_N,    // Shift left by N (multiply by 2^N)
-    SHR_N,    // Shift right by N (divide by 2^N)
+    // Optimized operations
+    SHL_N,    // Shift left by N
+    SHR_N,    // Shift right by N 
     MOD_POW2, // Modulo by 2^N
-    INC,      // Increment by 1
-    DEC       // Decrement by 1
+    INC,
+    DEC
 };
 
 struct Instruction {

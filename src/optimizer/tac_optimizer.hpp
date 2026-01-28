@@ -10,12 +10,10 @@
 
 namespace Optimizer {
 
-// Helper to check if an operand represents a constant value
 inline bool is_constant(const Tac::Operand& op) {
     return op.type == Tac::OperandType::CONSTANT;
 }
 
-// Helper to get operand key for maps
 inline std::string operand_key(const Tac::Operand& op) {
     switch (op.type) {
         case Tac::OperandType::CONSTANT:
@@ -47,9 +45,6 @@ inline bool operand_equals(const Tac::Operand& a, const Tac::Operand& b) {
     return false;
 }
 
-// ============================================================================
-// Constant Folding Pass
-// ============================================================================
 // Evaluates operations with constant operands at compile time
 class ConstantFoldingPass : public TacPass {
 public:
@@ -114,9 +109,6 @@ public:
     }
 };
 
-// ============================================================================
-// Constant Propagation Pass
-// ============================================================================
 // Propagates known constant values to their uses
 class ConstantPropagationPass : public TacPass {
 public:
@@ -175,9 +167,6 @@ public:
     }
 };
 
-// ============================================================================
-// Strength Reduction Pass
-// ============================================================================
 // Replaces expensive operations with cheaper equivalents
 class StrengthReductionPass : public TacPass {
 public:
@@ -258,7 +247,7 @@ public:
                 }
             }
 
-            // Add by small constant -> use INC (cost 1 vs LOAD+ADD which costs ~55)
+            // Add by small constant -> use INC
             if (instr.op == Tac::OpCode::ADD && instr.arg2) {
                 if (is_constant(*instr.arg2) && instr.arg2->value == 0) {
                     instr.op = Tac::OpCode::ASSIGN;
@@ -309,9 +298,6 @@ private:
     }
 };
 
-// ============================================================================
-// Algebraic Simplification Pass
-// ============================================================================
 // Simplifies algebraic identities
 class AlgebraicSimplificationPass : public TacPass {
 public:
@@ -371,9 +357,6 @@ public:
     }
 };
 
-// ============================================================================
-// Dead Code Elimination Pass
-// ============================================================================
 // Removes instructions whose results are never used
 class DeadCodeEliminationPass : public TacPass {
 public:
@@ -459,9 +442,6 @@ private:
     }
 };
 
-// ============================================================================
-// Copy Propagation Pass
-// ============================================================================
 // Propagates copies: if t1 = t0, replace uses of t1 with t0
 class CopyPropagationPass : public TacPass {
 public:
@@ -525,9 +505,7 @@ public:
     }
 };
 
-// ============================================================================
 // Factory function to create default TAC optimizer
-// ============================================================================
 inline TacOptimizer create_default_tac_optimizer() {
     TacOptimizer optimizer;
     

@@ -207,14 +207,10 @@ public:
                     load_to_ra(*instr.arg1);
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RC)); // RC = Dividend (Remainder)
 
-                    // Init Quotient (RD) = 0
-                    asm_code.push_back(Asm::make(Code::RESET, Register::RA)); // ra = 0
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RD));  // RD = 0, RA = OldRD
-
-                    // Init Mask (RE) = 1
-                    asm_code.push_back(Asm::make(Code::RESET, Register::RA)); // ra = 0
-                    asm_code.push_back(Asm::make(Code::INC, Register::RA));   // ra = 1
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RE));  // RE = 1, RA = OldRE
+                    // Init Quotient (RD) = 0, Mask (RE) = 1
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RD)); // RD = 0
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RE)); // RE = 0
+                    asm_code.push_back(Asm::make(Code::INC, Register::RE));   // RE = 1
 
                     // Alignment Phase (Shift Divisor Left)
                     asm_code.push_back(Asm::make(Code::LABEL, label_align));
@@ -228,16 +224,10 @@ public:
                     asm_code.push_back(Asm::make(Code::JPOS, label_calc));
 
                     // Shift Divisor (RB) Left
-                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
-                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));
-                    asm_code.push_back(Asm::make(Code::SHL, Register::RA));
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
+                    asm_code.push_back(Asm::make(Code::SHL, Register::RB));
 
-                    // Shift Mask (RE) Left
-                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
-                    asm_code.push_back(Asm::make(Code::ADD, Register::RE));
-                    asm_code.push_back(Asm::make(Code::SHL, Register::RA));
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RE));
+                    // Shift Mask (RE) 
+                    asm_code.push_back(Asm::make(Code::SHL, Register::RE));
 
                     asm_code.push_back(Asm::make(Code::JUMP, label_align));
 
@@ -273,17 +263,11 @@ public:
 
                     asm_code.push_back(Asm::make(Code::LABEL, label_check));
 
-                    // Shift Divisor (RB) Right
-                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
-                    asm_code.push_back(Asm::make(Code::ADD, Register::RB));
-                    asm_code.push_back(Asm::make(Code::SHR, Register::RA));
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RB));
+                    // Shift Divisor (RB) Right - use SHR directly on RB (saves 3 instructions)
+                    asm_code.push_back(Asm::make(Code::SHR, Register::RB));
 
-                    // Shift Mask (RE) Right
-                    asm_code.push_back(Asm::make(Code::RESET, Register::RA));
-                    asm_code.push_back(Asm::make(Code::ADD, Register::RE));
-                    asm_code.push_back(Asm::make(Code::SHR, Register::RA));
-                    asm_code.push_back(Asm::make(Code::SWAP, Register::RE));
+                    // Shift Mask (RE) Right - use SHR directly on RE (saves 3 instructions)
+                    asm_code.push_back(Asm::make(Code::SHR, Register::RE));
 
                     asm_code.push_back(Asm::make(Code::JUMP, label_calc));
 
@@ -562,14 +546,8 @@ public:
                     store_ra(*instr.result);
                     break;
                 }
-
-                // ============================================================
-                // Optimized operations from strength reduction
-                // ============================================================
                 
                 case Tac::OpCode::SHL_N: {
-                    // Shift left by N (multiply by 2^N)
-                    // arg1 = operand, arg2 = shift count (constant)
                     load_to_ra(*instr.arg1);
                     long long shift_count = instr.arg2->value;
                     for (long long i = 0; i < shift_count; ++i) {
@@ -580,8 +558,6 @@ public:
                 }
 
                 case Tac::OpCode::SHR_N: {
-                    // Shift right by N (divide by 2^N)
-                    // arg1 = operand, arg2 = shift count (constant)
                     load_to_ra(*instr.arg1);
                     long long shift_count = instr.arg2->value;
                     for (long long i = 0; i < shift_count; ++i) {
@@ -592,8 +568,6 @@ public:
                 }
 
                 case Tac::OpCode::MOD_POW2: {
-                    // Modulo by 2^N: x % 2^n = x - (x >> n) << n
-                    // arg1 = operand, arg2 = N (power, constant)
                     load_to_ra(*instr.arg1);
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = x
                     
@@ -640,7 +614,6 @@ public:
                 }
 
                 case Tac::OpCode::NOP: {
-                    // No operation - skip
                     break;
                 }
 
