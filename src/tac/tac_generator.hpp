@@ -215,10 +215,12 @@ public:
         auto label_end = program.new_label();
 
         node.start_val()->accept(*this);
-        auto start_val = last_result;
+        auto start_val = program.new_temp();
+        emit(Tac::OpCode::ASSIGN, last_result, std::nullopt, start_val);
 
         node.end_val()->accept(*this);
-        auto end_val = last_result;
+        auto end_val = program.new_temp();
+        emit(Tac::OpCode::ASSIGN, last_result, std::nullopt, end_val);
 
         // Pre check for correct range
         auto comp_result = program.new_temp();
