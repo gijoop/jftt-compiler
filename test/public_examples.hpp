@@ -391,4 +391,130 @@ IN
 	ENDFOR
 END
     )";
+
+  constexpr std::string_view listA = R"(
+PROGRAM IS
+  n , p
+IN
+  READ n ;
+  REPEAT
+    p := n / 2 ;
+    p := 2 * p ;
+    IF n > p THEN
+      WRITE 1 ;
+    ELSE
+      WRITE 0 ;
+    ENDIF
+    n := n / 2;
+  UNTIL n = 0;
+END
+    )";
+
+  constexpr std::string_view listB = R"(
+PROCEDURE gcd(I a, I b, O c) IS
+  x, y
+IN
+  x := a;
+  y := b;
+  WHILE y > 0 DO
+    IF x >= y THEN
+      x := x - y;
+    ELSE
+      x := x + y;
+      y := x - y;
+      x := x - y;
+    ENDIF
+  ENDWHILE
+  c := x;
+END
+
+PROGRAM IS
+  a, b, c, d, x, y, z
+IN
+  READ a;
+  READ b;
+  READ c;
+  READ d;
+  gcd(a, b, x);
+  gcd(c, d, y);
+  gcd(x, y, z);
+  WRITE z;
+END
+    )";
+
+
+  constexpr std::string_view listC = R"(
+PROCEDURE licz(T s, I n) IS
+  j
+IN
+  FOR i FROM 2 TO n DO
+    s[i] := 1;
+  ENDFOR
+  FOR i FROM 2 TO n DO
+    IF s[i] > 0 THEN
+      j := i + i;
+      WHILE j <= n DO
+        s[j] := 0;
+        j := j + i;
+      ENDWHILE
+    ENDIF
+  ENDFOR
+END
+
+PROCEDURE wypisz(T s, I n) IS
+IN
+  FOR i FROM n DOWNTO 2 DO
+    IF s[i] > 0 THEN
+      WRITE i;
+    ENDIF
+  ENDFOR
+END
+
+PROGRAM IS
+  n, sito[2:100]
+IN
+  n := 100;
+  licz(sito, n);
+  wypisz(sito, n);
+END
+    )";
+
+
+  constexpr std::string_view listD = R"(
+PROCEDURE check(n, I d, O p) IS
+  r
+IN
+  p := 0;
+  r := n % d;
+  WHILE r = 0 DO
+    n := n / d;
+    p := p + 1;
+    r := n % d;
+  ENDWHILE
+END
+
+PROGRAM IS
+  n, m, potega, dzielnik
+IN
+  READ n;
+  dzielnik := 2;
+  m := dzielnik * dzielnik;
+  WHILE n >= m DO
+    check(n, dzielnik, potega);
+    IF potega > 0 THEN # jest podzielna przez dzielnik
+      WRITE dzielnik;
+      WRITE potega;
+    ENDIF
+    dzielnik := dzielnik + 1;
+    m := dzielnik * dzielnik;
+  ENDWHILE
+  IF n != 1 THEN # ostatni dzielnik różny od 1
+    WRITE n;
+    WRITE 1;
+  ENDIF
+END
+    )";
+
+
+
 }; // namespace PublicExamples

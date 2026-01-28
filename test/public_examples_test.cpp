@@ -134,3 +134,166 @@ TEST_F(PublicExamplesTest, Ex9) {
     ASSERT_EQ(output.size(), 1);
     EXPECT_EQ(output[0], "167960");
 }
+
+// ============================================================================
+// ListA Tests - Binary conversion
+// ============================================================================
+
+TEST_F(PublicExamplesTest, ListA_Five) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listA);
+    std::vector<std::string> input_data = { "5" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // 5 = 101 in binary (LSB first: 1, 0, 1)
+    ASSERT_EQ(output.size(), 3);
+    EXPECT_EQ(output[0], "1");
+    EXPECT_EQ(output[1], "0");
+    EXPECT_EQ(output[2], "1");
+}
+
+TEST_F(PublicExamplesTest, ListA_Eight) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listA);
+    std::vector<std::string> input_data = { "8" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // 8 = 1000 in binary (LSB first: 0, 0, 0, 1)
+    ASSERT_EQ(output.size(), 4);
+    EXPECT_EQ(output[0], "0");
+    EXPECT_EQ(output[1], "0");
+    EXPECT_EQ(output[2], "0");
+    EXPECT_EQ(output[3], "1");
+}
+
+TEST_F(PublicExamplesTest, ListA_255) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listA);
+    std::vector<std::string> input_data = { "255" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // 255 = 11111111 in binary
+    ASSERT_EQ(output.size(), 8);
+    for (int i = 0; i < 8; i++) {
+        EXPECT_EQ(output[i], "1");
+    }
+}
+
+// ============================================================================
+// ListB Tests - GCD
+// ============================================================================
+
+TEST_F(PublicExamplesTest, ListB_Simple) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listB);
+    std::vector<std::string> input_data = { "12", "8", "15", "10" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // gcd(12,8)=4, gcd(15,10)=5, gcd(4,5)=1
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "1");
+}
+
+TEST_F(PublicExamplesTest, ListB_Fibonacci) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listB);
+    std::vector<std::string> input_data = { "21", "13", "34", "55" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // Consecutive Fibonacci numbers are coprime
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "1");
+}
+
+// ============================================================================
+// ListC Tests - Sieve of Eratosthenes (primes up to 100)
+// ============================================================================
+
+TEST_F(PublicExamplesTest, ListC_Primes) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listC);
+    std::vector<std::string> input_data = {};
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // Primes up to 100 in descending order: 97, 89, 83, 79, 73, 71, 67, 61, 59, 53, 47, 43, 41, 37, 31, 29, 23, 19, 17, 13, 11, 7, 5, 3, 2
+    ASSERT_EQ(output.size(), 25);
+    EXPECT_EQ(output[0], "97");
+    EXPECT_EQ(output[1], "89");
+    EXPECT_EQ(output[output.size() - 1], "2");
+}
+
+// ============================================================================
+// ListD Tests - Prime factorization
+// ============================================================================
+
+TEST_F(PublicExamplesTest, ListD_Example1) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listD);
+    std::vector<std::string> input_data = { "1234567890" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // 1234567890 = 2 * 3^2 * 5 * 3607 * 3803
+    ASSERT_EQ(output.size(), 10);
+    EXPECT_EQ(output[0], "2");
+    EXPECT_EQ(output[1], "1");
+    EXPECT_EQ(output[2], "3");
+    EXPECT_EQ(output[3], "2");
+    EXPECT_EQ(output[4], "5");
+    EXPECT_EQ(output[5], "1");
+    EXPECT_EQ(output[6], "3607");
+    EXPECT_EQ(output[7], "1");
+    EXPECT_EQ(output[8], "3803");
+    EXPECT_EQ(output[9], "1");
+}
+
+TEST_F(PublicExamplesTest, ListD_Example2) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listD);
+    std::vector<std::string> input_data = { "12345678901" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // 12345678901 = 857 * 14405693
+    ASSERT_EQ(output.size(), 4);
+    EXPECT_EQ(output[0], "857");
+    EXPECT_EQ(output[1], "1");
+    EXPECT_EQ(output[2], "14405693");
+    EXPECT_EQ(output[3], "1");
+}
+
+TEST_F(PublicExamplesTest, ListD_Example3) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listD);
+    std::vector<std::string> input_data = { "12345678903" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // 12345678903 = 3 * 4115226301
+    ASSERT_EQ(output.size(), 4);
+    EXPECT_EQ(output[0], "3");
+    EXPECT_EQ(output[1], "1");
+    EXPECT_EQ(output[2], "4115226301");
+    EXPECT_EQ(output[3], "1");
+}
+
+TEST_F(PublicExamplesTest, ListD_Prime) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listD);
+    std::vector<std::string> input_data = { "97" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // 97 is prime
+    ASSERT_EQ(output.size(), 2);
+    EXPECT_EQ(output[0], "97");
+    EXPECT_EQ(output[1], "1");
+}
+
+TEST_F(PublicExamplesTest, ListD_PowerOfTwo) {
+    std::string source_code = static_cast<std::string>(PublicExamples::listD);
+    std::vector<std::string> input_data = { "1024" };
+
+    auto output = compile_and_run(source_code, input_data);
+
+    // 1024 = 2^10
+    ASSERT_EQ(output.size(), 2);
+    EXPECT_EQ(output[0], "2");
+    EXPECT_EQ(output[1], "10");
+}
