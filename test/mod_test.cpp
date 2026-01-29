@@ -13,10 +13,16 @@ TEST_F(ModTest, SimpleMod) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "1");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "1");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModByOne) {
@@ -30,10 +36,16 @@ TEST_F(ModTest, ModByOne) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "0");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModZeroByNumber) {
@@ -47,10 +59,16 @@ TEST_F(ModTest, ModZeroByNumber) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "0");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModExactDivision) {
@@ -64,10 +82,16 @@ TEST_F(ModTest, ModExactDivision) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "0");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModSmallerByLarger) {
@@ -81,10 +105,16 @@ TEST_F(ModTest, ModSmallerByLarger) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "5");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "5");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModSameNumbers) {
@@ -98,10 +128,16 @@ TEST_F(ModTest, ModSameNumbers) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "0");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModByTwo) {
@@ -115,10 +151,16 @@ TEST_F(ModTest, ModByTwo) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "1");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "1");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModEvenCheck) {
@@ -132,10 +174,16 @@ TEST_F(ModTest, ModEvenCheck) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "0");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModLargeNumbers) {
@@ -149,10 +197,16 @@ TEST_F(ModTest, ModLargeNumbers) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "56");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "56");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 
@@ -169,11 +223,17 @@ TEST_F(ModTest, ModMultipleOperations) {
         WRITE d;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 2);
-  EXPECT_EQ(output[0], "4");
-  EXPECT_EQ(output[1], "3");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 2);
+    EXPECT_EQ(output[0], "4");
+    EXPECT_EQ(output[1], "3");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModByTen) {
@@ -187,10 +247,16 @@ TEST_F(ModTest, ModByTen) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "5");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "5");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModExtractDigits) {
@@ -209,12 +275,18 @@ TEST_F(ModTest, ModExtractDigits) {
         WRITE digit_c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 3);
-  EXPECT_EQ(output[0], "6");
-  EXPECT_EQ(output[1], "5");
-  EXPECT_EQ(output[2], "4");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 3);
+    EXPECT_EQ(output[0], "6");
+    EXPECT_EQ(output[1], "5");
+    EXPECT_EQ(output[2], "4");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModGCD) {
@@ -232,10 +304,16 @@ TEST_F(ModTest, ModGCD) {
         WRITE a;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "6");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "6");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModPowerOfTwo) {
@@ -249,10 +327,16 @@ TEST_F(ModTest, ModPowerOfTwo) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "4");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "4");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(ModTest, ModConsecutiveNumbers) {
@@ -268,12 +352,109 @@ TEST_F(ModTest, ModConsecutiveNumbers) {
         ENDWHILE
     END
   )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 5);
+    EXPECT_EQ(output[0], "0");
+    EXPECT_EQ(output[1], "1");
+    EXPECT_EQ(output[2], "2");
+    EXPECT_EQ(output[3], "0");
+    EXPECT_EQ(output[4], "1");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
 
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 5);
-  EXPECT_EQ(output[0], "0");
-  EXPECT_EQ(output[1], "1");
-  EXPECT_EQ(output[2], "2");
-  EXPECT_EQ(output[3], "0");
-  EXPECT_EQ(output[4], "1");
+TEST_F(ModTest, ModByZeroLiteral) {
+  std::string source_code = R"(
+    PROGRAM IS
+    a, c
+    IN
+        a := 42;
+        c := a % 0;
+        WRITE c;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(ModTest, ModByZeroVariable) {
+  std::string source_code = R"(
+    PROGRAM IS
+    a, b, c
+    IN
+        a := 100;
+        b := 0;
+        c := a % b;
+        WRITE c;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(ModTest, ModZeroByZero) {
+  std::string source_code = R"(
+    PROGRAM IS
+    a, b, c
+    IN
+        a := 0;
+        b := 0;
+        c := a % b;
+        WRITE c;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(ModTest, ModByZeroLargeNumber) {
+  std::string source_code = R"(
+    PROGRAM IS
+    a, b, c
+    IN
+        a := 123456789;
+        b := 0;
+        c := a % b;
+        WRITE c;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");  // Modulo by zero should return 0
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }

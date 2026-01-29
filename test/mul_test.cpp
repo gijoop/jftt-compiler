@@ -13,10 +13,16 @@ TEST_F(MulTest, SimpleMul) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "42");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "42");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(MulTest, MulByZero) {
@@ -30,10 +36,16 @@ TEST_F(MulTest, MulByZero) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "0");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(MulTest, MultipleMuls) {
@@ -49,10 +61,16 @@ TEST_F(MulTest, MultipleMuls) {
         WRITE d;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "42");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "42");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(MulTest, MulLargeNumbers) {
@@ -66,10 +84,16 @@ TEST_F(MulTest, MulLargeNumbers) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "7006652");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "7006652");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(MulTest, MulByOne) {
@@ -83,10 +107,16 @@ TEST_F(MulTest, MulByOne) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "42");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "42");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(MulTest, MulZeroByZero) {
@@ -100,10 +130,16 @@ TEST_F(MulTest, MulZeroByZero) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "0");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(MulTest, MulPowersOfTwo) {
@@ -117,10 +153,16 @@ TEST_F(MulTest, MulPowersOfTwo) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "16");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "16");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(MulTest, MulInLoop) {
@@ -138,10 +180,16 @@ TEST_F(MulTest, MulInLoop) {
         WRITE result;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "32");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "32");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(MulTest, MulFactorial) {
@@ -159,8 +207,14 @@ TEST_F(MulTest, MulFactorial) {
         WRITE result;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "120");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "120");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }

@@ -103,6 +103,19 @@ public:
         node.id()->accept(*this);
     }
 
+    void visit(ReadNode& node) override {
+        auto& id_node = node.id();
+        std::string full_name = scoped(id_node->get_name());
+        
+        if (vars_[full_name].type == AST::ParamType::CONST) {
+            throw SemanticError("Cannot read into constant variable '" + id_node->get_name() + "'.");
+        }
+        
+        vars_[full_name].is_initialized = true;
+
+        node.id()->accept(*this);
+    }
+
     void visit(IdentifierNode& node) override {
         std::string full_name = scoped(node.get_name());
 

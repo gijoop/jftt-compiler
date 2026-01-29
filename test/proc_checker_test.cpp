@@ -8,7 +8,7 @@ TEST_F(ProcCheckerTest, SimpleProcedureDeclaration) {
     IN
         WRITE x;
     END
-
+  
     PROGRAM IS
     a
     IN
@@ -16,7 +16,7 @@ TEST_F(ProcCheckerTest, SimpleProcedureDeclaration) {
         test(a);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     SUCCEED();
@@ -33,12 +33,12 @@ TEST_F(ProcCheckerTest, DoubleProcedureDeclaration) {
     IN
         WRITE x;
     END
-
+  
     PROCEDURE test(y) IS
     IN
         WRITE y;
     END
-
+  
     PROGRAM IS
     a
     IN
@@ -46,7 +46,7 @@ TEST_F(ProcCheckerTest, DoubleProcedureDeclaration) {
         test(a);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     FAIL() << "ProcedureChecker did not throw an SemanticError for double procedure declaration.";
@@ -66,7 +66,7 @@ TEST_F(ProcCheckerTest, CallUndeclaredProcedure) {
         undeclared(a);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     FAIL() << "ProcedureChecker did not throw an SemanticError for call to undeclared procedure.";
@@ -83,7 +83,7 @@ TEST_F(ProcCheckerTest, RecursiveProcedureCall) {
     IN
         factorial(n);
     END
-
+  
     PROGRAM IS
     x
     IN
@@ -91,7 +91,7 @@ TEST_F(ProcCheckerTest, RecursiveProcedureCall) {
         factorial(x);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     FAIL() << "ProcedureChecker did not throw an SemanticError for recursive procedure call.";
@@ -108,7 +108,7 @@ TEST_F(ProcCheckerTest, IncorrectNumberOfArguments_TooFew) {
     IN
         WRITE x;
     END
-
+  
     PROGRAM IS
     a, b
     IN
@@ -117,7 +117,7 @@ TEST_F(ProcCheckerTest, IncorrectNumberOfArguments_TooFew) {
         test(a, b);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     FAIL() << "ProcedureChecker did not throw an SemanticError for too few arguments.";
@@ -134,7 +134,7 @@ TEST_F(ProcCheckerTest, IncorrectNumberOfArguments_TooMany) {
     IN
         WRITE x;
     END
-
+  
     PROGRAM IS
     a, b, c
     IN
@@ -144,7 +144,7 @@ TEST_F(ProcCheckerTest, IncorrectNumberOfArguments_TooMany) {
         test(a, b, c);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     FAIL() << "ProcedureChecker did not throw an SemanticError for too many arguments.";
@@ -163,7 +163,7 @@ TEST_F(ProcCheckerTest, CorrectNumberOfArguments_Multiple) {
         WRITE y;
         WRITE z;
     END
-
+  
     PROGRAM IS
     a, b, c
     IN
@@ -173,7 +173,7 @@ TEST_F(ProcCheckerTest, CorrectNumberOfArguments_Multiple) {
         test(a, b, c);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     SUCCEED();
@@ -190,20 +190,20 @@ TEST_F(ProcCheckerTest, MultipleProceduresWithDifferentArgumentCounts) {
     IN
         WRITE x;
     END
-
+  
     PROCEDURE proc_b(x, y) IS
     IN
         WRITE x;
         WRITE y;
     END
-
+  
     PROCEDURE proc_c(x, y, z) IS
     IN
         WRITE x;
         WRITE y;
         WRITE z;
     END
-
+  
     PROGRAM IS
     a, b, c
     IN
@@ -215,7 +215,7 @@ TEST_F(ProcCheckerTest, MultipleProceduresWithDifferentArgumentCounts) {
         proc_c(a, b, c);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     SUCCEED();
@@ -232,12 +232,12 @@ TEST_F(ProcCheckerTest, ProcedureCalledBeforeDeclaration) {
     IN
         second(x);
     END
-
+  
     PROCEDURE second(y) IS
     IN
         WRITE y;
     END
-
+  
     PROGRAM IS
     a
     IN
@@ -245,7 +245,7 @@ TEST_F(ProcCheckerTest, ProcedureCalledBeforeDeclaration) {
         first(a);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     FAIL() << "ProcedureChecker did not throw an SemanticError for procedure called before declaration.";
@@ -262,17 +262,17 @@ TEST_F(ProcCheckerTest, MultipleProceduresAllCalledCorrectly) {
     IN
         WRITE 1;
     END
-
+  
     PROCEDURE proc_b(x) IS
     IN
         WRITE 2;
     END
-
+  
     PROCEDURE proc_c(x, y) IS
     IN
         WRITE 3;
     END
-
+  
     PROGRAM IS
     a, b
     IN
@@ -283,7 +283,7 @@ TEST_F(ProcCheckerTest, MultipleProceduresAllCalledCorrectly) {
         proc_c(a, b);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     SUCCEED();
@@ -300,12 +300,12 @@ TEST_F(ProcCheckerTest, NestedProcedureCallsCorrectArguments) {
     IN
         WRITE x;
     END
-
+  
     PROCEDURE outer(y) IS
     IN
         inner(y);
     END
-
+  
     PROGRAM IS
     a
     IN
@@ -313,7 +313,7 @@ TEST_F(ProcCheckerTest, NestedProcedureCallsCorrectArguments) {
         outer(a);
     END
   )";
-
+  
   try {
     auto output = compile_and_run(source_code);
     SUCCEED();
@@ -321,5 +321,232 @@ TEST_F(ProcCheckerTest, NestedProcedureCallsCorrectArguments) {
     FAIL() << "ProcedureChecker threw an SemanticError for nested procedure calls with correct arguments: " << e.what();
   } catch (...) {
     FAIL() << "ProcedureChecker threw an unexpected exception type for nested procedure calls with correct arguments.";
+  }
+}
+
+TEST_F(ProcCheckerTest, IParamCannotBeModified) {
+  std::string source_code = R"(
+    PROCEDURE modify(I x) IS
+    IN
+        x := 10;
+    END
+  
+    PROGRAM IS
+    val
+    IN
+        val := 5;
+        modify(val);
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    FAIL() << "Did not throw error for modifying I (constant) parameter.";
+  } catch (const SemanticError& e) {
+    SUCCEED();
+  } catch (...) {
+    FAIL() << "Threw unexpected exception type for modifying I parameter.";
+  }
+}
+
+TEST_F(ProcCheckerTest, IParamCannotBeModifiedInExpression) {
+  std::string source_code = R"(
+    PROCEDURE modify(I x) IS
+    IN
+        x := x + 1;
+    END
+  
+    PROGRAM IS
+    val
+    IN
+        val := 5;
+        modify(val);
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    FAIL() << "Did not throw error for modifying I parameter in expression.";
+  } catch (const SemanticError& e) {
+    SUCCEED();
+  } catch (...) {
+    FAIL() << "Threw unexpected exception type for modifying I parameter.";
+  }
+}
+
+TEST_F(ProcCheckerTest, IParamCannotBePassedToNonIParam) {
+  std::string source_code = R"(
+    PROCEDURE inner(x) IS
+    IN
+        x := 100;
+    END
+  
+    PROCEDURE outer(I y) IS
+    IN
+        inner(y);
+    END
+  
+    PROGRAM IS
+    val
+    IN
+        val := 5;
+        outer(val);
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    FAIL() << "Did not throw error for passing I param to modifiable parameter.";
+  } catch (const SemanticError& e) {
+    SUCCEED();
+  } catch (...) {
+    FAIL() << "Threw unexpected exception type for passing I param to modifiable parameter.";
+  }
+}
+
+// O prefix errors - cannot read before assignment
+
+TEST_F(ProcCheckerTest, OParamCannotBeReadBeforeAssignment) {
+  std::string source_code = R"(
+    PROCEDURE readfirst(O x) IS
+    IN
+        WRITE x;
+    END
+  
+    PROGRAM IS
+    val
+    IN
+        val := 5;
+        readfirst(val);
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    FAIL() << "Did not throw error for reading O param before assignment.";
+  } catch (const SemanticError& e) {
+    SUCCEED();
+  } catch (...) {
+    FAIL() << "Threw unexpected exception type for reading O param before assignment.";
+  }
+}
+
+TEST_F(ProcCheckerTest, OParamCannotBeUsedInExpressionBeforeAssignment) {
+  std::string source_code = R"(
+    PROCEDURE compute(O x) IS
+    temp
+    IN
+        temp := x + 1;
+        x := temp;
+    END
+  
+    PROGRAM IS
+    val
+    IN
+        val := 5;
+        compute(val);
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    FAIL() << "Did not throw error for using O param in expression before assignment.";
+  } catch (const SemanticError& e) {
+    SUCCEED();
+  } catch (...) {
+    FAIL() << "Threw unexpected exception type for using O param in expression before assignment.";
+  }
+}
+
+TEST_F(ProcCheckerTest, OParamCannotBePassedToIParam) {
+  std::string source_code = R"(
+    PROCEDURE inner(I x) IS
+    IN
+        WRITE x;
+    END
+  
+    PROCEDURE outer(O y) IS
+    IN
+        inner(y);
+    END
+  
+    PROGRAM IS
+    val
+    IN
+        val := 5;
+        outer(val);
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    FAIL() << "Did not throw error for passing O param to I param.";
+  } catch (const SemanticError& e) {
+    SUCCEED();
+  } catch (...) {
+    FAIL() << "Threw unexpected exception type for passing O param to I param.";
+  }
+}
+
+TEST_F(ProcCheckerTest, OParamCanBePassedToOParam) {
+  std::string source_code = R"(
+    PROCEDURE inner(O x) IS
+    IN
+        x := 42;
+    END
+  
+    PROCEDURE outer(O y) IS
+    IN
+        inner(y);
+    END
+  
+    PROGRAM IS
+    val
+    IN
+        val := 0;
+        outer(val);
+        WRITE val;
+    END
+  )";
+  
+  try {
+    try {
+      auto output = compile_and_run(source_code);
+      ASSERT_EQ(output.size(), 1);
+      EXPECT_EQ(output[0], "42");
+    } catch (const SemanticError& e) {
+      FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+      FAIL() << "Error: " << e.what();
+    }
+  } catch (const SemanticError& e) {
+    FAIL() << "Threw error for passing O param to O param: " << e.what();
+  } catch (...) {
+    FAIL() << "Threw unexpected exception type for passing O param to O param.";
+  }
+}
+
+TEST_F(ProcCheckerTest, IParamReadByREAD) {
+  std::string source_code = R"(
+    PROCEDURE readinput(I x) IS
+    IN
+        READ x;
+    END
+  
+    PROGRAM IS
+    val
+    IN
+        val := 5;
+        readinput(val);
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code, {"10"});
+    FAIL() << "Did not throw error for READ into I parameter.";
+  } catch (const SemanticError& e) {
+    SUCCEED();
+  } catch (...) {
+    FAIL() << "Threw unexpected exception type for READ into I parameter.";
   }
 }

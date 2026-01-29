@@ -115,6 +115,14 @@ public:
         node.id()->accept(*this);
         node.expr()->accept(*this);
     }
+
+    void visit(ReadNode& node) override {
+        std::string var_name = node.id()->get_name();
+        if (iterators_.find(scoped(var_name)) != iterators_.end()) {
+            throw SemanticError("Cannot read into loop iterator " + quote(var_name));
+        }
+        node.id()->accept(*this);
+    }
 private:
     std::string current_procedure_;
     std::unordered_set<std::string> declared_variables_;

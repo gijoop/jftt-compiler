@@ -11,7 +11,7 @@ TEST_F(VarTest, VarZero) {
         WRITE x;
     END
   )";
-
+  
   auto output = compile_and_run(source_code);
   EXPECT_EQ(output[0], "0");
 }
@@ -25,10 +25,16 @@ TEST_F(VarTest, VarNonZero) {
         WRITE x;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "67");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "67");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(VarTest, VarMultipleWrites) {
@@ -44,12 +50,18 @@ TEST_F(VarTest, VarMultipleWrites) {
         WRITE x;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 3);
-  EXPECT_EQ(output[0], "65");
-  EXPECT_EQ(output[1], "3855");
-  EXPECT_EQ(output[2], "78384598");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 3);
+    EXPECT_EQ(output[0], "65");
+    EXPECT_EQ(output[1], "3855");
+    EXPECT_EQ(output[2], "78384598");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(VarTest, MultipleVars) {
@@ -65,12 +77,18 @@ TEST_F(VarTest, MultipleVars) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 3);
-  EXPECT_EQ(output[0], "12");
-  EXPECT_EQ(output[1], "34");
-  EXPECT_EQ(output[2], "56");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 3);
+    EXPECT_EQ(output[0], "12");
+    EXPECT_EQ(output[1], "34");
+    EXPECT_EQ(output[2], "56");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(VarTest, VarToVarAssignment) {
@@ -83,10 +101,16 @@ TEST_F(VarTest, VarToVarAssignment) {
         WRITE y;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "1234");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "1234");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(VarTest, VarChainedAssignment) {
@@ -101,10 +125,16 @@ TEST_F(VarTest, VarChainedAssignment) {
         WRITE d;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "100");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "100");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(VarTest, VarSwap) {
@@ -121,11 +151,17 @@ TEST_F(VarTest, VarSwap) {
         WRITE b;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 2);
-  EXPECT_EQ(output[0], "20");
-  EXPECT_EQ(output[1], "10");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 2);
+    EXPECT_EQ(output[0], "20");
+    EXPECT_EQ(output[1], "10");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(VarTest, VarReassignment) {
@@ -140,10 +176,16 @@ TEST_F(VarTest, VarReassignment) {
         WRITE x;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "40");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "40");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(VarTest, VarLargeValue) {
@@ -155,10 +197,16 @@ TEST_F(VarTest, VarLargeValue) {
         WRITE x;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "999999999");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "999999999");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(VarTest, ManyVariables) {
@@ -181,10 +229,148 @@ TEST_F(VarTest, ManyVariables) {
         WRITE j;
     END
   )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 3);
+    EXPECT_EQ(output[0], "1");
+    EXPECT_EQ(output[1], "5");
+    EXPECT_EQ(output[2], "10");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
 
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 3);
-  EXPECT_EQ(output[0], "1");
-  EXPECT_EQ(output[1], "5");
-  EXPECT_EQ(output[2], "10");
+TEST_F(VarTest, UnderscoreIdentifier) {
+  std::string source_code = R"(
+    PROGRAM IS
+    _x
+    IN
+        _x := 42;
+        WRITE _x;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "42");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(VarTest, MultipleUnderscoresIdentifier) {
+  std::string source_code = R"(
+    PROGRAM IS
+    ___
+    IN
+        ___ := 77;
+        WRITE ___;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "77");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(VarTest, MixedUnderscoreLetterIdentifier) {
+  std::string source_code = R"(
+    PROGRAM IS
+    _my_variable_, another_var
+    IN
+        _my_variable_ := 100;
+        another_var := 200;
+        WRITE _my_variable_;
+        WRITE another_var;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 2);
+    EXPECT_EQ(output[0], "100");
+    EXPECT_EQ(output[1], "200");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(VarTest, LongIdentifier) {
+  std::string source_code = R"(
+    PROGRAM IS
+    this_is_a_very_long_variable_name
+    IN
+        this_is_a_very_long_variable_name := 123;
+        WRITE this_is_a_very_long_variable_name;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "123");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(VarTest, CaseSensitiveKeywords) {
+  std::string source_code = R"(
+    PROGRAM IS
+    x
+    IN
+        x := 42;
+        WRITE x;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "42");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(VarTest, IdentifierCaseSensitive) {
+  std::string source_code = R"(
+    PROGRAM IS
+    abc, xyz
+    IN
+        abc := 10;
+        xyz := 20;
+        WRITE abc;
+        WRITE xyz;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 2);
+    EXPECT_EQ(output[0], "10");
+    EXPECT_EQ(output[1], "20");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }

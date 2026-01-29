@@ -17,12 +17,18 @@ TEST_F(ArrayTest, SimpleArrayAssignAndRead) {
             WRITE arr[2];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "10");
-    EXPECT_EQ(output[1], "20");
-    EXPECT_EQ(output[2], "30");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "10");
+        EXPECT_EQ(output[1], "20");
+        EXPECT_EQ(output[2], "30");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayWithVariableIndex) {
@@ -41,12 +47,18 @@ TEST_F(ArrayTest, ArrayWithVariableIndex) {
             WRITE arr[i];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "100");
-    EXPECT_EQ(output[1], "200");
-    EXPECT_EQ(output[2], "300");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "100");
+        EXPECT_EQ(output[1], "200");
+        EXPECT_EQ(output[2], "300");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayAssignmentWithVariableIndex) {
@@ -65,12 +77,18 @@ TEST_F(ArrayTest, ArrayAssignmentWithVariableIndex) {
             WRITE arr[2];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "111");
-    EXPECT_EQ(output[1], "222");
-    EXPECT_EQ(output[2], "333");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "111");
+        EXPECT_EQ(output[1], "222");
+        EXPECT_EQ(output[2], "333");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Non-Zero Start Index ====================
@@ -88,12 +106,18 @@ TEST_F(ArrayTest, ArrayWithNonZeroStartIndex) {
             WRITE arr[10];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "50");
-    EXPECT_EQ(output[1], "70");
-    EXPECT_EQ(output[2], "100");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "50");
+        EXPECT_EQ(output[1], "70");
+        EXPECT_EQ(output[2], "100");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayWithLargeStartIndex) {
@@ -112,12 +136,18 @@ TEST_F(ArrayTest, ArrayWithLargeStartIndex) {
             WRITE arr[105];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "1");
-    EXPECT_EQ(output[1], "4");
-    EXPECT_EQ(output[2], "6");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "1");
+        EXPECT_EQ(output[1], "4");
+        EXPECT_EQ(output[2], "6");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayWithNonZeroStartAndVariableIndex) {
@@ -136,12 +166,18 @@ TEST_F(ArrayTest, ArrayWithNonZeroStartAndVariableIndex) {
             WRITE arr[i];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "10");
-    EXPECT_EQ(output[1], "11");
-    EXPECT_EQ(output[2], "12");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "10");
+        EXPECT_EQ(output[1], "11");
+        EXPECT_EQ(output[2], "12");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Wide Index Ranges ====================
@@ -159,12 +195,18 @@ TEST_F(ArrayTest, ArrayWithWideRange) {
             WRITE arr[100];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "1");
-    EXPECT_EQ(output[1], "50");
-    EXPECT_EQ(output[2], "100");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "1");
+        EXPECT_EQ(output[1], "50");
+        EXPECT_EQ(output[2], "100");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Array Elements in Expressions ====================
@@ -185,12 +227,18 @@ TEST_F(ArrayTest, ArrayElementsInAddition) {
             WRITE result;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "30");
-    EXPECT_EQ(output[1], "50");
-    EXPECT_EQ(output[2], "40");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "30");
+        EXPECT_EQ(output[1], "50");
+        EXPECT_EQ(output[2], "40");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayElementsInSubtraction) {
@@ -204,10 +252,16 @@ TEST_F(ArrayTest, ArrayElementsInSubtraction) {
             WRITE result;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "70");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "70");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayElementsInMultiplication) {
@@ -221,10 +275,16 @@ TEST_F(ArrayTest, ArrayElementsInMultiplication) {
             WRITE result;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "56");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "56");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayElementsInDivision) {
@@ -238,10 +298,16 @@ TEST_F(ArrayTest, ArrayElementsInDivision) {
             WRITE result;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "20");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "20");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayElementsInModulo) {
@@ -255,10 +321,16 @@ TEST_F(ArrayTest, ArrayElementsInModulo) {
             WRITE result;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "2");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "2");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayElementWithConstantInExpression) {
@@ -273,11 +345,17 @@ TEST_F(ArrayTest, ArrayElementWithConstantInExpression) {
             WRITE arr[2];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 2);
-    EXPECT_EQ(output[0], "15");
-    EXPECT_EQ(output[1], "30");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 2);
+        EXPECT_EQ(output[0], "15");
+        EXPECT_EQ(output[1], "30");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayElementWithVariableInExpression) {
@@ -291,10 +369,16 @@ TEST_F(ArrayTest, ArrayElementWithVariableInExpression) {
             WRITE arr[1];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "17");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "17");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Array in Conditions ====================
@@ -313,10 +397,16 @@ TEST_F(ArrayTest, ArrayElementInIfCondition) {
             ENDIF
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayElementInWhileCondition) {
@@ -334,11 +424,17 @@ TEST_F(ArrayTest, ArrayElementInWhileCondition) {
             WRITE i;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 2);
-    EXPECT_EQ(output[0], "5");
-    EXPECT_EQ(output[1], "5");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 2);
+        EXPECT_EQ(output[0], "5");
+        EXPECT_EQ(output[1], "5");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Arrays as Procedure Arguments ====================
@@ -351,7 +447,7 @@ TEST_F(ArrayTest, PassArrayToProcedure) {
             WRITE arr[1];
             WRITE arr[2];
         END
-
+    
         PROGRAM IS
             tab[0:5]
         IN
@@ -361,12 +457,18 @@ TEST_F(ArrayTest, PassArrayToProcedure) {
             printfirst(tab);
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "100");
-    EXPECT_EQ(output[1], "200");
-    EXPECT_EQ(output[2], "300");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "100");
+        EXPECT_EQ(output[1], "200");
+        EXPECT_EQ(output[2], "300");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ModifyArrayInProcedure) {
@@ -376,7 +478,7 @@ TEST_F(ArrayTest, ModifyArrayInProcedure) {
             arr[0] := arr[0] + 5;
             arr[1] := arr[1] + 5;
         END
-
+    
         PROGRAM IS
             tab[0:5]
         IN
@@ -389,13 +491,19 @@ TEST_F(ArrayTest, ModifyArrayInProcedure) {
             WRITE tab[1];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 4);
-    EXPECT_EQ(output[0], "10");
-    EXPECT_EQ(output[1], "20");
-    EXPECT_EQ(output[2], "15");
-    EXPECT_EQ(output[3], "25");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 4);
+        EXPECT_EQ(output[0], "10");
+        EXPECT_EQ(output[1], "20");
+        EXPECT_EQ(output[2], "15");
+        EXPECT_EQ(output[3], "25");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, PassArrayWithNonZeroStartToProcedure) {
@@ -406,7 +514,7 @@ TEST_F(ArrayTest, PassArrayWithNonZeroStartToProcedure) {
             WRITE arr[11];
             WRITE arr[12];
         END
-
+    
         PROGRAM IS
             tab[10:15]
         IN
@@ -416,12 +524,18 @@ TEST_F(ArrayTest, PassArrayWithNonZeroStartToProcedure) {
             readarray(tab);
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "1000");
-    EXPECT_EQ(output[1], "1100");
-    EXPECT_EQ(output[2], "1200");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "1000");
+        EXPECT_EQ(output[1], "1100");
+        EXPECT_EQ(output[2], "1200");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, NestedProcedureCallsWithArray) {
@@ -430,13 +544,13 @@ TEST_F(ArrayTest, NestedProcedureCallsWithArray) {
         IN
             arr[0] := arr[0] + 1;
         END
-
+    
         PROCEDURE outer(T arr) IS
         IN
             inner(arr);
             inner(arr);
         END
-
+    
         PROGRAM IS
             tab[0:5]
         IN
@@ -446,11 +560,17 @@ TEST_F(ArrayTest, NestedProcedureCallsWithArray) {
             WRITE tab[0];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 2);
-    EXPECT_EQ(output[0], "10");
-    EXPECT_EQ(output[1], "12");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 2);
+        EXPECT_EQ(output[0], "10");
+        EXPECT_EQ(output[1], "12");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, MultipleProcedureCallsWithSameArray) {
@@ -459,7 +579,7 @@ TEST_F(ArrayTest, MultipleProcedureCallsWithSameArray) {
         IN
             arr[0] := arr[0] + 1;
         END
-
+    
         PROGRAM IS
             tab[0:5]
         IN
@@ -470,10 +590,16 @@ TEST_F(ArrayTest, MultipleProcedureCallsWithSameArray) {
             WRITE tab[0];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "3");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "3");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ProcedureWithArrayAndScalarParams) {
@@ -482,7 +608,7 @@ TEST_F(ArrayTest, ProcedureWithArrayAndScalarParams) {
         IN
             arr[0] := val;
         END
-
+    
         PROGRAM IS
             tab[0:5], x
         IN
@@ -491,10 +617,16 @@ TEST_F(ArrayTest, ProcedureWithArrayAndScalarParams) {
             WRITE tab[0];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "42");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "42");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Local Arrays in Procedures ====================
@@ -510,7 +642,7 @@ TEST_F(ArrayTest, LocalArrayInProcedure) {
             result := local[0] + local[1];
             result := result + local[2];
         END
-
+    
         PROGRAM IS
             sum
         IN
@@ -519,10 +651,16 @@ TEST_F(ArrayTest, LocalArrayInProcedure) {
             WRITE sum;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "60");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "60");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, LocalArrayWithLoop) {
@@ -544,7 +682,7 @@ TEST_F(ArrayTest, LocalArrayWithLoop) {
             ENDWHILE
             result := sum;
         END
-
+    
         PROGRAM IS
             total
         IN
@@ -553,11 +691,17 @@ TEST_F(ArrayTest, LocalArrayWithLoop) {
             WRITE total;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    // 0*10 + 1*10 + 2*10 + 3*10 + 4*10 = 0 + 10 + 20 + 30 + 40 = 100
-    EXPECT_EQ(output[0], "100");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        // 0*10 + 1*10 + 2*10 + 3*10 + 4*10 = 0 + 10 + 20 + 30 + 40 = 100
+        EXPECT_EQ(output[0], "100");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Multiple Arrays ====================
@@ -577,13 +721,19 @@ TEST_F(ArrayTest, TwoArrays) {
             WRITE arr_b[1];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 4);
-    EXPECT_EQ(output[0], "1");
-    EXPECT_EQ(output[1], "2");
-    EXPECT_EQ(output[2], "10");
-    EXPECT_EQ(output[3], "20");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 4);
+        EXPECT_EQ(output[0], "1");
+        EXPECT_EQ(output[1], "2");
+        EXPECT_EQ(output[2], "10");
+        EXPECT_EQ(output[3], "20");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, CopyBetweenArrays) {
@@ -606,12 +756,18 @@ TEST_F(ArrayTest, CopyBetweenArrays) {
             WRITE dst[2];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "100");
-    EXPECT_EQ(output[1], "200");
-    EXPECT_EQ(output[2], "300");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "100");
+        EXPECT_EQ(output[1], "200");
+        EXPECT_EQ(output[2], "300");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArraysWithDifferentRanges) {
@@ -627,12 +783,18 @@ TEST_F(ArrayTest, ArraysWithDifferentRanges) {
             WRITE arr_c[100];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "1");
-    EXPECT_EQ(output[1], "2");
-    EXPECT_EQ(output[2], "3");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "1");
+        EXPECT_EQ(output[1], "2");
+        EXPECT_EQ(output[2], "3");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Array Loops ====================
@@ -654,14 +816,20 @@ TEST_F(ArrayTest, FillArrayInLoop) {
             WRITE arr[4];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 5);
-    EXPECT_EQ(output[0], "0");
-    EXPECT_EQ(output[1], "1");
-    EXPECT_EQ(output[2], "4");
-    EXPECT_EQ(output[3], "9");
-    EXPECT_EQ(output[4], "16");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 5);
+        EXPECT_EQ(output[0], "0");
+        EXPECT_EQ(output[1], "1");
+        EXPECT_EQ(output[2], "4");
+        EXPECT_EQ(output[3], "9");
+        EXPECT_EQ(output[4], "16");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, SumArrayElements) {
@@ -684,10 +852,16 @@ TEST_F(ArrayTest, SumArrayElements) {
             WRITE sum;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "150");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "150");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, FindMaxInArray) {
@@ -712,10 +886,16 @@ TEST_F(ArrayTest, FindMaxInArray) {
             WRITE max;
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "50");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "50");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Using Array Value as Index ====================
@@ -741,12 +921,18 @@ TEST_F(ArrayTest, ArrayValueAsIndex) {
             WRITE data[tmp];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "100");
-    EXPECT_EQ(output[1], "300");
-    EXPECT_EQ(output[2], "500");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "100");
+        EXPECT_EQ(output[1], "300");
+        EXPECT_EQ(output[2], "500");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Edge Cases ====================
@@ -760,10 +946,16 @@ TEST_F(ArrayTest, SingleElementArray) {
             WRITE arr[0];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "999");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "999");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayWithZeroValues) {
@@ -779,12 +971,18 @@ TEST_F(ArrayTest, ArrayWithZeroValues) {
             WRITE arr[2];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "0");
-    EXPECT_EQ(output[1], "0");
-    EXPECT_EQ(output[2], "0");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "0");
+        EXPECT_EQ(output[1], "0");
+        EXPECT_EQ(output[2], "0");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayWithLargeValues) {
@@ -798,11 +996,17 @@ TEST_F(ArrayTest, ArrayWithLargeValues) {
             WRITE arr[1];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 2);
-    EXPECT_EQ(output[0], "1000000");
-    EXPECT_EQ(output[1], "9999999");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 2);
+        EXPECT_EQ(output[0], "1000000");
+        EXPECT_EQ(output[1], "9999999");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Complex Scenarios ====================
@@ -838,12 +1042,18 @@ TEST_F(ArrayTest, BubbleSortLike) {
             WRITE arr[2];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "10");
-    EXPECT_EQ(output[1], "20");
-    EXPECT_EQ(output[2], "30");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "10");
+        EXPECT_EQ(output[1], "20");
+        EXPECT_EQ(output[2], "30");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, FibonacciInArray) {
@@ -866,13 +1076,19 @@ TEST_F(ArrayTest, FibonacciInArray) {
             WRITE fib[9];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 4);
-    EXPECT_EQ(output[0], "0");
-    EXPECT_EQ(output[1], "1");
-    EXPECT_EQ(output[2], "5");
-    EXPECT_EQ(output[3], "34");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 4);
+        EXPECT_EQ(output[0], "0");
+        EXPECT_EQ(output[1], "1");
+        EXPECT_EQ(output[2], "5");
+        EXPECT_EQ(output[3], "34");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ArrayTest, ArrayReversal) {
@@ -890,7 +1106,7 @@ TEST_F(ArrayTest, ArrayReversal) {
                 j := j - 1;
             ENDWHILE
         END
-
+    
         PROGRAM IS
             arr[0:4], n
         IN
@@ -910,12 +1126,18 @@ TEST_F(ArrayTest, ArrayReversal) {
             WRITE arr[4];
         END
     )";
-
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 5);
-    EXPECT_EQ(output[0], "5");
-    EXPECT_EQ(output[1], "4");
-    EXPECT_EQ(output[2], "3");
-    EXPECT_EQ(output[3], "2");
-    EXPECT_EQ(output[4], "1");
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 5);
+        EXPECT_EQ(output[0], "5");
+        EXPECT_EQ(output[1], "4");
+        EXPECT_EQ(output[2], "3");
+        EXPECT_EQ(output[3], "2");
+        EXPECT_EQ(output[4], "1");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }

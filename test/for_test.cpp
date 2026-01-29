@@ -17,9 +17,15 @@ TEST_F(ForTest, SimpleForTo) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "15");  // 1+2+3+4+5 = 15
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "15");  // 1+2+3+4+5 = 15
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForToSingleIteration) {
@@ -35,9 +41,15 @@ TEST_F(ForTest, ForToSingleIteration) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1");  // Single iteration when start = end
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1");  // Single iteration when start = end
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForToZeroIterations) {
@@ -53,9 +65,15 @@ TEST_F(ForTest, ForToZeroIterations) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "10");  // No iterations when start > end for TO
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "10");  // No iterations when start > end for TO
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForToFromZero) {
@@ -71,9 +89,15 @@ TEST_F(ForTest, ForToFromZero) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "10");  // 0+1+2+3+4 = 10
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "10");  // 0+1+2+3+4 = 10
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForToWithVariableBounds) {
@@ -91,9 +115,15 @@ TEST_F(ForTest, ForToWithVariableBounds) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "20");  // 2+3+4+5+6 = 20
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "20");  // 2+3+4+5+6 = 20
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForToWriteIterator) {
@@ -106,13 +136,19 @@ TEST_F(ForTest, ForToWriteIterator) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 5);
-    EXPECT_EQ(output[0], "1");
-    EXPECT_EQ(output[1], "2");
-    EXPECT_EQ(output[2], "3");
-    EXPECT_EQ(output[3], "4");
-    EXPECT_EQ(output[4], "5");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 5);
+        EXPECT_EQ(output[0], "1");
+        EXPECT_EQ(output[1], "2");
+        EXPECT_EQ(output[2], "3");
+        EXPECT_EQ(output[3], "4");
+        EXPECT_EQ(output[4], "5");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== FOR DOWNTO (Descending) Tests ====================
@@ -130,9 +166,15 @@ TEST_F(ForTest, SimpleForDownto) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "15");  // 5+4+3+2+1 = 15
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "15");  // 5+4+3+2+1 = 15
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForDowntoSingleIteration) {
@@ -148,9 +190,15 @@ TEST_F(ForTest, ForDowntoSingleIteration) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1");  // Single iteration when start = end
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1");  // Single iteration when start = end
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForDowntoZeroIterations) {
@@ -166,9 +214,15 @@ TEST_F(ForTest, ForDowntoZeroIterations) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "10");  // No iterations when start < end for DOWNTO
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "10");  // No iterations when start < end for DOWNTO
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForDowntoToZero) {
@@ -184,9 +238,15 @@ TEST_F(ForTest, ForDowntoToZero) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "10");  // 4+3+2+1+0 = 10
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "10");  // 4+3+2+1+0 = 10
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForDowntoWithVariableBounds) {
@@ -204,9 +264,15 @@ TEST_F(ForTest, ForDowntoWithVariableBounds) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "20");  // 6+5+4+3+2 = 20
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "20");  // 6+5+4+3+2 = 20
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForDowntoWriteIterator) {
@@ -219,13 +285,19 @@ TEST_F(ForTest, ForDowntoWriteIterator) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 5);
-    EXPECT_EQ(output[0], "5");
-    EXPECT_EQ(output[1], "4");
-    EXPECT_EQ(output[2], "3");
-    EXPECT_EQ(output[3], "2");
-    EXPECT_EQ(output[4], "1");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 5);
+        EXPECT_EQ(output[0], "5");
+        EXPECT_EQ(output[1], "4");
+        EXPECT_EQ(output[2], "3");
+        EXPECT_EQ(output[3], "2");
+        EXPECT_EQ(output[4], "1");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Nested FOR Loops ====================
@@ -245,9 +317,15 @@ TEST_F(ForTest, NestedForLoops) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "12");  // 3 * 4 = 12
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "12");  // 3 * 4 = 12
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, NestedForToAndDownto) {
@@ -266,13 +344,19 @@ TEST_F(ForTest, NestedForToAndDownto) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    // i=1: (1+3)+(1+2)+(1+1) = 4+3+2 = 9
-    // i=2: (2+3)+(2+2)+(2+1) = 5+4+3 = 12
-    // i=3: (3+3)+(3+2)+(3+1) = 6+5+4 = 15
-    // Total: 9+12+15 = 36
-    EXPECT_EQ(output[0], "36");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        // i=1: (1+3)+(1+2)+(1+1) = 4+3+2 = 9
+        // i=2: (2+3)+(2+2)+(2+1) = 5+4+3 = 12
+        // i=3: (3+3)+(3+2)+(3+1) = 6+5+4 = 15
+        // Total: 9+12+15 = 36
+        EXPECT_EQ(output[0], "36");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, DeeplyNestedForLoops) {
@@ -292,9 +376,15 @@ TEST_F(ForTest, DeeplyNestedForLoops) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "24");  // 2 * 3 * 4 = 24
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "24");  // 2 * 3 * 4 = 24
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== FOR Loop with Array Access ====================
@@ -317,9 +407,15 @@ TEST_F(ForTest, ForLoopArraySum) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "15");  // 1+2+3+4+5 = 15
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "15");  // 1+2+3+4+5 = 15
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForLoopArrayInitialize) {
@@ -339,13 +435,19 @@ TEST_F(ForTest, ForLoopArrayInitialize) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 5);
-    EXPECT_EQ(output[0], "1");
-    EXPECT_EQ(output[1], "2");
-    EXPECT_EQ(output[2], "3");
-    EXPECT_EQ(output[3], "4");
-    EXPECT_EQ(output[4], "5");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 5);
+        EXPECT_EQ(output[0], "1");
+        EXPECT_EQ(output[1], "2");
+        EXPECT_EQ(output[2], "3");
+        EXPECT_EQ(output[3], "4");
+        EXPECT_EQ(output[4], "5");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForLoopArrayReverse) {
@@ -364,13 +466,19 @@ TEST_F(ForTest, ForLoopArrayReverse) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 5);
-    EXPECT_EQ(output[0], "50");
-    EXPECT_EQ(output[1], "40");
-    EXPECT_EQ(output[2], "30");
-    EXPECT_EQ(output[3], "20");
-    EXPECT_EQ(output[4], "10");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 5);
+        EXPECT_EQ(output[0], "50");
+        EXPECT_EQ(output[1], "40");
+        EXPECT_EQ(output[2], "30");
+        EXPECT_EQ(output[3], "20");
+        EXPECT_EQ(output[4], "10");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== FOR Loop with Expressions in Bounds ====================
@@ -390,9 +498,15 @@ TEST_F(ForTest, ForWithExpressionStart) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "6");  // i from 5 to 10 = 6 iterations
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "6");  // i from 5 to 10 = 6 iterations
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForWithExpressionEnd) {
@@ -410,9 +524,15 @@ TEST_F(ForTest, ForWithExpressionEnd) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "6");  // i from 1 to 6 = 6 iterations
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "6");  // i from 1 to 6 = 6 iterations
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== FOR Loop with Other Control Structures ====================
@@ -433,9 +553,15 @@ TEST_F(ForTest, ForWithIfInside) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "30");  // 2+4+6+8+10 = 30
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "30");  // 2+4+6+8+10 = 30
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForWithIfElseInside) {
@@ -458,10 +584,16 @@ TEST_F(ForTest, ForWithIfElseInside) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 2);
-    EXPECT_EQ(output[0], "30");  // 2+4+6+8+10 = 30
-    EXPECT_EQ(output[1], "25");  // 1+3+5+7+9 = 25
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 2);
+        EXPECT_EQ(output[0], "30");  // 2+4+6+8+10 = 30
+        EXPECT_EQ(output[1], "25");  // 1+3+5+7+9 = 25
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForInsideWhile) {
@@ -481,9 +613,15 @@ TEST_F(ForTest, ForInsideWhile) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "12");  // 3 * 4 = 12
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "12");  // 3 * 4 = 12
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForInsideRepeat) {
@@ -503,9 +641,15 @@ TEST_F(ForTest, ForInsideRepeat) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "30");  // 2 * 15 = 30
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "30");  // 2 * 15 = 30
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Complex Calculations with FOR ====================
@@ -524,9 +668,15 @@ TEST_F(ForTest, Factorial) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "120");  // 5! = 120
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "120");  // 5! = 120
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, SumOfSquares) {
@@ -544,9 +694,15 @@ TEST_F(ForTest, SumOfSquares) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "55");  // 1+4+9+16+25 = 55
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "55");  // 1+4+9+16+25 = 55
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, PowerCalculation) {
@@ -564,9 +720,15 @@ TEST_F(ForTest, PowerCalculation) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1024");  // 2^10 = 1024
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1024");  // 2^10 = 1024
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, TriangularNumber) {
@@ -583,9 +745,15 @@ TEST_F(ForTest, TriangularNumber) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "55");  // Sum 1 to 10 = 55
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "55");  // Sum 1 to 10 = 55
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, Fibonacci) {
@@ -605,9 +773,15 @@ TEST_F(ForTest, Fibonacci) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "55");  // 10th Fibonacci = 55
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "55");  // 10th Fibonacci = 55
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Edge Cases ====================
@@ -625,9 +799,15 @@ TEST_F(ForTest, ForWithLargeRange) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "100");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "100");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForDowntoWithLargeRange) {
@@ -643,9 +823,15 @@ TEST_F(ForTest, ForDowntoWithLargeRange) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "100");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "100");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForFromZeroToZero) {
@@ -661,9 +847,15 @@ TEST_F(ForTest, ForFromZeroToZero) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1");  // Single iteration at 0
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1");  // Single iteration at 0
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ConsecutiveForLoops) {
@@ -684,10 +876,16 @@ TEST_F(ForTest, ConsecutiveForLoops) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 2);
-    EXPECT_EQ(output[0], "15");  // 1+2+3+4+5 = 15
-    EXPECT_EQ(output[1], "40");  // 6+7+8+9+10 = 40
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 2);
+        EXPECT_EQ(output[0], "15");  // 1+2+3+4+5 = 15
+        EXPECT_EQ(output[1], "40");  // 6+7+8+9+10 = 40
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForLoopWithZeroBoundVariable) {
@@ -705,9 +903,15 @@ TEST_F(ForTest, ForLoopWithZeroBoundVariable) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== FOR with Procedures ====================
@@ -718,7 +922,7 @@ TEST_F(ForTest, ForLoopCallsProcedure) {
         IN
             n := n * 2;
         END
-
+    
         PROGRAM IS
         val, sum
         IN
@@ -732,9 +936,15 @@ TEST_F(ForTest, ForLoopCallsProcedure) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "30");  // 2+4+6+8+10 = 30
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "30");  // 2+4+6+8+10 = 30
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForLoopInProcedure) {
@@ -746,7 +956,7 @@ TEST_F(ForTest, ForLoopInProcedure) {
                 result := result + i;
             ENDFOR
         END
-
+    
         PROGRAM IS
         res, x, y
         IN
@@ -758,9 +968,15 @@ TEST_F(ForTest, ForLoopInProcedure) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "55");  // 1+2+...+10 = 55
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "55");  // 1+2+...+10 = 55
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, ForLoopWithArrayProcedure) {
@@ -771,7 +987,7 @@ TEST_F(ForTest, ForLoopWithArrayProcedure) {
                 arr[i] := i * 10;
             ENDFOR
         END
-
+    
         PROGRAM IS
         my_arr[0:9], sum, arr_size
         IN
@@ -785,9 +1001,15 @@ TEST_F(ForTest, ForLoopWithArrayProcedure) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "100");  // 0+10+20+30+40 = 100
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "100");  // 0+10+20+30+40 = 100
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Mathematical Algorithms ====================
@@ -810,9 +1032,15 @@ TEST_F(ForTest, IsPrimeCheck) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1");  // 17 is prime
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1");  // 17 is prime
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, GCDUsingLoop) {
@@ -836,9 +1064,15 @@ TEST_F(ForTest, GCDUsingLoop) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "6");  // GCD(48, 18) = 6
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "6");  // GCD(48, 18) = 6
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, CountDivisors) {
@@ -858,9 +1092,15 @@ TEST_F(ForTest, CountDivisors) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "6");  // Divisors of 12: 1,2,3,4,6,12
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "6");  // Divisors of 12: 1,2,3,4,6,12
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, SumDigits) {
@@ -879,9 +1119,15 @@ TEST_F(ForTest, SumDigits) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "15");  // 1+2+3+4+5 = 15
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "15");  // 1+2+3+4+5 = 15
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Bubble Sort ====================
@@ -916,13 +1162,19 @@ TEST_F(ForTest, BubbleSortSmall) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 5);
-    EXPECT_EQ(output[0], "1");
-    EXPECT_EQ(output[1], "2");
-    EXPECT_EQ(output[2], "3");
-    EXPECT_EQ(output[3], "4");
-    EXPECT_EQ(output[4], "5");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 5);
+        EXPECT_EQ(output[0], "1");
+        EXPECT_EQ(output[1], "2");
+        EXPECT_EQ(output[2], "3");
+        EXPECT_EQ(output[3], "4");
+        EXPECT_EQ(output[4], "5");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Array Min/Max ====================
@@ -948,9 +1200,15 @@ TEST_F(ForTest, FindMinimum) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(ForTest, FindMaximum) {
@@ -974,9 +1232,15 @@ TEST_F(ForTest, FindMaximum) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "9");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "9");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 // ==================== Matrix-like Operations ====================
@@ -1006,8 +1270,151 @@ TEST_F(ForTest, MatrixSum) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    // matrix values: 0,1,2,1,2,3,2,3,4 sum = 18
-    EXPECT_EQ(output[0], "18");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "18");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
+}
+
+TEST_F(ForTest, ForBoundsFixedAtStart_EndVarChanges) {
+    std::string source_code = R"(
+        PROGRAM IS
+        end_val, count
+        IN
+            end_val := 5;
+            count := 0;
+            FOR i FROM 1 TO end_val DO
+                count := count + 1;
+                end_val := 100;
+            ENDFOR
+            WRITE count;
+        END
+    )";
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "5");  // Should iterate 5 times, not 100
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
+}
+
+TEST_F(ForTest, ForBoundsFixedAtStart_StartVarChanges) {
+    std::string source_code = R"(
+        PROGRAM IS
+        start_val, count
+        IN
+            start_val := 1;
+            count := 0;
+            FOR i FROM start_val TO 5 DO
+                count := count + 1;
+                start_val := 10;
+            ENDFOR
+            WRITE count;
+        END
+    )";
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "5");  // Should iterate 5 times (1 to 5)
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
+}
+
+TEST_F(ForTest, ForBoundsFixedAtStart_BothVarsChange) {
+    std::string source_code = R"(
+        PROGRAM IS
+        start_val, end_val, count
+        IN
+            start_val := 3;
+            end_val := 7;
+            count := 0;
+            FOR i FROM start_val TO end_val DO
+                count := count + 1;
+                start_val := 1;
+                end_val := 20;
+            ENDFOR
+            WRITE count;
+        END
+    )";
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "5");  // Should iterate 5 times (3 to 7)
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
+}
+
+TEST_F(ForTest, ForDowntoBoundsFixedAtStart) {
+    std::string source_code = R"(
+        PROGRAM IS
+        start_val, end_val, count
+        IN
+            start_val := 10;
+            end_val := 6;
+            count := 0;
+            FOR i FROM start_val DOWNTO end_val DO
+                count := count + 1;
+                start_val := 100;
+                end_val := 1;
+            ENDFOR
+            WRITE count;
+        END
+    )";
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "5");  // Should iterate 5 times (10 down to 6)
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
+}
+
+TEST_F(ForTest, ForBoundsFixedAtStart_NestedLoops) {
+    std::string source_code = R"(
+        PROGRAM IS
+        outer_end, inner_end, count
+        IN
+            outer_end := 3;
+            inner_end := 3;
+            count := 0;
+            FOR i FROM 1 TO outer_end DO
+                FOR j FROM 1 TO inner_end DO
+                    count := count + 1;
+                    inner_end := 10;
+                ENDFOR
+                outer_end := 10;
+            ENDFOR
+            WRITE count;
+        END
+    )";
+    
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "23");  // outer(3) * inner(3,10,10) = 3+10+10 = 23
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }

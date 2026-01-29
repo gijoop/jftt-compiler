@@ -16,9 +16,15 @@ TEST_F(IfTest, IfWithoutElse) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "42");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "42");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, IfWithElse) {
@@ -37,9 +43,15 @@ TEST_F(IfTest, IfWithElse) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "84");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "84");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, NestedIfElseA) {
@@ -62,9 +74,15 @@ TEST_F(IfTest, NestedIfElseA) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "100");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "100");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, NestedIfElseB) {
@@ -87,9 +105,15 @@ TEST_F(IfTest, NestedIfElseB) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "300");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "300");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, IfWithEqualityCondition) {
@@ -108,9 +132,15 @@ TEST_F(IfTest, IfWithEqualityCondition) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, IfWithNotEqualCondition) {
@@ -129,9 +159,15 @@ TEST_F(IfTest, IfWithNotEqualCondition) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "1");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "1");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, IfWithGreaterOrEqualCondition) {
@@ -150,9 +186,15 @@ TEST_F(IfTest, IfWithGreaterOrEqualCondition) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "100");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "100");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, IfWithLessOrEqualCondition) {
@@ -171,9 +213,15 @@ TEST_F(IfTest, IfWithLessOrEqualCondition) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "200");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "200");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, IfWithZeroComparison) {
@@ -191,9 +239,15 @@ TEST_F(IfTest, IfWithZeroComparison) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "777");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "777");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, DeeplyNestedIf) {
@@ -223,9 +277,15 @@ TEST_F(IfTest, DeeplyNestedIf) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "3");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "3");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(IfTest, IfInLoop) {
@@ -245,8 +305,14 @@ TEST_F(IfTest, IfInLoop) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "5");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "5");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 

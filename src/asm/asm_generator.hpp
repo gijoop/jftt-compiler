@@ -195,12 +195,13 @@ public:
                     auto label_align = std::make_shared<Asm::Label>("DIV_ALIGN");
                     auto label_calc  = std::make_shared<Asm::Label>("DIV_CALC");
                     auto label_check = std::make_shared<Asm::Label>("DIV_CHECK");
+                    auto label_zero_divisor = std::make_shared<Asm::Label>("DIV_ZERO_CHECK");
                     auto label_end   = std::make_shared<Asm::Label>("DIV_END");
 
                     // Load Divisor (arg2) -> rb
                     load_to_ra(*instr.arg2); 
                     // CHECK ZERO BEFORE SWAP (while value is still in RA)
-                    asm_code.push_back(Asm::make(Code::JZERO, label_end)); 
+                    asm_code.push_back(Asm::make(Code::JZERO, label_zero_divisor)); 
                     asm_code.push_back(Asm::make(Code::SWAP, Register::RB)); // rb = Divisor
 
                     // Load Dividend (arg1) -> RC
@@ -270,6 +271,10 @@ public:
                     asm_code.push_back(Asm::make(Code::SHR, Register::RE));
 
                     asm_code.push_back(Asm::make(Code::JUMP, label_calc));
+
+                    asm_code.push_back(Asm::make(Code::LABEL, label_zero_divisor));
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RD));
+                    asm_code.push_back(Asm::make(Code::RESET, Register::RC));
 
                     // Finalize
                     asm_code.push_back(Asm::make(Code::LABEL, label_end));

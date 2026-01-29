@@ -13,10 +13,16 @@ TEST_F(DivTest, SimpleDiv) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "7");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "7");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivByOne) {
@@ -30,10 +36,16 @@ TEST_F(DivTest, DivByOne) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "100");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "100");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivZeroByNumber) {
@@ -47,10 +59,16 @@ TEST_F(DivTest, DivZeroByNumber) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "0");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivSameNumbers) {
@@ -64,10 +82,16 @@ TEST_F(DivTest, DivSameNumbers) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "1");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "1");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivWithTruncation) {
@@ -81,10 +105,16 @@ TEST_F(DivTest, DivWithTruncation) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "3");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "3");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, MultipleDivs) {
@@ -100,10 +130,16 @@ TEST_F(DivTest, MultipleDivs) {
         WRITE d;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "10");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "10");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivLargeNumbers) {
@@ -117,10 +153,16 @@ TEST_F(DivTest, DivLargeNumbers) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "1001");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "1001");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivSmallerByLarger) {
@@ -134,10 +176,16 @@ TEST_F(DivTest, DivSmallerByLarger) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "0");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivPowersOfTwo) {
@@ -153,10 +201,16 @@ TEST_F(DivTest, DivPowersOfTwo) {
         WRITE c;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "8");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "8");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivInLoop) {
@@ -173,10 +227,16 @@ TEST_F(DivTest, DivInLoop) {
         WRITE b;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "10");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "10");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivAndMul) {
@@ -191,10 +251,16 @@ TEST_F(DivTest, DivAndMul) {
         WRITE d;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "20");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "20");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivWithRemainderCheck) {
@@ -211,11 +277,17 @@ TEST_F(DivTest, DivWithRemainderCheck) {
         WRITE remainder;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 2);
-  EXPECT_EQ(output[0], "4");
-  EXPECT_EQ(output[1], "3");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 2);
+    EXPECT_EQ(output[0], "4");
+    EXPECT_EQ(output[1], "3");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivFactorialDivision) {
@@ -235,10 +307,16 @@ TEST_F(DivTest, DivFactorialDivision) {
         WRITE fact;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "6");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "6");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivInNestedLoops) {
@@ -259,10 +337,16 @@ TEST_F(DivTest, DivInNestedLoops) {
         WRITE result;
     END
   )";
-
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "6");
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "6");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }
 
 TEST_F(DivTest, DivWithLargeQuotient) {
@@ -276,8 +360,131 @@ TEST_F(DivTest, DivWithLargeQuotient) {
         WRITE c;
     END
   )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "100000");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
 
-  auto output = compile_and_run(source_code);
-  ASSERT_EQ(output.size(), 1);
-  EXPECT_EQ(output[0], "100000");
+TEST_F(DivTest, DivByZeroLiteral) {
+  std::string source_code = R"(
+    PROGRAM IS
+    a, c
+    IN
+        a := 42;
+        c := a / 0;
+        WRITE c;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(DivTest, DivByZeroVariable) {
+  std::string source_code = R"(
+    PROGRAM IS
+    a, b, c
+    IN
+        a := 100;
+        b := 0;
+        c := a / b;
+        WRITE c;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(DivTest, DivZeroByZero) {
+  std::string source_code = R"(
+    PROGRAM IS
+    a, b, c
+    IN
+        a := 0;
+        b := 0;
+        c := a / b;
+        WRITE c;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(DivTest, DivByZeroLargeNumber) {
+  std::string source_code = R"(
+    PROGRAM IS
+    a, b, c
+    IN
+        a := 999999999;
+        b := 0;
+        c := a / b;
+        WRITE c;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
+}
+
+TEST_F(DivTest, DivByZeroInLoop) {
+  std::string source_code = R"(
+    PROGRAM IS
+    a, b, sum
+    IN
+        sum := 0;
+        b := 0;
+        FOR i FROM 1 TO 5 DO
+            a := i / b;
+            sum := sum + a;
+        ENDFOR
+        WRITE sum;
+    END
+  )";
+  
+  try {
+    auto output = compile_and_run(source_code);
+    ASSERT_EQ(output.size(), 1);
+    EXPECT_EQ(output[0], "0");
+  } catch (const SemanticError& e) {
+    FAIL() << "Semantic error: " << e.what();
+  } catch (const std::exception& e) {
+    FAIL() << "Error: " << e.what();
+  }
 }

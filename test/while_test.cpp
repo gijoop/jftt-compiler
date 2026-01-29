@@ -16,9 +16,15 @@ TEST_F(WhileTest, SimpleWhileLoop) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "5");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "5");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileLoopZeroIterations) {
@@ -35,9 +41,15 @@ TEST_F(WhileTest, WhileLoopZeroIterations) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "10");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "10");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileLoopMultipleIterations) {
@@ -56,9 +68,15 @@ TEST_F(WhileTest, WhileLoopMultipleIterations) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "6");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "6");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, NestedWhileLoops) {
@@ -79,9 +97,15 @@ TEST_F(WhileTest, NestedWhileLoops) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "3");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "3");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileInternalWrite) {
@@ -98,11 +122,17 @@ TEST_F(WhileTest, WhileInternalWrite) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 3);
-    EXPECT_EQ(output[0], "1");
-    EXPECT_EQ(output[1], "2");
-    EXPECT_EQ(output[2], "3");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 3);
+        EXPECT_EQ(output[0], "1");
+        EXPECT_EQ(output[1], "2");
+        EXPECT_EQ(output[2], "3");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileInternalFalseConditionWrite) {
@@ -119,8 +149,14 @@ TEST_F(WhileTest, WhileInternalFalseConditionWrite) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 0);
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 0);
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileWithGreaterThan) {
@@ -137,9 +173,15 @@ TEST_F(WhileTest, WhileWithGreaterThan) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "5");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "5");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileWithGreaterOrEqual) {
@@ -156,9 +198,15 @@ TEST_F(WhileTest, WhileWithGreaterOrEqual) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "4");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "4");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileWithNotEqual) {
@@ -175,9 +223,15 @@ TEST_F(WhileTest, WhileWithNotEqual) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "5");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "5");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileCountdown) {
@@ -193,10 +247,16 @@ TEST_F(WhileTest, WhileCountdown) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 5);
-    EXPECT_EQ(output[0], "5");
-    EXPECT_EQ(output[4], "1");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 5);
+        EXPECT_EQ(output[0], "5");
+        EXPECT_EQ(output[4], "1");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileAccumulation) {
@@ -214,9 +274,15 @@ TEST_F(WhileTest, WhileAccumulation) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "5050");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "5050");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, DeeplyNestedWhile) {
@@ -242,9 +308,15 @@ TEST_F(WhileTest, DeeplyNestedWhile) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 1);
-    EXPECT_EQ(output[0], "8");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 1);
+        EXPECT_EQ(output[0], "8");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileWithComplexCondition) {
@@ -264,10 +336,16 @@ TEST_F(WhileTest, WhileWithComplexCondition) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 2);
-    EXPECT_EQ(output[0], "51");
-    EXPECT_EQ(output[1], "50");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 2);
+        EXPECT_EQ(output[0], "51");
+        EXPECT_EQ(output[1], "50");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }
 
 TEST_F(WhileTest, WhileFibonacci) {
@@ -288,16 +366,22 @@ TEST_F(WhileTest, WhileFibonacci) {
         END
     )";
     
-    auto output = compile_and_run(source_code);
-    ASSERT_EQ(output.size(), 10);
-    EXPECT_EQ(output[0], "2");
-    EXPECT_EQ(output[1], "3");
-    EXPECT_EQ(output[2], "5");
-    EXPECT_EQ(output[3], "8");
-    EXPECT_EQ(output[4], "13");
-    EXPECT_EQ(output[5], "21");
-    EXPECT_EQ(output[6], "34");
-    EXPECT_EQ(output[7], "55");
-    EXPECT_EQ(output[8], "89");
-    EXPECT_EQ(output[9], "144");
+    try {
+        auto output = compile_and_run(source_code);
+        ASSERT_EQ(output.size(), 10);
+        EXPECT_EQ(output[0], "2");
+        EXPECT_EQ(output[1], "3");
+        EXPECT_EQ(output[2], "5");
+        EXPECT_EQ(output[3], "8");
+        EXPECT_EQ(output[4], "13");
+        EXPECT_EQ(output[5], "21");
+        EXPECT_EQ(output[6], "34");
+        EXPECT_EQ(output[7], "55");
+        EXPECT_EQ(output[8], "89");
+        EXPECT_EQ(output[9], "144");
+    } catch (const SemanticError& e) {
+        FAIL() << "Semantic error: " << e.what();
+    } catch (const std::exception& e) {
+        FAIL() << "Error: " << e.what();
+    }
 }

@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <regex>
+#include <sys/wait.h>
 
 class CompilerTest : public testing::Test {
 protected:
@@ -74,16 +75,22 @@ protected:
         { std::ofstream f(asm_file); f << asm_code; }
         { std::ofstream f(inp_file); for (const auto& l : input_data) f << l << "\n"; }
 
-        std::string cmd = "/home/lucas/jftt-compiler/mw2025/maszyna-wirtualna " + asm_file + " < " + inp_file + " 2>&1";
-        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+        std::string cmd = "timeout 1 /home/lucas/jftt-compiler/mw2025/maszyna-wirtualna " + asm_file + " < " + inp_file + " 2>&1";
+        FILE* pipe = popen(cmd.c_str(), "r");
         if (!pipe) throw std::runtime_error("popen failed");
 
         std::array<char, 128> buffer;
         std::string result;
-        while (fgets(buffer.data(), buffer.size(), pipe.get())) result += buffer.data();
+        while (fgets(buffer.data(), buffer.size(), pipe)) result += buffer.data();
 
+        int status = pclose(pipe);
         std::remove(asm_file.c_str());
         std::remove(inp_file.c_str());
+        
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 124) {
+            throw std::runtime_error("VM execution exceeded 1 second timeout");
+        }
+        
         return result;
     }
 
