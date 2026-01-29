@@ -42,6 +42,18 @@ public:
         }
     }
 
+    void visit(ForNode& node) override {
+        node.start_val()->accept(*this);
+        node.end_val()->accept(*this);
+
+        iterators_.insert(scoped(node.iterator()));
+        vars_[scoped(node.iterator())].is_initialized = true;
+        
+        node.commands()->accept(*this);
+
+        iterators_.erase(scoped(node.iterator()));
+    }
+
     void visit(ProcedureCallNode& node) override {
         auto it = procedure_args_.find(node.name());
         if (it == procedure_args_.end()) {
@@ -64,19 +76,23 @@ public:
             const auto& actual_type = var_it->second.type;
 
             if (actual_type == AST::ParamType::CONST && expected_type != AST::ParamType::CONST) {
-                throw SemanticError("Cannot pass constant variable '" + arg_name + "' to non-constant parameter.");
+                throw SemanticError("Cannot pass constant variable '" + arg_name + "' to non-constant parameter.", node.get_line());
             }
 
             if (actual_type == AST::ParamType::UNDEFINED && expected_type == AST::ParamType::CONST) {
-                throw SemanticError("Cannot pass undefined variable '" + arg_name + "' to constant parameter.");
+                throw SemanticError("Cannot pass undefined variable '" + arg_name + "' to constant parameter.", node.get_line());
             }
 
             if (expected_type == AST::ParamType::ARRAY && actual_type != AST::ParamType::ARRAY) {
-                throw SemanticError("Expected array argument for parameter, but variable '" + arg_name + "' is not an array.");
+                throw SemanticError("Expected array argument for parameter, but variable '" + arg_name + "' is not an array.", node.get_line());
             }
 
             if (expected_type != AST::ParamType::ARRAY && actual_type == AST::ParamType::ARRAY) {
-                throw SemanticError("Expected non-array argument for parameter, but variable '" + arg_name + "' is an array.");
+                throw SemanticError("Expected non-array argument for parameter, but variable '" + arg_name + "' is an array.", node.get_line());
+            }
+
+            if (iterators_.find(full_name) != iterators_.end() && expected_type != AST::ParamType::CONST) {
+                throw SemanticError("Cannot pass loop iterator '" + arg_name + "' to non-constant parameter.", node.get_line());
             }
         }
     }
@@ -95,7 +111,7 @@ public:
         std::string full_name = scoped(id_node->get_name());
         
         if (vars_[full_name].type == AST::ParamType::CONST) {
-            throw SemanticError("Cannot assign to constant variable '" + id_node->get_name() + "'.");
+            throw SemanticError("Cannot assign to constant variable '" + id_node->get_name() + "'.", node.get_line());
         }
         
         vars_[full_name].is_initialized = true;
@@ -108,7 +124,7 @@ public:
         std::string full_name = scoped(id_node->get_name());
         
         if (vars_[full_name].type == AST::ParamType::CONST) {
-            throw SemanticError("Cannot read into constant variable '" + id_node->get_name() + "'.");
+            throw SemanticError("Cannot read into constant variable '" + id_node->get_name() + "'.", node.get_line());
         }
         
         vars_[full_name].is_initialized = true;
@@ -121,16 +137,16 @@ public:
 
         if (vars_[full_name].type == AST::ParamType::ARRAY) {
             if (!node.get_index_name() && !node.get_index_value()) {
-                throw SemanticError("Array '" + node.get_name() + "' must be indexed when used.");
+                throw SemanticError("Array '" + node.get_name() + "' must be indexed when used.", node.get_line());
             }
         } else {
             if (node.get_index_name() || node.get_index_value()) {
-                throw SemanticError("Variable '" + node.get_name() + "' cannot be indexed when used.");
+                throw SemanticError("Variable '" + node.get_name() + "' cannot be indexed when used.", node.get_line());
             }
         }
 
         if (vars_[full_name].type == AST::ParamType::UNDEFINED && !vars_[full_name].is_initialized) {
-            throw SemanticError("Variable '" + node.get_name() + "' used before initialization.");
+            throw SemanticError("Variable '" + node.get_name() + "' used before initialization.", node.get_line());
         }
     }
 
@@ -138,6 +154,7 @@ private:
     std::string current_procedure_;
     std::map<std::string, VarInfo> vars_;
     std::map<std::string, std::vector<AST::ParamType>> procedure_args_;
+    std::unordered_set<std::string> iterators_;
 };
 
 } // namespace AST

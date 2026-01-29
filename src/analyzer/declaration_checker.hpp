@@ -45,12 +45,12 @@ public:
                 full_name = name;
             }
             if (!declare_variable(full_name)) {
-                throw SemanticError("Double declaration of " + quote(name) + procedure_error);
+                throw SemanticError("Double declaration of " + quote(name) + procedure_error, node.get_line());
             }
 
             if (decls.is_array) {
                 if (decls.start_index > decls.end_index) {
-                    throw SemanticError("Invalid array bounds for " + quote(name) + procedure_error);
+                    throw SemanticError("Invalid array bounds for " + quote(name) + procedure_error, node.get_line());
                 }
             }
         }
@@ -58,14 +58,14 @@ public:
 
     void visit(IdentifierNode& node) override {
         if (!is_variable_declared(scoped(node.get_name()))) {
-            throw SemanticError("Variable not declared " + quote(node.get_name()));
+            throw SemanticError("Variable not declared " + quote(node.get_name()), node.get_line());
         }
     }
 
     void visit(ArgumentsNode& node) override {
         for (const auto& arg : node.arguments()) {
             if (!is_variable_declared(scoped(arg))) {
-                throw SemanticError("Variable not declared " + quote(arg));
+                throw SemanticError("Variable not declared " + quote(arg), node.get_line());
             }
         }
     }
@@ -87,7 +87,7 @@ public:
     void visit(ArgumentsDeclNode& node) override {
         for (const auto& arg : node.arguments()) {
             if (!declare_variable(scoped(arg.name))) {
-                throw SemanticError("Double declaration of parameter " + quote(arg.name) + " in procedure " + quote(current_procedure_));
+                throw SemanticError("Double declaration of parameter " + quote(arg.name) + " in procedure " + quote(current_procedure_), node.get_line());
             }
         }
     }
@@ -97,7 +97,7 @@ public:
         node.end_val()->accept(*this);
 
         if (!declare_variable(scoped(node.iterator()))) {
-            throw SemanticError("Double declaration of " + quote(node.iterator()));
+            throw SemanticError("Double declaration of " + quote(node.iterator()), node.get_line());
         }
 
         iterators_.insert(scoped(node.iterator()));
@@ -110,7 +110,7 @@ public:
     void visit(AssignmentNode& node) override {
         std::string var_name = node.id()->get_name();
         if (iterators_.find(scoped(var_name)) != iterators_.end()) {
-            throw SemanticError("Cannot assign to loop iterator " + quote(var_name));
+            throw SemanticError("Cannot assign to loop iterator " + quote(var_name), node.get_line());
         }
         node.id()->accept(*this);
         node.expr()->accept(*this);
@@ -119,10 +119,11 @@ public:
     void visit(ReadNode& node) override {
         std::string var_name = node.id()->get_name();
         if (iterators_.find(scoped(var_name)) != iterators_.end()) {
-            throw SemanticError("Cannot read into loop iterator " + quote(var_name));
+            throw SemanticError("Cannot read into loop iterator " + quote(var_name), node.get_line());
         }
         node.id()->accept(*this);
     }
+
 private:
     std::string current_procedure_;
     std::unordered_set<std::string> declared_variables_;

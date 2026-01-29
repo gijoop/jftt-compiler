@@ -31,6 +31,12 @@ public:
     virtual ~Node() = default;
     virtual std::string to_string(int level = 0) const = 0;
     virtual void accept(AstVisitor& visitor) = 0;
+    
+    void set_line(int line) { line_ = line; }
+    int get_line() const { return line_; }
+
+protected:
+    int line_ = -1;
 };
 
 #define ACCEPT_VISITOR \

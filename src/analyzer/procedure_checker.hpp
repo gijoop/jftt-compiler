@@ -25,10 +25,10 @@ public:
 
     void visit(ProcedureCallNode& node) override {
         if (node.name() == current_procedure_) {
-            throw SemanticError("Recursive call detected in procedure " + current_procedure_);
+            throw SemanticError("Recursive call detected in procedure " + current_procedure_, node.get_line());
         }
         if (!is_procedure_declared(node.name())) {
-            throw SemanticError("Call to undeclared procedure " + util::quote(node.name()));
+            throw SemanticError("Call to undeclared procedure " + util::quote(node.name()), node.get_line());
         }
 
         int expected_args = declared_procedures_[node.name()];
@@ -36,7 +36,7 @@ public:
         if (given_args != expected_args) {
             throw SemanticError("Incorrect number of arguments in call to " + util::quote(node.name()) +
                                 ". Expected " + std::to_string(expected_args) + ", got " +
-                                std::to_string(given_args) + ".");
+                                std::to_string(given_args) + ".", node.get_line());
         }
 
         node.args()->accept(*this);
@@ -61,7 +61,7 @@ public:
         int arg_count = node.args_decl()->arguments().size();
 
         if (!declare_procedure(proc_name, arg_count)) {
-            throw SemanticError("Double declaration of procedure " + util::quote(proc_name));
+            throw SemanticError("Double declaration of procedure " + util::quote(proc_name), node.get_line());
         }
     }
 

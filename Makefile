@@ -27,7 +27,7 @@ OBJS := src/main.o \
         lexer.o
 
 # Output Executable
-TARGET := compiler
+TARGET := kompilator
 
 # ==========================================
 # Rules

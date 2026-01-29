@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
     try {
         asm_code = compiler.compile(source_code);
     } catch (const SemanticError& e) {
-        std::cerr << "Semantic error: " << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return 1;
     } catch (const std::runtime_error& e) {
         std::cerr << "Internal error: " << e.what() << std::endl;

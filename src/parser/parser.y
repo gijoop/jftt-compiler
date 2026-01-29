@@ -46,6 +46,7 @@ void yyerror(void* scanner, std::unique_ptr<AST::ProgramNode>& result, const cha
 #define YYLEX_PARAM scanner
 #define BINARY_OP_NODE(op, v1, v2) AST::BinaryOpNode(op, std::unique_ptr<AST::ValueNode>(v1), std::unique_ptr<AST::ValueNode>(v2))
 #define BINARY_COND_OP_NODE(op, v1, v2) AST::BinaryCondNode(op, std::unique_ptr<AST::ValueNode>(v1), std::unique_ptr<AST::ValueNode>(v2))
+#define SET_LINE(node, scanner) (node)->set_line(yyget_lineno(scanner))
 }
 
 %type <program_all> program_all
@@ -172,29 +173,53 @@ commands:
   ;
 
 command:
-    identifier OP_ASSIGN expr SEMICOLON                         { $$ = new AST::AssignmentNode(std::unique_ptr<AST::IdentifierNode>($1), std::unique_ptr<AST::ExpressionNode>($3)); }
-  | KW_IF condition KW_THEN commands KW_ENDIF                   { $$ = new AST::IfNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4)); }
-  | KW_IF condition KW_THEN commands KW_ELSE commands KW_ENDIF  { $$ = new AST::IfNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4), std::unique_ptr<AST::CommandsNode>($6)); }
-  | KW_WHILE condition KW_DO commands KW_ENDWHILE               { $$ = new AST::WhileNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4)); }
-  | KW_REPEAT commands KW_UNTIL condition SEMICOLON             { $$ = new AST::RepeatNode(std::unique_ptr<AST::BinaryCondNode>($4), std::unique_ptr<AST::CommandsNode>($2)); }
+    identifier OP_ASSIGN expr SEMICOLON                         { 
+      $$ = new AST::AssignmentNode(std::unique_ptr<AST::IdentifierNode>($1), std::unique_ptr<AST::ExpressionNode>($3)); 
+      SET_LINE($$, scanner);
+    }
+  | KW_IF condition KW_THEN commands KW_ENDIF                   { 
+      $$ = new AST::IfNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4)); 
+      SET_LINE($$, scanner);
+    }
+  | KW_IF condition KW_THEN commands KW_ELSE commands KW_ENDIF  { 
+      $$ = new AST::IfNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4), std::unique_ptr<AST::CommandsNode>($6)); 
+      SET_LINE($$, scanner);
+    }
+  | KW_WHILE condition KW_DO commands KW_ENDWHILE               { 
+      $$ = new AST::WhileNode(std::unique_ptr<AST::BinaryCondNode>($2), std::unique_ptr<AST::CommandsNode>($4)); 
+      SET_LINE($$, scanner);
+    }
+  | KW_REPEAT commands KW_UNTIL condition SEMICOLON             { 
+      $$ = new AST::RepeatNode(std::unique_ptr<AST::BinaryCondNode>($4), std::unique_ptr<AST::CommandsNode>($2)); 
+      SET_LINE($$, scanner);
+    }
   | KW_FOR PIDENTIFIER KW_FROM value KW_TO value KW_DO commands KW_ENDFOR {
       $$ = new AST::ForNode(*$2, std::unique_ptr<AST::ValueNode>($4), std::unique_ptr<AST::ValueNode>($6), AST::ForNode::Direction::TO, std::unique_ptr<AST::CommandsNode>($8));
+      SET_LINE($$, scanner);
       delete $2;
     }
   | KW_FOR PIDENTIFIER KW_FROM value KW_DOWNTO value KW_DO commands KW_ENDFOR {
       $$ = new AST::ForNode(*$2, std::unique_ptr<AST::ValueNode>($4), std::unique_ptr<AST::ValueNode>($6), AST::ForNode::Direction::DOWNTO, std::unique_ptr<AST::CommandsNode>($8));
+      SET_LINE($$, scanner);
       delete $2;
     }
   
   | proc_call SEMICOLON                                         { $$ = $1; }
-  | KW_READ identifier SEMICOLON                                { $$ = new AST::ReadNode(std::unique_ptr<AST::IdentifierNode>($2)); }
-  | KW_WRITE value SEMICOLON                                    { $$ = new AST::WriteNode(std::unique_ptr<AST::ValueNode>($2)); }
+  | KW_READ identifier SEMICOLON                                { 
+      $$ = new AST::ReadNode(std::unique_ptr<AST::IdentifierNode>($2)); 
+      SET_LINE($$, scanner);
+    }
+  | KW_WRITE value SEMICOLON                                    { 
+      $$ = new AST::WriteNode(std::unique_ptr<AST::ValueNode>($2)); 
+      SET_LINE($$, scanner);
+    }
   ;
 
 proc_head:
     PIDENTIFIER LPAREN args_decl RPAREN {
       auto args_decl_ptr = std::unique_ptr<AST::ArgumentsDeclNode>($3);
       $$ = new AST::ProcHeadNode(*$1, std::move(args_decl_ptr)); 
+      SET_LINE($$, scanner);
       delete $1;
     }
   ;
@@ -203,6 +228,7 @@ proc_call:
     PIDENTIFIER LPAREN args RPAREN  { 
       auto args_ptr = std::unique_ptr<AST::ArgumentsNode>($3);
       $$ = new AST::ProcedureCallNode(*$1, std::move(args_ptr)); 
+      SET_LINE($$, scanner);
       delete $1;
     }
   ;
@@ -218,17 +244,25 @@ declarations:
   }
   | PIDENTIFIER                       {
     auto decl = AST::Declaration::make_var(*$1);
-    $$ = new AST::DeclarationsNode(decl); delete $1; 
+    $$ = new AST::DeclarationsNode(decl); 
+    SET_LINE($$, scanner);
+    delete $1; 
   }
   | PIDENTIFIER LBRACKET NUMBER COLON NUMBER RBRACKET {
       auto decl = AST::Declaration::make_array(*$1, $3, $5); 
-      $$ = new AST::DeclarationsNode(decl); delete $1; 
+      $$ = new AST::DeclarationsNode(decl); 
+      SET_LINE($$, scanner);
+      delete $1; 
   }
   ;
 
 args_decl:
     args_decl COMMA type PIDENTIFIER    { $$ = $1; $$->add_argument({*$4, $3}); delete $4; }
-  | type PIDENTIFIER                    { $$ = new AST::ArgumentsDeclNode({*$2, $1}); delete $2; }
+  | type PIDENTIFIER                    { 
+      $$ = new AST::ArgumentsDeclNode({*$2, $1}); 
+      SET_LINE($$, scanner);
+      delete $2; 
+    }
   ;
 
 type:
@@ -240,44 +274,87 @@ type:
 
 args:
     args COMMA PIDENTIFIER    { $$ = $1; $$->add_argument(*$3); delete $3; }
-  | PIDENTIFIER               { $$ = new AST::ArgumentsNode(*$1); delete $1; }
+  | PIDENTIFIER               { 
+      $$ = new AST::ArgumentsNode(*$1); 
+      SET_LINE($$, scanner);
+      delete $1; 
+    }
   ;
 
 expr: 
     value                 { $$ = $1; }
-  | value OP_PLUS value   { $$ = new BINARY_OP_NODE(BinaryOp::ADD, $1, $3); }
-  | value OP_MINUS value  { $$ = new BINARY_OP_NODE(BinaryOp::SUB, $1, $3); }
-  | value OP_MULT value   { $$ = new BINARY_OP_NODE(BinaryOp::MUL, $1, $3); }
-  | value OP_DIV value    { $$ = new BINARY_OP_NODE(BinaryOp::DIV, $1, $3); }
-  | value OP_MOD value    { $$ = new BINARY_OP_NODE(BinaryOp::MOD, $1, $3); }
+  | value OP_PLUS value   { 
+      $$ = new BINARY_OP_NODE(BinaryOp::ADD, $1, $3); 
+      SET_LINE($$, scanner);
+    }
+  | value OP_MINUS value  { 
+      $$ = new BINARY_OP_NODE(BinaryOp::SUB, $1, $3); 
+      SET_LINE($$, scanner);
+    }
+  | value OP_MULT value   { 
+      $$ = new BINARY_OP_NODE(BinaryOp::MUL, $1, $3); 
+      SET_LINE($$, scanner);
+    }
+  | value OP_DIV value    { 
+      $$ = new BINARY_OP_NODE(BinaryOp::DIV, $1, $3); 
+      SET_LINE($$, scanner);
+    }
+  | value OP_MOD value    { 
+      $$ = new BINARY_OP_NODE(BinaryOp::MOD, $1, $3); 
+      SET_LINE($$, scanner);
+    }
   ;
 
 condition:
-    value OP_EQ value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::EQ, $1, $3); } 
-  | value OP_NEQ value  { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::NEQ, $1, $3); }
-  | value OP_LT value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::LT, $1, $3); }
-  | value OP_GT value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::GT, $1, $3); }
-  | value OP_LE value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::LTE, $1, $3); }
-  | value OP_GE value   { $$ = new BINARY_COND_OP_NODE(BinaryCondOp::GTE, $1, $3); }
+    value OP_EQ value   { 
+      $$ = new BINARY_COND_OP_NODE(BinaryCondOp::EQ, $1, $3); 
+      SET_LINE($$, scanner);
+    } 
+  | value OP_NEQ value  { 
+      $$ = new BINARY_COND_OP_NODE(BinaryCondOp::NEQ, $1, $3); 
+      SET_LINE($$, scanner);
+    }
+  | value OP_LT value   { 
+      $$ = new BINARY_COND_OP_NODE(BinaryCondOp::LT, $1, $3); 
+      SET_LINE($$, scanner);
+    }
+  | value OP_GT value   { 
+      $$ = new BINARY_COND_OP_NODE(BinaryCondOp::GT, $1, $3); 
+      SET_LINE($$, scanner);
+    }
+  | value OP_LE value   { 
+      $$ = new BINARY_COND_OP_NODE(BinaryCondOp::LTE, $1, $3); 
+      SET_LINE($$, scanner);
+    }
+  | value OP_GE value   { 
+      $$ = new BINARY_COND_OP_NODE(BinaryCondOp::GTE, $1, $3); 
+      SET_LINE($$, scanner);
+    }
   ;
 
 value:
     identifier     { $$ = $1; }
-  | NUMBER         { $$ = new AST::ConstantNode($1); }
+  | NUMBER         { 
+      $$ = new AST::ConstantNode($1); 
+      SET_LINE($$, scanner);
+    }
   ;
 
 identifier:
     PIDENTIFIER    { 
       $$ = new AST::IdentifierNode(*$1); 
+      SET_LINE($$, scanner);
       delete $1; 
     }
   | PIDENTIFIER LBRACKET PIDENTIFIER RBRACKET {
       $$ = new AST::IdentifierNode(*$1, *$3);
+      SET_LINE($$, scanner);
       delete $1;
       delete $3;
     }
   | PIDENTIFIER LBRACKET NUMBER RBRACKET {
       $$ = new AST::IdentifierNode(*$1, $3);
+      SET_LINE($$, scanner);
       delete $1;
     }
   ;
