@@ -46,19 +46,16 @@ protected:
     void SetUp() override { SymbolTable::reset(); }
     void TearDown() override { SymbolTable::reset(); }
 
-    // Helper to strip ANSI codes
     std::string strip_ansi(const std::string& input) {
         return std::regex_replace(input, std::regex("\033\\[[0-9;]*m"), "");
     }
 
-    // Helper to extract cost from VM output
     long long parse_cost(const std::string& vm_output) {
         std::istringstream iss(vm_output);
         std::string line;
         while (std::getline(iss, line)) {
             std::string clean = strip_ansi(line);
             if (auto pos = clean.find("koszt: "); pos != std::string::npos) {
-                // Find end of number (semicolon)
                 std::string part = clean.substr(pos + 7, clean.find(';', pos) - (pos + 7));
                 std::string num;
                 for (char c : part) if (isdigit(c)) num += c;
@@ -94,36 +91,41 @@ protected:
         return result;
     }
 
-    // Returns the VM output lines (from the optimized run, assuming they behave same)
     std::vector<std::string> compile_and_run(const std::string& source_code, const std::vector<std::string>& input_data = {}) {
-        // --- PASS 1: NO OPTIMIZATION ---
         Compiler c_raw;
         c_raw.set_optimization(false);
         std::string asm_raw = c_raw.compile(source_code);
+
+        // Check if assembly contains negative addresses
+        std::istringstream asm_stream(asm_raw);
+        std::string asm_line;
+        while (std::getline(asm_stream, asm_line)) {
+            std::string clean = strip_ansi(asm_line);
+            if (clean.find("-") != std::string::npos) {
+                throw std::runtime_error("Generated assembly contains negative addresses");
+            }
+        }
+
         std::string out_raw = run_vm(asm_raw, input_data);
         long long cost_raw = parse_cost(out_raw);
         int lines_raw = std::count(asm_raw.begin(), asm_raw.end(), '\n');
 
-        // --- PASS 2: OPTIMIZED ---
         Compiler c_opt;
         c_opt.set_optimization(true);
         std::string asm_opt = c_opt.compile(source_code);
-        std::string out_opt = run_vm(asm_opt, input_data); // We return this output
+        std::string out_opt = run_vm(asm_opt, input_data);
         long long cost_opt = parse_cost(out_opt);
         int lines_opt = std::count(asm_opt.begin(), asm_opt.end(), '\n');
 
-        // Update Globals
         total_cost_raw_ += cost_raw;
         total_cost_opt_ += cost_opt;
         test_count_++;
 
-        // Record metrics for Printer
         RecordProperty("cost_raw", std::to_string(cost_raw));
         RecordProperty("lines_raw", std::to_string(lines_raw));
         RecordProperty("cost_opt", std::to_string(cost_opt));
         RecordProperty("lines_opt", std::to_string(lines_opt));
 
-        // Parse output for user assertions
         std::vector<std::string> user_output;
         std::istringstream iss(out_opt);
         std::string line;

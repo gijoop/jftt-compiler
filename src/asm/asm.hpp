@@ -63,7 +63,7 @@ struct Instruction {
             case Code::CALL:   instr_str = "CALL " + (label ? std::to_string(label->address) : "?"); break;
             case Code::RETURN:  instr_str = "RTRN"; break;
 
-            case Code::LABEL:  return "# LABEL " + (label ? label->name : "???");
+            case Code::LABEL:  return "";
         }
 
         return util::pad(level) + instr_str;

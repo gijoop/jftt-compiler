@@ -16,7 +16,6 @@ class Compiler {
 public:
     Compiler() = default;
 
-    // Enable or disable optimization
     void set_optimization(bool enable) {
         optimize_ = enable;
     }
@@ -47,7 +46,6 @@ public:
             ast->accept(tac_gen);
         }
 
-        // Apply TAC optimizations
         if (optimize_) {
             auto tac_optimizer = Optimizer::create_default_tac_optimizer();
             tac_optimizer.optimize(tac_program);
@@ -56,17 +54,16 @@ public:
         AsmGenerator asm_generator(tac_program);
         auto asm_code = asm_generator.compile();
 
-        // Apply ASM optimizations
         if (optimize_) {
             auto asm_optimizer = Optimizer::create_default_asm_optimizer();
             asm_optimizer.optimize(asm_code);
             
-            // Re-assign addresses after optimization
             reassign_addresses(asm_code);
         }
 
         std::string result;
         for (const auto& instr : asm_code) {
+            if (instr.op == Asm::Code::LABEL) continue;
             result += instr.to_string() + "\n";
         }
 

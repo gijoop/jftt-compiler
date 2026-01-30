@@ -11,7 +11,6 @@
 
 namespace Optimizer {
 
-// Applies local optimizations on small windows of instructions
 class PeepholePass : public AsmPass {
 public:
     std::string name() const override { return "Peephole"; }
@@ -27,7 +26,6 @@ public:
             changed = false;
             iteration++;
             
-            // Mark instructions for deletion
             std::vector<bool> deleted(code.size(), false);
 
             for (size_t i = 0; i < code.size(); ++i) {
@@ -118,7 +116,6 @@ public:
                 if (!instr.label) continue;
                 if (instr.op != Asm::Code::JUMP) continue;
 
-                // Find target
                 auto it = label_pos.find(instr.label->name);
                 if (it == label_pos.end()) continue;
 
@@ -140,7 +137,6 @@ public:
     }
 };
 
-// Removes labels that are never referenced
 class DeadLabelPass : public AsmPass {
 public:
     std::string name() const override { return "DeadLabel"; }
@@ -148,7 +144,6 @@ public:
     void optimize(std::vector<Asm::Instruction>& code) override {
         if (code.empty()) return;
         
-        // Collect all referenced labels
         std::unordered_set<std::string> referenced;
         for (const auto& instr : code) {
             if (instr.label && instr.op != Asm::Code::LABEL) {
